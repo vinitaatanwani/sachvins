@@ -55,6 +55,21 @@ const TABS = [
     ),
   },
   {
+    href: "/app/companion",
+    label: "Companion",
+    icon: (active: boolean) => (
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+        <path
+          d="M5 5.5h14a1 1 0 0 1 1 1v11a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1v-11a1 1 0 0 1 1-1Z"
+          stroke="currentColor"
+          strokeWidth={active ? 2.2 : 1.6}
+          strokeLinejoin="round"
+        />
+        <path d="M4.4 6.2 12 12l7.6-5.8" stroke="currentColor" strokeWidth={active ? 2.2 : 1.6} strokeLinecap="round" strokeLinejoin="round" />
+      </svg>
+    ),
+  },
+  {
     href: "/app/profile",
     label: "Profile",
     icon: (active: boolean) => (
@@ -77,7 +92,7 @@ export function BottomTabBar() {
       className="z-30 flex-shrink-0 border-t border-black/8 bg-warm-white/95 backdrop-blur"
       style={{ paddingBottom: "env(safe-area-inset-bottom)" }}
     >
-      <div className="mx-auto flex max-w-md items-stretch justify-between px-2">
+      <div className="mx-auto flex max-w-md items-stretch justify-between px-1.5">
         {TABS.map((tab) => {
           const active = pathname.startsWith(tab.href);
           return (
@@ -85,11 +100,11 @@ export function BottomTabBar() {
               key={tab.href}
               href={tab.href}
               className={clsx(
-                "flex flex-1 flex-col items-center gap-1 py-2.5 text-[10.5px] font-medium transition-colors",
+                "flex flex-1 flex-col items-center gap-1 py-2.5 text-[9.5px] font-medium tracking-tight transition-colors",
                 active ? "text-indigo" : "text-ink-muted"
               )}
             >
-              {tab.icon(active)}
+              <span className="[&>svg]:h-[22px] [&>svg]:w-[22px]">{tab.icon(active)}</span>
               {tab.label}
             </Link>
           );

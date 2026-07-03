@@ -107,6 +107,8 @@ model Profile {
   daysPerWeek           Int?                 // commitment set during onboarding (3/5/7)
   onboardedAt           DateTime?
   hasSeenAppTour        Boolean              @default(false) // in-app joyride shown once
+  membershipActive      Boolean              @default(false) // paid "reflective companion" tier
+  membershipSince       DateTime?            // anchor for monthly clarity report cadence
   trialStartedAt        DateTime?
   trialEndsAt           DateTime?
   createdAt             DateTime             @default(now())
@@ -117,6 +119,56 @@ model Profile {
   subscription          Subscription?
   claritySessions        ClaritySession[]
   coachingPackages       CoachingPackage[]
+  reflectiveLetters      ReflectiveLetter[]
+  clarityReports         ClarityReport[]
+  affirmationSets        AffirmationSet[]
+}
+
+// ── Paid membership: the Reflective Content Engine's stored output ──
+// One narrative letter per week, synthesised from the week's journaling.
+model ReflectiveLetter {
+  id         String    @id @default(uuid())
+  profile    Profile   @relation(fields: [profileId], references: [id], onDelete: Cascade)
+  profileId  String
+  weekOf     DateTime  // start of the 7-day window the letter reflects
+  body       String    @db.Text
+  focusArea  FocusArea?
+  readAt     DateTime?
+  createdAt  DateTime  @default(now())
+
+  @@index([profileId, weekOf])
+}
+
+// One structured progress report per membership month.
+model ClarityReport {
+  id           String    @id @default(uuid())
+  profile      Profile   @relation(fields: [profileId], references: [id], onDelete: Cascade)
+  profileId    String
+  periodStart  DateTime
+  periodEnd    DateTime
+  scoreDeltas  Json      // [{ key, name, start, end }]
+  themes       Json      // string[] — top recurring themes
+  quote        String    @db.Text // one verbatim line, in their own words
+  thenVsNow    String    @db.Text
+  focusNext    String    @db.Text
+  suggestSession Boolean  @default(false)
+  readAt       DateTime?
+  createdAt    DateTime  @default(now())
+
+  @@index([profileId, periodEnd])
+}
+
+// One set of 3–7 affirmations per week; surfaced one per day.
+model AffirmationSet {
+  id                 String    @id @default(uuid())
+  profile            Profile   @relation(fields: [profileId], references: [id], onDelete: Cascade)
+  profileId          String
+  weekOf             DateTime
+  lines              Json      // string[]
+  nervousSystemState NervousSystemState?
+  createdAt          DateTime  @default(now())
+
+  @@index([profileId, weekOf])
 }
 
 model JournalEntry {
