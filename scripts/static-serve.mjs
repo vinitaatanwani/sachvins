@@ -2,15 +2,31 @@ import http from "node:http";
 import fs from "node:fs";
 import path from "node:path";
 
-const root = path.join(import.meta.dirname, "..");
+// Serves the static landing page (landing/) exactly as Vercel's static hosting would.
+const root = path.join(import.meta.dirname, "..", "landing");
 const port = 4173;
 
-const mimeTypes = { ".html": "text/html", ".js": "text/javascript", ".css": "text/css" };
+const mimeTypes = {
+  ".html": "text/html",
+  ".js": "text/javascript",
+  ".css": "text/css",
+  ".png": "image/png",
+  ".jpg": "image/jpeg",
+  ".svg": "image/svg+xml",
+  ".ico": "image/x-icon",
+  ".webp": "image/webp",
+};
 
 http
   .createServer((req, res) => {
-    const filePath = req.url === "/" ? "/the-clarity-method.html" : req.url;
+    const urlPath = decodeURIComponent(new URL(req.url, "http://localhost").pathname);
+    const filePath = urlPath === "/" ? "/index.html" : urlPath;
     const fullPath = path.join(root, filePath);
+    if (!fullPath.startsWith(root)) {
+      res.writeHead(403);
+      res.end("Forbidden");
+      return;
+    }
     fs.readFile(fullPath, (err, data) => {
       if (err) {
         res.writeHead(404);
@@ -22,4 +38,4 @@ http
       res.end(data);
     });
   })
-  .listen(port, () => console.log(`Static preview server on http://localhost:${port}`));
+  .listen(port, () => console.log(`Landing preview on http://localhost:${port}`));
