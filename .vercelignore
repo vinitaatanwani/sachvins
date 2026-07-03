@@ -1,0 +1,11 @@
+.env
+.env.*
+node_modules
+.next
+out
+.localdb
+archive
+landing
+scratchpad
+.claude
+*.tsbuildinfo
