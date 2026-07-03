@@ -1,0 +1,197 @@
+// The Clarity Method — data model
+// Auth users live in Supabase's auth.users table; Profile.id mirrors that user's id.
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
+enum FocusArea {
+  focus_attention
+  self_worth
+  relationships
+  career_purpose
+  emotional_world
+  spirituality
+}
+
+enum NervousSystemState {
+  regulated
+  fight_flight
+  freeze_fawn
+}
+
+enum SubscriptionPlan {
+  monthly
+  quarterly
+  yearly
+}
+
+enum SubscriptionStatus {
+  trialing
+  active
+  past_due
+  canceled
+}
+
+enum CoachingPackageType {
+  seven_session
+  eleven_session
+}
+
+enum CoachingPackageStatus {
+  pending_payment
+  active
+  completed
+  canceled
+}
+
+enum ClarityBookingStatus {
+  scheduled
+  completed
+  no_show
+  canceled
+}
+
+// Captured the moment someone finishes the free quiz, before app download / signup.
+model Lead {
+  id          String   @id @default(uuid())
+  name        String
+  email       String
+  phone       String
+  quizResult  QuizResult?
+  convertedToProfileId String?
+  createdAt   DateTime @default(now())
+
+  @@index([email])
+}
+
+// One row per quiz attempt (pre- or post-signup).
+model QuizResult {
+  id                 String              @id @default(uuid())
+  lead               Lead?               @relation(fields: [leadId], references: [id])
+  leadId             String?             @unique
+  profile            Profile?            @relation(fields: [profileId], references: [id], onDelete: SetNull)
+  profileId          String?
+  domainScores        Json                // { focus_attention: 62, self_worth: 80, ... } (0-100 per domain)
+  primaryFocusArea    FocusArea
+  secondaryFocusArea  FocusArea?
+  nervousSystemState  NervousSystemState
+  emotionalPortrait   String              @db.Text
+  // Light demographic context, captured partway through the questionnaire —
+  // helps personalize coaching guidance. All optional; free-text/select values.
+  age                 Int?
+  gender              String?
+  maritalStatus       String?
+  createdAt           DateTime            @default(now())
+}
+
+// App-specific profile data, keyed by an anonymous per-device id (cm_uid cookie,
+// see lib/device-id.ts) while there's no real account system wired up. The id
+// format matches what a Supabase auth user id would look like, so swapping in
+// real accounts later only touches how the id is sourced, not this model.
+model Profile {
+  id                    String               @id
+  name                  String?
+  email                 String?
+  phone                 String?
+  focusArea             FocusArea?
+  nervousSystemState    NervousSystemState?
+  notificationTimeAm    String?              // e.g. "07:30"
+  notificationTimePm    String?              // e.g. "20:00"
+  daysPerWeek           Int?                 // commitment set during onboarding (3/5/7)
+  onboardedAt           DateTime?
+  hasSeenAppTour        Boolean              @default(false) // in-app joyride shown once
+  trialStartedAt        DateTime?
+  trialEndsAt           DateTime?
+  createdAt             DateTime             @default(now())
+
+  quizResults           QuizResult[]
+  journalEntries        JournalEntry[]
+  checkIns              WeeklyCheckIn[]
+  subscription          Subscription?
+  claritySessions        ClaritySession[]
+  coachingPackages       CoachingPackage[]
+}
+
+model JournalEntry {
+  id         String    @id @default(uuid())
+  profile    Profile   @relation(fields: [profileId], references: [id], onDelete: Cascade)
+  profileId  String
+  date       DateTime  @default(now())
+  focusArea  FocusArea
+  prompt     String    @db.Text
+  content    String?   @db.Text
+  reflection String?   @db.Text
+  createdAt  DateTime  @default(now())
+
+  @@index([profileId, date])
+}
+
+model WeeklyCheckIn {
+  id          String    @id @default(uuid())
+  profile     Profile   @relation(fields: [profileId], references: [id], onDelete: Cascade)
+  profileId   String
+  weekOf      DateTime
+  responses   Json      // small set of pulse questions -> answers
+  focusScore  Int       // 0-100, re-scored primary focus area
+  createdAt   DateTime  @default(now())
+
+  @@index([profileId, weekOf])
+}
+
+model Subscription {
+  id                  String              @id @default(uuid())
+  profile             Profile             @relation(fields: [profileId], references: [id], onDelete: Cascade)
+  profileId           String              @unique
+  plan                SubscriptionPlan
+  status              SubscriptionStatus  @default(trialing)
+  razorpayOrderId     String?
+  razorpayPaymentId   String?
+  razorpaySubscriptionId String?
+  currentPeriodEnd    DateTime?
+  createdAt           DateTime            @default(now())
+  updatedAt           DateTime            @updatedAt
+}
+
+model ClaritySession {
+  id                String                @id @default(uuid())
+  profile           Profile               @relation(fields: [profileId], references: [id], onDelete: Cascade)
+  profileId         String
+  calendlyEventUri  String?
+  scheduledAt       DateTime?
+  status            ClarityBookingStatus  @default(scheduled)
+  coachNotes        String?               @db.Text
+  createdAt         DateTime              @default(now())
+}
+
+model CoachingPackage {
+  id                  String                 @id @default(uuid())
+  profile             Profile                @relation(fields: [profileId], references: [id], onDelete: Cascade)
+  profileId           String
+  packageType         CoachingPackageType
+  priceInr            Int                    // paise-free rupee amount actually charged
+  sessionsTotal        Int
+  sessionsCompleted    Int                    @default(0)
+  status              CoachingPackageStatus  @default(pending_payment)
+  razorpayOrderId     String?
+  razorpayPaymentId   String?
+  purchasedAt         DateTime?
+  createdAt           DateTime               @default(now())
+
+  sessionNotes        CoachSessionNote[]
+}
+
+model CoachSessionNote {
+  id                  String            @id @default(uuid())
+  coachingPackage      CoachingPackage   @relation(fields: [coachingPackageId], references: [id])
+  coachingPackageId    String
+  sessionNumber        Int
+  notes               String            @db.Text
+  createdAt           DateTime          @default(now())
+}

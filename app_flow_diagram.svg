@@ -1,0 +1,199 @@
+<svg viewBox="0 0 1100 1980" xmlns="http://www.w3.org/2000/svg" font-family="Helvetica, Arial, sans-serif">
+  <defs>
+    <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#5B5583"/>
+    </marker>
+    <marker id="arrowDash" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#8A85AA"/>
+    </marker>
+  </defs>
+
+  <rect x="0" y="0" width="1100" height="1980" fill="#FAF7F5"/>
+
+  <!-- Title -->
+  <text x="550" y="42" text-anchor="middle" font-size="26" font-weight="700" fill="#2D2A5A">Quiz-to-Subscription Product Flow</text>
+  <text x="550" y="65" text-anchor="middle" font-size="13" fill="#6B6690">Discovery &#8594; Trial &#8594; Subscription &#8594; Coaching &#8594; Ongoing growth (INR pricing, India market)</text>
+
+  <!-- Stage rail -->
+  <rect x="18" y="95" width="6" height="205" rx="3" fill="#7A72B5"/>
+  <text x="14" y="200" text-anchor="middle" font-size="11" fill="#8A85AA" transform="rotate(-90 14,200)">DISCOVERY</text>
+
+  <rect x="18" y="315" width="6" height="365" rx="3" fill="#4ECDC4"/>
+  <text x="14" y="500" text-anchor="middle" font-size="11" fill="#1F5C55" transform="rotate(-90 14,500)">TRIAL</text>
+
+  <rect x="18" y="695" width="6" height="470" rx="3" fill="#C87F1E"/>
+  <text x="14" y="930" text-anchor="middle" font-size="11" fill="#7A4A0E" transform="rotate(-90 14,930)">SUBSCRIPTION</text>
+
+  <rect x="18" y="1180" width="6" height="640" rx="3" fill="#B8619A"/>
+  <text x="14" y="1500" text-anchor="middle" font-size="11" fill="#6B2A57" transform="rotate(-90 14,1500)">COACHING</text>
+
+  <rect x="18" y="1835" width="6" height="90" rx="3" fill="#8A85AA"/>
+  <text x="14" y="1880" text-anchor="middle" font-size="11" fill="#5B5583" transform="rotate(-90 14,1880)">GROWTH</text>
+
+  <!-- 1. Discovers platform -->
+  <rect x="300" y="95" width="500" height="60" rx="12" fill="#EFEBFB" stroke="#7A72B5" stroke-width="1.5"/>
+  <text x="550" y="120" text-anchor="middle" font-size="14.5" font-weight="700" fill="#2D2A5A">Person discovers the platform</text>
+  <text x="550" y="140" text-anchor="middle" font-size="12" fill="#5B5583">Social media, referral, ads, word of mouth</text>
+  <line x1="550" y1="155" x2="550" y2="180" stroke="#5B5583" stroke-width="2" marker-end="url(#arrow)"/>
+
+  <!-- 2. Free questionnaire -->
+  <rect x="300" y="180" width="500" height="60" rx="12" fill="#EFEBFB" stroke="#7A72B5" stroke-width="1.5"/>
+  <text x="550" y="205" text-anchor="middle" font-size="14.5" font-weight="700" fill="#2D2A5A">Takes the free questionnaire</text>
+  <text x="550" y="225" text-anchor="middle" font-size="12" fill="#5B5583">20 questions &#183; Rarely &#8594; Always scale</text>
+  <line x1="550" y1="240" x2="550" y2="265" stroke="#5B5583" stroke-width="2" marker-end="url(#arrow)"/>
+
+  <!-- 3. Score card -->
+  <rect x="300" y="265" width="500" height="60" rx="12" fill="#EFEBFB" stroke="#7A72B5" stroke-width="1.5"/>
+  <text x="550" y="290" text-anchor="middle" font-size="14.5" font-weight="700" fill="#2D2A5A">Receives personalized score card</text>
+  <text x="550" y="310" text-anchor="middle" font-size="12" fill="#5B5583">6 life-area scores + emotional portrait</text>
+  <line x1="550" y1="325" x2="550" y2="350" stroke="#5B5583" stroke-width="2" marker-end="url(#arrow)"/>
+
+  <!-- 4. Downloads app -->
+  <rect x="300" y="350" width="500" height="60" rx="12" fill="#DCEFEA" stroke="#4ECDC4" stroke-width="1.5"/>
+  <text x="550" y="375" text-anchor="middle" font-size="14.5" font-weight="700" fill="#1F5C55">Downloads the app</text>
+  <text x="550" y="395" text-anchor="middle" font-size="12" fill="#1F5C55">iOS or Android &#183; free &#183; no card needed</text>
+  <line x1="550" y1="410" x2="550" y2="435" stroke="#5B5583" stroke-width="2" marker-end="url(#arrow)"/>
+
+  <!-- 5. Onboarding -->
+  <rect x="300" y="435" width="500" height="60" rx="12" fill="#DCEFEA" stroke="#4ECDC4" stroke-width="1.5"/>
+  <text x="550" y="460" text-anchor="middle" font-size="14.5" font-weight="700" fill="#1F5C55">Onboarding pulls quiz results</text>
+  <text x="550" y="480" text-anchor="middle" font-size="12" fill="#1F5C55">Profile built from highest-need areas</text>
+  <line x1="550" y1="495" x2="550" y2="520" stroke="#5B5583" stroke-width="2" marker-end="url(#arrow)"/>
+
+  <!-- 6. 7-day free healing experience -->
+  <rect x="220" y="520" width="660" height="150" rx="14" fill="#DCEFEA" stroke="#4ECDC4" stroke-width="1.5"/>
+  <text x="550" y="548" text-anchor="middle" font-size="15" font-weight="700" fill="#1F5C55">7-day free healing experience</text>
+
+  <rect x="245" y="565" width="190" height="85" rx="10" fill="#FFFFFF" stroke="#4ECDC4"/>
+  <text x="340" y="595" text-anchor="middle" font-size="12.5" fill="#1F5C55">Personalized</text>
+  <text x="340" y="613" text-anchor="middle" font-size="12.5" fill="#1F5C55">journaling prompts</text>
+
+  <rect x="455" y="565" width="190" height="85" rx="10" fill="#FFFFFF" stroke="#4ECDC4"/>
+  <text x="550" y="602" text-anchor="middle" font-size="12.5" fill="#1F5C55">Guided meditations</text>
+
+  <rect x="665" y="565" width="190" height="85" rx="10" fill="#FFFFFF" stroke="#4ECDC4"/>
+  <text x="760" y="595" text-anchor="middle" font-size="12.5" fill="#1F5C55">Sound frequencies</text>
+  <text x="760" y="613" text-anchor="middle" font-size="12.5" fill="#1F5C55">binaural &#183; Solfeggio</text>
+
+  <line x1="550" y1="670" x2="550" y2="695" stroke="#5B5583" stroke-width="2" marker-end="url(#arrow)"/>
+
+  <!-- 7. Trial complete decision -->
+  <ellipse cx="550" cy="735" rx="175" ry="35" fill="#DCEFEA" stroke="#1F5C55" stroke-width="1.5"/>
+  <text x="550" y="741" text-anchor="middle" font-size="13.5" font-weight="700" fill="#1F5C55">Trial complete &#8212; convert?</text>
+
+  <!-- no branch to nurture email -->
+  <line x1="725" y1="735" x2="820" y2="735" stroke="#8A85AA" stroke-width="1.5" stroke-dasharray="4 3" marker-end="url(#arrowDash)"/>
+  <text x="772" y="725" text-anchor="middle" font-size="11" fill="#8A85AA">no</text>
+  <rect x="822" y="705" width="150" height="60" rx="10" fill="#F4F2FC" stroke="#8A85AA" stroke-width="1.2" stroke-dasharray="3 2"/>
+  <text x="897" y="730" text-anchor="middle" font-size="12" fill="#5B5583">Nurture email</text>
+  <text x="897" y="747" text-anchor="middle" font-size="10.5" fill="#8A85AA">re-engagement drip</text>
+  <path d="M 897 705 C 897 660, 640 660, 590 715" stroke="#8A85AA" stroke-width="1.5" stroke-dasharray="4 3" fill="none" marker-end="url(#arrowDash)"/>
+
+  <text x="565" y="800" font-size="11" fill="#1F5C55">yes</text>
+  <line x1="550" y1="770" x2="550" y2="795" stroke="#5B5583" stroke-width="2" marker-end="url(#arrow)"/>
+
+  <!-- 8. Choose plan -->
+  <rect x="270" y="795" width="560" height="65" rx="12" fill="#FDECD2" stroke="#C87F1E" stroke-width="1.5"/>
+  <text x="550" y="822" text-anchor="middle" font-size="14.5" font-weight="700" fill="#7A4A0E">Chooses a subscription plan</text>
+  <text x="550" y="843" text-anchor="middle" font-size="12" fill="#7A4A0E">Monthly &#8377;499 &#183; Quarterly &#8377;1,199 &#183; Yearly &#8377;3,999</text>
+  <line x1="550" y1="860" x2="550" y2="885" stroke="#5B5583" stroke-width="2" marker-end="url(#arrow)"/>
+
+  <!-- 9. Payment -->
+  <rect x="270" y="885" width="560" height="60" rx="12" fill="#FDECD2" stroke="#C87F1E" stroke-width="1.5"/>
+  <text x="550" y="910" text-anchor="middle" font-size="14.5" font-weight="700" fill="#7A4A0E">Payment via Razorpay</text>
+  <text x="550" y="930" text-anchor="middle" font-size="12" fill="#7A4A0E">UPI &#183; cards &#183; net banking &#183; EMI</text>
+  <line x1="550" y1="945" x2="550" y2="970" stroke="#5B5583" stroke-width="2" marker-end="url(#arrow)"/>
+
+  <!-- 10. Ongoing personalized healing content -->
+  <rect x="220" y="970" width="660" height="150" rx="14" fill="#FDECD2" stroke="#C87F1E" stroke-width="1.5"/>
+  <text x="550" y="998" text-anchor="middle" font-size="15" font-weight="700" fill="#7A4A0E">Ongoing personalised healing content</text>
+
+  <rect x="245" y="1015" width="190" height="85" rx="10" fill="#FFFFFF" stroke="#C87F1E"/>
+  <text x="340" y="1052" text-anchor="middle" font-size="12.5" fill="#7A4A0E">Daily prompts adapt</text>
+
+  <rect x="455" y="1015" width="190" height="85" rx="10" fill="#FFFFFF" stroke="#C87F1E"/>
+  <text x="550" y="1052" text-anchor="middle" font-size="12.5" fill="#7A4A0E">Weekly check-in pulse</text>
+
+  <rect x="665" y="1015" width="190" height="85" rx="10" fill="#FFFFFF" stroke="#C87F1E"/>
+  <text x="760" y="1052" text-anchor="middle" font-size="12.5" fill="#7A4A0E">Progress tracking</text>
+
+  <line x1="550" y1="1120" x2="550" y2="1145" stroke="#5B5583" stroke-width="2" marker-end="url(#arrow)"/>
+
+  <!-- 11. Books free clarity session -->
+  <rect x="270" y="1145" width="560" height="60" rx="12" fill="#F6E4F1" stroke="#B8619A" stroke-width="1.5"/>
+  <text x="550" y="1170" text-anchor="middle" font-size="14.5" font-weight="700" fill="#6B2A57">Books free 20-min Clarity Session</text>
+  <text x="550" y="1190" text-anchor="middle" font-size="12" fill="#6B2A57">In-app via Calendly &#183; 1:1 with coach</text>
+  <line x1="550" y1="1205" x2="550" y2="1230" stroke="#5B5583" stroke-width="2" marker-end="url(#arrow)"/>
+
+  <!-- 12. Clarity session call -->
+  <rect x="270" y="1230" width="560" height="65" rx="12" fill="#F6E4F1" stroke="#B8619A" stroke-width="1.5"/>
+  <text x="550" y="1256" text-anchor="middle" font-size="14.5" font-weight="700" fill="#6B2A57">Clarity Session call</text>
+  <text x="550" y="1275" text-anchor="middle" font-size="11.5" fill="#6B2A57">Assess depth of healing needed</text>
+  <text x="550" y="1290" text-anchor="middle" font-size="11.5" fill="#6B2A57">Pitch personalised coaching package</text>
+  <line x1="550" y1="1295" x2="550" y2="1320" stroke="#5B5583" stroke-width="2" marker-end="url(#arrow)"/>
+
+  <!-- 13. Buys package decision -->
+  <ellipse cx="550" cy="1360" rx="175" ry="35" fill="#F6E4F1" stroke="#6B2A57" stroke-width="1.5"/>
+  <text x="550" y="1366" text-anchor="middle" font-size="13.5" font-weight="700" fill="#6B2A57">Buys a coaching package?</text>
+
+  <line x1="725" y1="1360" x2="820" y2="1360" stroke="#8A85AA" stroke-width="1.5" stroke-dasharray="4 3" marker-end="url(#arrowDash)"/>
+  <text x="772" y="1350" text-anchor="middle" font-size="11" fill="#8A85AA">no</text>
+  <rect x="822" y="1330" width="150" height="60" rx="10" fill="#F4F2FC" stroke="#8A85AA" stroke-width="1.2" stroke-dasharray="3 2"/>
+  <text x="897" y="1355" text-anchor="middle" font-size="12" fill="#5B5583">Stays on app</text>
+  <text x="897" y="1372" text-anchor="middle" font-size="10.5" fill="#8A85AA">continues subscription</text>
+
+  <text x="565" y="1425" font-size="11" fill="#6B2A57">yes</text>
+  <line x1="550" y1="1395" x2="550" y2="1420" stroke="#5B5583" stroke-width="2" marker-end="url(#arrow)"/>
+
+  <!-- 14. Package choice -->
+  <rect x="270" y="1420" width="260" height="95" rx="12" fill="#FDECD2" stroke="#C87F1E" stroke-width="1.5"/>
+  <text x="400" y="1448" text-anchor="middle" font-size="13.5" font-weight="700" fill="#7A4A0E">7-session package</text>
+  <text x="400" y="1467" text-anchor="middle" font-size="11.5" fill="#7A4A0E">Focused healing &#183; 1 hr each</text>
+  <text x="400" y="1486" text-anchor="middle" font-size="12.5" font-weight="700" fill="#7A4A0E">&#8377;18,000 &#8211; &#8377;25,000</text>
+
+  <rect x="570" y="1420" width="260" height="95" rx="12" fill="#FDECD2" stroke="#C87F1E" stroke-width="1.5"/>
+  <text x="700" y="1448" text-anchor="middle" font-size="13.5" font-weight="700" fill="#7A4A0E">11-session package</text>
+  <text x="700" y="1467" text-anchor="middle" font-size="11.5" fill="#7A4A0E">Deep transformation &#183; 1 hr each</text>
+  <text x="700" y="1486" text-anchor="middle" font-size="12.5" font-weight="700" fill="#7A4A0E">&#8377;28,000 &#8211; &#8377;38,000</text>
+
+  <line x1="400" y1="1515" x2="500" y2="1560" stroke="#5B5583" stroke-width="2"/>
+  <line x1="700" y1="1515" x2="600" y2="1560" stroke="#5B5583" stroke-width="2" marker-end="url(#arrow)"/>
+  <line x1="500" y1="1560" x2="600" y2="1560" stroke="#5B5583" stroke-width="2" marker-end="url(#arrow)"/>
+
+  <line x1="550" y1="1560" x2="550" y2="1585" stroke="none"/>
+
+  <!-- 15. Deep healing / growth -->
+  <rect x="220" y="1585" width="660" height="80" rx="14" fill="#F4F2FC" stroke="#8A85AA" stroke-width="1.5"/>
+  <text x="550" y="1613" text-anchor="middle" font-size="14.5" font-weight="700" fill="#2D2A5A">Deep healing &#183; referrals &#183; long-term growth</text>
+  <text x="550" y="1635" text-anchor="middle" font-size="12" fill="#5B5583">Renewals &#183; new cohort programmes &#183; word of mouth</text>
+  <line x1="550" y1="1600" x2="550" y2="1585" stroke="none"/>
+
+  <!-- connect package boxes down to growth -->
+  <line x1="550" y1="1560" x2="550" y2="1585" stroke="#5B5583" stroke-width="2" marker-end="url(#arrow)"/>
+
+  <!-- Bottom summary -->
+  <text x="550" y="1740" text-anchor="middle" font-size="16" font-weight="700" fill="#2D2A5A">Revenue Streams Summary (INR)</text>
+
+  <rect x="150" y="1765" width="270" height="120" rx="10" fill="#FDECD2" stroke="#C87F1E"/>
+  <text x="285" y="1793" text-anchor="middle" font-size="13" font-weight="700" fill="#7A4A0E">Core Subscription</text>
+  <text x="285" y="1815" text-anchor="middle" font-size="11.5" fill="#7A4A0E">Monthly &#8377;499</text>
+  <text x="285" y="1833" text-anchor="middle" font-size="11.5" fill="#7A4A0E">Quarterly &#8377;1,199</text>
+  <text x="285" y="1851" text-anchor="middle" font-size="11.5" fill="#7A4A0E">Yearly &#8377;3,999</text>
+  <text x="285" y="1871" text-anchor="middle" font-size="11" fill="#7A4A0E">Predictable recurring base</text>
+
+  <rect x="440" y="1765" width="270" height="120" rx="10" fill="#F6E4F1" stroke="#B8619A"/>
+  <text x="575" y="1793" text-anchor="middle" font-size="13" font-weight="700" fill="#6B2A57">Coaching Packages</text>
+  <text x="575" y="1815" text-anchor="middle" font-size="11.5" fill="#6B2A57">7-session: &#8377;18,000&#8211;25,000</text>
+  <text x="575" y="1833" text-anchor="middle" font-size="11.5" fill="#6B2A57">11-session: &#8377;28,000&#8211;38,000</text>
+  <text x="575" y="1855" text-anchor="middle" font-size="11" fill="#6B2A57">High-margin, one-time</text>
+  <text x="575" y="1871" text-anchor="middle" font-size="11" fill="#6B2A57">upsell revenue</text>
+
+  <rect x="730" y="1765" width="270" height="120" rx="10" fill="#EFEBFB" stroke="#7A72B5"/>
+  <text x="865" y="1793" text-anchor="middle" font-size="13" font-weight="700" fill="#2D2A5A">Clarity Session</text>
+  <text x="865" y="1815" text-anchor="middle" font-size="11.5" fill="#2D2A5A">Free, 20-min, via Calendly</text>
+  <text x="865" y="1837" text-anchor="middle" font-size="11" fill="#2D2A5A">Not direct revenue &#8212;</text>
+  <text x="865" y="1855" text-anchor="middle" font-size="11" fill="#2D2A5A">drives package conversion</text>
+  <text x="865" y="1873" text-anchor="middle" font-size="11" fill="#2D2A5A">and retention</text>
+
+  <text x="550" y="1935" text-anchor="middle" font-size="12" fill="#8A85AA">Full detail on pricing, unit economics, and financial projections in the accompanying PRD and pricing model.</text>
+</svg>

@@ -1,0 +1,139 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  /* SachVins / Healing Hands by Vinita — brand tokens */
+  --ink: #1c1610;
+  --ink-light: #4a3d30;
+  --ink-muted: #7c6a52;
+  --warm-white: #fbf6ee;
+  --cream: #f6efe1;
+  --parchment: #ece0cd;
+  --gold: #e08e1a;
+  --gold-light: #f5bb4c;
+  --sage: #f0a830;
+  --indigo: #00a855;
+  --green: #00a855;
+  --amber: #f0a830;
+  --berry: #c21a6f;
+  --plum: #6b1a6b;
+  --gold-tip: #ffd848;
+}
+
+body {
+  background: var(--warm-white);
+  color: var(--ink);
+}
+
+.bg-petal {
+  background: linear-gradient(125deg, #6b1a6b 0%, #dd2f84 34%, #f0a830 68%, #ffd848 100%);
+}
+
+.font-accent {
+  font-family: var(--font-nunito), var(--font-mulish), sans-serif;
+}
+
+@keyframes breathe {
+  0%, 100% { transform: scale(0.82); }
+  50% { transform: scale(1); }
+}
+
+.breathing-circle {
+  animation: breathe 8s ease-in-out infinite;
+}
+
+@keyframes breathe-scale {
+  0% { transform: scale(0.7); }
+  45% { transform: scale(1); }
+  55% { transform: scale(1); }
+  100% { transform: scale(0.7); }
+}
+
+.breath-ring {
+  animation: breathe-scale 9s ease-in-out infinite;
+}
+
+/* ── Micro-interactions ── */
+
+/* 1 · Zoom-to-open — screens bloom in on navigation */
+@keyframes zoom-in {
+  from { opacity: 0; transform: scale(0.96); }
+  to { opacity: 1; transform: none; }
+}
+.animate-zoom-in {
+  animation: zoom-in 0.36s cubic-bezier(0.22, 0.61, 0.36, 1) both;
+}
+
+/* 4 · Content settles in — children rise + fade in sequence */
+@keyframes fade-rise {
+  from { opacity: 0; transform: translateY(14px); }
+  to { opacity: 1; transform: none; }
+}
+.stagger > * {
+  animation: fade-rise 0.5s cubic-bezier(0.22, 0.61, 0.36, 1) both;
+}
+.stagger > *:nth-child(1) { animation-delay: 0.04s; }
+.stagger > *:nth-child(2) { animation-delay: 0.11s; }
+.stagger > *:nth-child(3) { animation-delay: 0.18s; }
+.stagger > *:nth-child(4) { animation-delay: 0.25s; }
+.stagger > *:nth-child(5) { animation-delay: 0.32s; }
+.stagger > *:nth-child(6) { animation-delay: 0.39s; }
+.stagger > *:nth-child(7) { animation-delay: 0.46s; }
+.stagger > *:nth-child(8) { animation-delay: 0.53s; }
+
+/* 3 · Tactile press — soft spring-back on tap */
+.pressable {
+  transition: transform 0.18s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+.pressable:active {
+  transform: scale(0.96);
+}
+
+/* 5 · Progress comes alive — bars sweep from zero */
+@keyframes grow-bar {
+  from { width: 0; }
+  to { width: var(--w); }
+}
+.animate-grow {
+  animation: grow-bar 1s cubic-bezier(0.22, 0.61, 0.36, 1) both;
+}
+
+/* 6 · Little wins — celebration particle burst */
+@keyframes celebrate-burst {
+  from { transform: translate(0, 0) scale(1); opacity: 1; }
+  to { transform: translate(var(--dx), var(--dy)) scale(0.2); opacity: 0; }
+}
+.celebrate-particle {
+  position: absolute;
+  width: 10px;
+  height: 10px;
+  border-radius: 9999px;
+  animation: celebrate-burst 0.8s cubic-bezier(0.22, 0.61, 0.36, 1) forwards;
+}
+@keyframes pop-in {
+  0% { transform: scale(0); }
+  70% { transform: scale(1.14); }
+  100% { transform: scale(1); }
+}
+.animate-pop {
+  animation: pop-in 0.55s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+}
+
+/* Respect users who prefer less motion */
+@media (prefers-reduced-motion: reduce) {
+  .animate-zoom-in,
+  .stagger > *,
+  .breathing-circle,
+  .breath-ring,
+  .animate-grow,
+  .animate-pop,
+  .celebrate-particle {
+    animation: none !important;
+  }
+  .animate-zoom-in,
+  .stagger > * {
+    opacity: 1 !important;
+    transform: none !important;
+  }
+}
