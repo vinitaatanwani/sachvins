@@ -3,6 +3,7 @@ import { z } from "zod";
 import { prisma } from "@/lib/prisma";
 import { getDeviceId } from "@/lib/profile";
 import { verifyPaymentSignature } from "@/lib/razorpay";
+import { activateMembership } from "@/lib/membership";
 import { SUBSCRIPTION_PLANS, type SubscriptionPlanKey } from "@/lib/pricing";
 
 const bodySchema = z.object({
@@ -50,6 +51,9 @@ export async function POST(req: NextRequest) {
       currentPeriodEnd,
     },
   });
+
+  // Payment verified → unlock the Reflective Companion (flag + seed content).
+  await activateMembership(deviceId);
 
   return NextResponse.json({ ok: true, plan: subscription.plan, priceInr: SUBSCRIPTION_PLANS[subscription.plan as SubscriptionPlanKey].priceInr });
 }

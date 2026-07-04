@@ -6,8 +6,12 @@ import Link from "next/link";
 import clsx from "clsx";
 import type { NervousSystemState } from "@/lib/quiz-data";
 import { nervousLabel, type SampleScoreDelta } from "@/lib/companion-content";
+import { loadRazorpayCheckout, type RazorpayHandlerResponse } from "@/lib/razorpay-client";
 
 type Tab = "letters" | "report" | "affirmations";
+
+// Plan card order must match the SubscriptionPlan keys the checkout API expects.
+const PLAN_KEYS = ["monthly", "quarterly", "yearly"] as const;
 
 interface Report {
   periodStart: string;
@@ -28,12 +32,14 @@ const PLANS = [
 
 export function CompanionHome({
   locked = false,
+  razorpayKeyId = null,
   firstName,
   letter,
   report,
   affirmations,
 }: {
   locked?: boolean;
+  razorpayKeyId?: string | null;
   firstName?: string | null;
   letter: { body: string; weekOf: string } | null;
   report: Report | null;
@@ -43,11 +49,64 @@ export function CompanionHome({
   const [tab, setTab] = useState<Tab>("letters");
   const [plan, setPlan] = useState(2);
   const [working, setWorking] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   async function unlock() {
+    setError(null);
+
+    // No keys configured yet → keep the flow usable with an instant test-unlock.
+    if (!razorpayKeyId) {
+      setWorking(true);
+      await fetch("/api/companion/activate", { method: "POST" });
+      router.refresh();
+      return;
+    }
+
     setWorking(true);
-    await fetch("/api/companion/activate", { method: "POST" });
-    router.refresh();
+    try {
+      const planKey = PLAN_KEYS[plan];
+      const orderRes = await fetch("/api/razorpay/checkout", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ plan: planKey }),
+      });
+      const order = await orderRes.json();
+      if (!orderRes.ok) throw new Error(order.error ?? "Couldn't start checkout");
+
+      const Razorpay = await loadRazorpayCheckout();
+      const rzp = new Razorpay({
+        key: order.keyId,
+        order_id: order.orderId,
+        amount: order.amount,
+        currency: order.currency,
+        name: "Healing Hands by Vinita",
+        description: `Reflective Companion · ${PLANS[plan].label}`,
+        theme: { color: "#6b1a6b" },
+        prefill: firstName ? { name: firstName } : undefined,
+        handler: async (resp: RazorpayHandlerResponse) => {
+          const confirmRes = await fetch("/api/razorpay/confirm", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(resp),
+          });
+          if (confirmRes.ok) {
+            router.refresh();
+          } else {
+            setWorking(false);
+            setError("We couldn't verify the payment. If money was deducted it will be refunded automatically.");
+          }
+        },
+        modal: { ondismiss: () => setWorking(false) },
+      });
+      rzp.on("payment.failed", () => {
+        setWorking(false);
+        setError("The payment didn't go through. Please try again.");
+      });
+      rzp.open();
+    } catch (e) {
+      setWorking(false);
+      setError(e instanceof Error ? e.message : "Something went wrong. Please try again.");
+    }
   }
   async function cancelMembership() {
     setWorking(true);
@@ -261,10 +320,21 @@ export function CompanionHome({
             disabled={working}
             className="bg-petal-soft w-full rounded-full py-3.5 text-sm font-semibold text-white transition active:scale-[0.98] disabled:opacity-60"
           >
-            {working ? "Unlocking…" : `Pay ${PLANS[plan].price} & unlock →`}
+            {working ? (razorpayKeyId ? "Opening checkout…" : "Unlocking…") : `Pay ${PLANS[plan].price} & unlock →`}
           </button>
-          <p className="mt-2.5 text-center text-[11px] text-ink-muted">
-            Payment isn&rsquo;t connected yet — this unlocks instantly for testing. Cancel anytime.
+          {error && <p className="mt-2.5 text-center text-[11.5px] font-medium text-berry-500">{error}</p>}
+          <p className="mt-2.5 flex items-center justify-center gap-1.5 text-center text-[11px] text-ink-muted">
+            {razorpayKeyId ? (
+              <>
+                <svg width="11" height="11" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                  <rect x="5" y="11" width="14" height="9" rx="2" stroke="currentColor" strokeWidth="2" />
+                  <path d="M8 11V8a4 4 0 0 1 8 0v3" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
+                </svg>
+                Secure payment via Razorpay · UPI, cards &amp; more. Cancel anytime.
+              </>
+            ) : (
+              <>Payment isn&rsquo;t connected yet — this unlocks instantly for testing. Cancel anytime.</>
+            )}
           </p>
         </div>
       ) : (

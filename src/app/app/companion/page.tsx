@@ -16,6 +16,9 @@ export default async function CompanionPage() {
 
   const firstName = profile.name?.split(" ")[0] ?? null;
   const locked = !profile.membershipActive;
+  // When Razorpay keys are present the unlock button runs a real checkout;
+  // otherwise it falls back to an instant test-unlock so the flow stays usable.
+  const razorpayKeyId = process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID ?? null;
 
   // Members see their own generated content; everyone else previews the sample
   // (a readable opening, the rest blurred) until they unlock with payment.
@@ -24,6 +27,7 @@ export default async function CompanionPage() {
     return (
       <CompanionHome
         locked
+        razorpayKeyId={razorpayKeyId}
         firstName={firstName}
         letter={{ body: SAMPLE_LETTER_BODY, weekOf: weekOf.toISOString() }}
         report={{
