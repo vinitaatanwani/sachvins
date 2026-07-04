@@ -108,11 +108,6 @@ img{max-width:100%;display:block}
   100%{transform:translate(-14vw,14px) scaleX(-1) rotate(5deg);opacity:0}
 }
 @media(prefers-reduced-motion:reduce){.dove,.dove-body{animation:none!important;opacity:0!important}}
-.sky-toggle{margin:16px auto 0;display:inline-flex;align-items:center;gap:8px;background:rgba(255,255,255,.6);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);border:1px solid rgba(255,255,255,.75);color:var(--green-deep);font-family:'Poppins',sans-serif;font-size:12.5px;font-weight:600;padding:8px 16px;border-radius:999px;cursor:pointer;box-shadow:0 6px 16px rgba(109,92,192,.1);transition:transform .15s}
-.sky-toggle:hover{transform:translateY(-1px)}
-.sky-toggle .dot{width:7px;height:7px;border-radius:50%;background:#c7bee2;transition:background .25s,box-shadow .25s}
-.sky-toggle.on .dot{background:#6d5cc0;box-shadow:0 0 0 4px rgba(109,92,192,.18);animation:skyPulse 2.4s ease-in-out infinite}
-@keyframes skyPulse{50%{box-shadow:0 0 0 7px rgba(109,92,192,0)}}
 .hero p.sub{max-width:460px;margin:0 auto 26px;color:var(--ink3);font-size:15.5px}
 .honesty{font-size:12px;color:var(--muted);margin-top:14px}
 .resume-card{background:#fff;border:1px solid var(--sand);border-radius:16px;padding:18px 20px;max-width:420px;margin:18px auto 0;text-align:center}
@@ -293,54 +288,7 @@ body.quiz-active #assessment{display:block}
     <button class="btn" data-start>Find my focus area — free</button>
     <div class="resume-card" id="resumeCard" style="display:none"></div>
     <p class="honesty">5–7 minutes · Completely private · No credit card</p>
-    <button class="sky-toggle" id="skyToggle" type="button" aria-pressed="false"><span class="dot"></span><span class="txt">Play gentle sky sounds</span></button>
   </section>
-  <script>
-  (function(){
-    var btn=document.getElementById('skyToggle'); if(!btn) return;
-    var txt=btn.querySelector('.txt');
-    var actx=null,master=null,on=false,flutterTimer=null;
-    function build(){
-      actx=new (window.AudioContext||window.webkitAudioContext)();
-      master=actx.createGain(); master.gain.value=0; master.connect(actx.destination);
-      /* soft wind: brown-ish noise -> highpass -> lowpass -> gentle swell */
-      var sr=actx.sampleRate,buf=actx.createBuffer(1,sr*4,sr),d=buf.getChannelData(0),last=0,i;
-      for(i=0;i<d.length;i++){var w=Math.random()*2-1;last=(last+0.02*w)/1.02;d[i]=last*2.0;}
-      var src=actx.createBufferSource();src.buffer=buf;src.loop=true;
-      var hp=actx.createBiquadFilter();hp.type='highpass';hp.frequency.value=150;
-      var lp=actx.createBiquadFilter();lp.type='lowpass';lp.frequency.value=540;lp.Q.value=0.4;
-      var windGain=actx.createGain();windGain.gain.value=0.45;
-      var swell=actx.createOscillator();swell.frequency.value=0.06;var swellG=actx.createGain();swellG.gain.value=0.2;swell.connect(swellG);swellG.connect(windGain.gain);swell.start();
-      var drift=actx.createOscillator();drift.frequency.value=0.08;var driftG=actx.createGain();driftG.gain.value=120;drift.connect(driftG);driftG.connect(lp.frequency);drift.start();
-      src.connect(hp);hp.connect(lp);lp.connect(windGain);windGain.connect(master);src.start();
-    }
-    function flutter(){
-      if(!on||!actx) return;
-      var t=actx.currentTime+0.02,sr=actx.sampleRate,len=Math.floor(sr*0.22),b=actx.createBuffer(1,len,sr),d=b.getChannelData(0),i;
-      for(i=0;i<len;i++)d[i]=(Math.random()*2-1)*(1-i/len);
-      var s=actx.createBufferSource();s.buffer=b;
-      var bp=actx.createBiquadFilter();bp.type='bandpass';bp.frequency.value=480+Math.random()*160;bp.Q.value=0.8;
-      var g=actx.createGain();g.gain.setValueAtTime(0.0001,t);g.gain.linearRampToValueAtTime(0.11,t+0.04);g.gain.exponentialRampToValueAtTime(0.0001,t+0.22);
-      s.connect(bp);
-      if(actx.createStereoPanner){var p=actx.createStereoPanner();p.pan.value=Math.random()*1.4-0.7;bp.connect(p);p.connect(master);}else bp.connect(master);
-      s.start(t);s.stop(t+0.24);
-      flutterTimer=setTimeout(flutter,1500+Math.random()*1600);
-    }
-    function start(){
-      try{
-        if(!actx) build(); if(actx.state==='suspended') actx.resume();
-        on=true; master.gain.cancelScheduledValues(actx.currentTime); master.gain.linearRampToValueAtTime(0.55,actx.currentTime+1.3);
-        flutter(); btn.classList.add('on'); btn.setAttribute('aria-pressed','true'); txt.textContent='Sky sounds on';
-      }catch(e){}
-    }
-    function stop(){
-      on=false; if(flutterTimer){clearTimeout(flutterTimer);flutterTimer=null;}
-      if(master&&actx){master.gain.cancelScheduledValues(actx.currentTime);master.gain.linearRampToValueAtTime(0,actx.currentTime+0.8);}
-      btn.classList.remove('on'); btn.setAttribute('aria-pressed','false'); txt.textContent='Play gentle sky sounds';
-    }
-    btn.addEventListener('click',function(){on?stop():start();});
-  })();
-  </script>
 
   <section class="block alt">
     <div class="wrap">
