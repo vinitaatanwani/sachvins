@@ -1,23 +1,26 @@
 import type { Metadata, Viewport } from "next";
-import { Cormorant_Garamond, Mulish, Nunito } from "next/font/google";
+import { Fraunces, Plus_Jakarta_Sans } from "next/font/google";
 import "./globals.css";
 
-const cormorant = Cormorant_Garamond({
+// Fraunces = warm display serif (headlines); Plus Jakarta Sans = clean, highly
+// readable body/UI. Kept under the old CSS-var names so tailwind + call sites
+// need no changes — the fonts loaded into them just changed.
+const cormorant = Fraunces({
   subsets: ["latin"],
-  weight: ["400", "500", "600", "700"],
+  weight: ["300", "400", "500", "600"],
   style: ["normal", "italic"],
   variable: "--font-cormorant",
 });
 
-const mulish = Mulish({
+const mulish = Plus_Jakarta_Sans({
   subsets: ["latin"],
   weight: ["400", "500", "600", "700"],
   variable: "--font-mulish",
 });
 
-const nunito = Nunito({
+const nunito = Plus_Jakarta_Sans({
   subsets: ["latin"],
-  weight: ["700", "800", "900"],
+  weight: ["600", "700", "800"],
   variable: "--font-nunito",
 });
 
@@ -32,7 +35,7 @@ export const viewport: Viewport = {
   width: "device-width",
   initialScale: 1,
   viewportFit: "cover",
-  themeColor: "#00a855",
+  themeColor: "#087f71",
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {

@@ -3,36 +3,102 @@
 @tailwind utilities;
 
 :root {
-  /* SachVins / Healing Hands by Vinita — brand tokens */
-  --ink: #1c1610;
-  --ink-light: #4a3d30;
-  --ink-muted: #7c6a52;
-  --warm-white: #fbf6ee;
-  --cream: #f6efe1;
-  --parchment: #ece0cd;
-  --gold: #e08e1a;
-  --gold-light: #f5bb4c;
-  --sage: #f0a830;
-  --indigo: #00a855;
-  --green: #00a855;
-  --amber: #f0a830;
-  --berry: #c21a6f;
-  --plum: #6b1a6b;
-  --gold-tip: #ffd848;
+  /* SachVins / Healing Hands by Vinita — soothing palette */
+  --ink: #2f2a26;
+  --ink-light: #574d44;
+  --ink-muted: #8a7f74;
+  --warm-white: #fff8ed;
+  --cream: #fbf1e1;
+  --parchment: #efe3d0;
+  --gold: #f7931e;
+  --gold-light: #f9c74f;
+  --sage: #f7931e;
+  --indigo: #087f71;
+  --teal: #087f71;
+  --green: #087f71;
+  --amber: #f7931e;
+  --berry: #f45b69;
+  --magenta: #d4146e;
+  --plum: #4b174f;
+  --gold-tip: #f9c74f;
 }
 
 body {
-  background: var(--warm-white);
   color: var(--ink);
+  background:
+    radial-gradient(120% 90% at 12% 0%, rgba(247, 217, 184, 0.35), transparent 55%),
+    radial-gradient(110% 90% at 92% 6%, rgba(205, 231, 223, 0.4), transparent 55%),
+    var(--warm-white);
+  background-attachment: fixed;
 }
 
 .bg-petal {
-  background: linear-gradient(125deg, #6b1a6b 0%, #dd2f84 34%, #f0a830 68%, #ffd848 100%);
+  background: linear-gradient(135deg, #4b174f 0%, #d4146e 42%, #f7931e 78%, #f9c74f 100%);
+}
+.bg-petal-soft {
+  background: linear-gradient(135deg, #4b174f, #d4146e 52%, #f7931e 95%);
 }
 
 .font-accent {
   font-family: var(--font-nunito), var(--font-mulish), sans-serif;
 }
+
+/* ── Glassmorphism ── frosted, translucent surfaces */
+.glass {
+  background: rgba(255, 253, 248, 0.62);
+  backdrop-filter: blur(20px) saturate(1.2);
+  -webkit-backdrop-filter: blur(20px) saturate(1.2);
+  border: 1px solid rgba(255, 255, 255, 0.7);
+  box-shadow: 0 10px 30px rgba(75, 23, 79, 0.08);
+}
+.glass-strong {
+  background: rgba(255, 253, 248, 0.78);
+  backdrop-filter: blur(24px) saturate(1.25);
+  -webkit-backdrop-filter: blur(24px) saturate(1.25);
+  border: 1px solid rgba(255, 255, 255, 0.8);
+  box-shadow: 0 12px 34px rgba(75, 23, 79, 0.1);
+}
+.glass-tint {
+  background: linear-gradient(150deg, rgba(205, 231, 223, 0.5), rgba(255, 253, 248, 0.5) 55%, rgba(247, 217, 184, 0.5));
+  backdrop-filter: blur(26px) saturate(1.25);
+  -webkit-backdrop-filter: blur(26px) saturate(1.25);
+  border: 1px solid rgba(255, 255, 255, 0.72);
+  box-shadow: 0 20px 50px rgba(75, 23, 79, 0.1), inset 0 1px 0 rgba(255, 255, 255, 0.65);
+}
+
+/* ── Claymorphism ── soft, inflated surfaces */
+.clay {
+  box-shadow: inset 0 2px 3px rgba(255, 255, 255, 0.45), inset 0 -5px 11px rgba(0, 0, 0, 0.14), 0 9px 20px rgba(0, 0, 0, 0.1);
+}
+.clay-teal {
+  background: linear-gradient(150deg, #159485, #087f71);
+  color: #fff;
+  box-shadow: 0 9px 20px rgba(8, 127, 113, 0.28), inset 0 2px 3px rgba(255, 255, 255, 0.4), inset 0 -5px 11px rgba(4, 70, 60, 0.32);
+}
+.clay-coral {
+  background: linear-gradient(150deg, #f6737f, #e0798a);
+  color: #fff;
+  box-shadow: 0 9px 20px rgba(224, 121, 138, 0.3), inset 0 2px 3px rgba(255, 255, 255, 0.4), inset 0 -5px 11px rgba(150, 60, 75, 0.28);
+}
+
+/* ── Ambient motion for hero/meditation orbs ── */
+@keyframes floaty {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-12px); }
+}
+.animate-floaty { animation: floaty 7s ease-in-out infinite; }
+
+@keyframes orb-morph {
+  0%, 100% { border-radius: 47% 53% 44% 56% / 54% 46% 54% 46%; }
+  50% { border-radius: 55% 45% 52% 48% / 47% 55% 45% 53%; }
+}
+.animate-morph { animation: orb-morph 14s ease-in-out infinite; }
+
+@keyframes drift {
+  0%, 100% { transform: translate(0, 0) scale(1); }
+  50% { transform: translate(28px, 22px) scale(1.06); }
+}
+.animate-drift { animation: drift 26s ease-in-out infinite; }
 
 @keyframes breathe {
   0%, 100% { transform: scale(0.82); }

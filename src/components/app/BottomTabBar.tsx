@@ -89,8 +89,8 @@ export function BottomTabBar() {
 
   return (
     <nav
-      className="z-30 flex-shrink-0 border-t border-black/8 bg-warm-white/95 backdrop-blur"
-      style={{ paddingBottom: "env(safe-area-inset-bottom)" }}
+      className="z-30 flex-shrink-0 border-t border-white/60 backdrop-blur-xl"
+      style={{ paddingBottom: "env(safe-area-inset-bottom)", background: "rgba(255,253,248,0.72)", boxShadow: "0 -6px 24px rgba(75,23,79,0.06)" }}
     >
       <div className="mx-auto flex max-w-md items-stretch justify-between px-1.5">
         {TABS.map((tab) => {

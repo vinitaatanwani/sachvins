@@ -10,9 +10,9 @@ import {
 } from "@/lib/quiz-data";
 
 function levelBarColor(level: ScoreLevel) {
-  if (level === "high") return "#c21a6f"; // berry — needs the most care
-  if (level === "medium") return "#f0a830"; // amber — growing edge
-  return "#00a855"; // green — relative strength
+  if (level === "high") return "#d4146e"; // magenta — needs the most care
+  if (level === "medium") return "#f7931e"; // orange — growing edge
+  return "#087f71"; // teal — relative strength
 }
 
 function levelPillClasses(level: ScoreLevel) {
