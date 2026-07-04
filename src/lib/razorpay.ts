@@ -35,7 +35,7 @@ export function verifyPaymentSignature(params: {
     .createHmac("sha256", keySecret)
     .update(`${params.orderId}|${params.paymentId}`)
     .digest("hex");
-  return crypto.timingSafeEqual(Buffer.from(expected), Buffer.from(params.signature));
+  return safeEqualHex(expected, params.signature);
 }
 
 // Verifies the async webhook payload (used for subscription lifecycle events).
@@ -43,5 +43,15 @@ export function verifyWebhookSignature(body: string, signature: string): boolean
   const webhookSecret = process.env.RAZORPAY_WEBHOOK_SECRET;
   if (!webhookSecret) throw new Error("RAZORPAY_WEBHOOK_SECRET is not configured");
   const expected = crypto.createHmac("sha256", webhookSecret).update(body).digest("hex");
-  return crypto.timingSafeEqual(Buffer.from(expected), Buffer.from(signature));
+  return safeEqualHex(expected, signature);
+}
+
+// Constant-time compare of two hex strings. crypto.timingSafeEqual throws on a
+// length mismatch, so guard first — a wrong-length signature is simply invalid,
+// not a 500.
+function safeEqualHex(expected: string, provided: string): boolean {
+  const a = Buffer.from(expected);
+  const b = Buffer.from(provided ?? "");
+  if (a.length !== b.length) return false;
+  return crypto.timingSafeEqual(a, b);
 }
