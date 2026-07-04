@@ -1,4 +1,6 @@
 import { getCurrentProfile } from "@/lib/profile";
+import { requireAdmin } from "@/lib/admin";
+import { activateMembership } from "@/lib/membership";
 import { prisma } from "@/lib/prisma";
 import { CompanionHome } from "@/components/app/CompanionHome";
 import {
@@ -11,8 +13,14 @@ import {
 } from "@/lib/companion-content";
 
 export default async function CompanionPage() {
-  const profile = await getCurrentProfile();
+  let profile = await getCurrentProfile();
   if (!profile) return null;
+
+  // Owner/admin gets the full paid Companion, so they can use and review it.
+  if (!profile.membershipActive && (await requireAdmin())) {
+    await activateMembership(profile.id);
+    profile = (await getCurrentProfile()) ?? profile;
+  }
 
   const firstName = profile.name?.split(" ")[0] ?? null;
   const locked = !profile.membershipActive;

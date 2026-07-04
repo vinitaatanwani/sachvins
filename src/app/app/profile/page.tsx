@@ -3,8 +3,10 @@ import { prisma } from "@/lib/prisma";
 import { CountUp } from "@/components/motion/CountUp";
 import { CheckInForm } from "@/components/app/CheckInForm";
 import { FocusAreaSwitcher } from "@/components/app/FocusAreaSwitcher";
+import Link from "next/link";
 import { ResetTestDataButton } from "@/components/app/ResetTestDataButton";
 import { SignOutButton } from "@/components/app/SignOutButton";
+import { requireAdmin } from "@/lib/admin";
 import { FOCUS_AREA_LABELS, type DomainScore } from "@/lib/quiz-data";
 import { SUBSCRIPTION_PLANS, COACHING_PACKAGES, formatInr } from "@/lib/pricing";
 
@@ -19,6 +21,8 @@ function startOfWeek(date: Date) {
 export default async function ProfilePage() {
   const profile = await getCurrentProfile();
   if (!profile) return null;
+
+  const admin = await requireAdmin();
 
   const [latestQuizResult, journalEntryCount, checkIns] = await Promise.all([
     prisma.quizResult.findFirst({ where: { profileId: profile.id }, orderBy: { createdAt: "desc" } }),
@@ -129,6 +133,14 @@ export default async function ProfilePage() {
       </div>
 
       <div className="mt-1 space-y-2.5">
+        {admin && (
+          <Link
+            href="/admin"
+            className="block w-full rounded-2xl bg-green-500 py-3.5 text-center text-sm font-semibold text-white shadow-clay-teal transition active:scale-[0.98]"
+          >
+            Owner console →
+          </Link>
+        )}
         <SignOutButton />
         <ResetTestDataButton />
       </div>
