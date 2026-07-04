@@ -21,7 +21,9 @@ export async function POST(req: NextRequest) {
 
   let order;
   try {
-    order = await createOrder(priceInr, `sub_${deviceId}_${Date.now()}`, {
+    // Razorpay caps receipt at 40 chars; deviceId is a 36-char UUID, so use a
+    // short prefix + timestamp (full profileId is preserved in notes below).
+    order = await createOrder(priceInr, `sub_${deviceId.slice(0, 8)}_${Date.now()}`, {
       profileId: deviceId,
       plan,
       kind: "subscription",
