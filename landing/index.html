@@ -346,30 +346,22 @@ body.quiz-active #assessment{display:block}
       .br-ripple.d2{animation-delay:1.4s;border-color:rgba(140,194,100,.4)}
       .br-ripple.d3{animation-delay:2.8s;border-color:rgba(236,203,74,.42)}
       @keyframes brRipple{0%{transform:scale(.62);opacity:.55}80%{opacity:.05}100%{transform:scale(2.35);opacity:0}}
-      .br-ring{position:absolute;border-radius:50%;border:1.5px solid rgba(47,125,67,.16);transition:transform 4s ease-in-out}
+      .br-ring{position:absolute;border-radius:50%;border:1.5px solid rgba(47,125,67,.14)}
       .br-ring.r1{width:200px;height:200px}
-      .br-ring.r2{width:250px;height:250px;border-color:rgba(47,125,67,.11)}
-      .br-ring.r3{width:300px;height:300px;border-color:rgba(47,125,67,.07)}
-      .br-orb{width:160px;height:160px;border-radius:50%;position:relative;z-index:1;
-        background:radial-gradient(circle at 38% 32%,#fbfdf6,#c3e2a8 42%,#6fbf5f 72%,#2f7d43);
-        box-shadow:0 18px 42px rgba(47,125,67,.32),inset 0 7px 15px rgba(255,255,255,.65),inset 0 -16px 30px rgba(25,70,38,.28);
-        transform:scale(.58);transition:transform 4s ease-in-out;animation:brIdle 6s ease-in-out infinite}
-      @keyframes brIdle{0%,100%{transform:scale(.56)}50%{transform:scale(.64)}}
-      .breathe-stage.running .br-orb{animation:none}
-      .breathe-stage.inhale .br-orb{transform:scale(1)}
-      .breathe-stage.inhale .br-ring{transform:scale(1.12)}
-      .breathe-stage.exhale .br-orb{transform:scale(.58)}
-      .breathe-stage.exhale .br-ring{transform:scale(1)}
+      .br-ring.r2{width:250px;height:250px;border-color:rgba(47,125,67,.1)}
+      .br-ring.r3{width:300px;height:300px;border-color:rgba(47,125,67,.06)}
+      .br-orb{position:relative;z-index:1;display:flex;align-items:center;justify-content:center;filter:drop-shadow(0 16px 28px rgba(47,125,67,.3))}
+      .br-heart{width:158px;height:158px;transform-origin:center;animation:heartbeat 1.1s ease-in-out infinite}
+      @keyframes heartbeat{0%{transform:scale(.9)}12%{transform:scale(1.1)}24%{transform:scale(.96)}36%{transform:scale(1.03)}52%,100%{transform:scale(.9)}}
       .br-cue{font-family:'Fraunces',serif;font-size:22px;color:var(--green-deep);min-height:30px;margin-bottom:20px;letter-spacing:.2px;transition:opacity .4s}
       .br-btn{max-width:300px}
       .br-done{max-width:420px;margin:0 auto;color:var(--ink3);font-size:15px;line-height:1.6}
       .br-again{background:none;border:none;color:var(--green);font-weight:700;cursor:pointer;text-decoration:underline;font-family:inherit;font-size:inherit}
-      @media(prefers-reduced-motion:reduce){.br-orb,.br-ring,.br-ripple{transition:none!important;animation:none!important;opacity:0!important}}
+      @media(prefers-reduced-motion:reduce){.br-heart,.br-ripple{animation:none!important}.br-ripple{opacity:0!important}}
     </style>
     <div class="wrap binner">
-      <span class="eyebrow">A moment for you</span>
-      <h2 class="sec serif" style="margin:8px 0 6px">Take one slow minute first</h2>
-      <p style="max-width:440px;margin:0 auto 6px;color:var(--ink3);font-size:15px">Before you answer anything, let&rsquo;s settle your nervous system. Sixty seconds — just follow the circle.</p>
+      <h2 class="sec serif" style="margin:0 auto 8px;max-width:660px">Before you answer anything, let&rsquo;s settle your nervous system</h2>
+      <p style="max-width:440px;margin:0 auto 6px;color:var(--ink3);font-size:15px">Sixty seconds — just follow the beat.</p>
       <div class="breathe-stage" id="brStage">
         <div class="br-glow"></div>
         <div class="br-ripple d1"></div>
@@ -378,73 +370,54 @@ body.quiz-active #assessment{display:block}
         <div class="br-ring r3"></div>
         <div class="br-ring r2"></div>
         <div class="br-ring r1"></div>
-        <div class="br-orb" id="brOrb"></div>
+        <div class="br-orb" id="brOrb">
+          <svg class="br-heart" viewBox="0 0 24 24" width="158" height="158" aria-hidden="true">
+            <defs><linearGradient id="hg" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#96d477"/><stop offset="55%" stop-color="#4ca355"/><stop offset="100%" stop-color="#2f7d43"/></linearGradient></defs>
+            <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" fill="url(#hg)"/>
+          </svg>
+        </div>
       </div>
-      <div class="br-cue serif" id="brCue">Find a comfortable seat</div>
+      <div class="br-cue serif" id="brCue">Rest your hands, and begin when you&rsquo;re ready</div>
       <button class="btn br-btn" id="brBtn">Begin the minute</button>
       <p class="br-done" id="brDone" style="display:none">Beautifully done. Notice how you feel now — then begin when you&rsquo;re ready. <button class="br-again" id="brAgain">Take another minute</button></p>
     </div>
     <script>
     (function(){
-      var stage=document.getElementById('brStage'),orb=document.getElementById('brOrb'),
-          cue=document.getElementById('brCue'),btn=document.getElementById('brBtn'),
-          done=document.getElementById('brDone'),again=document.getElementById('brAgain');
-      var TOTAL=60,PHASES=[{n:'inhale',label:'Breathe in…',dur:4},{n:'hold',label:'Hold',dur:2},{n:'exhale',label:'Breathe out…',dur:6}];
-      var timeouts=[];
-      function clearAll(){timeouts.forEach(clearTimeout);timeouts=[];}
-      function setPhase(p){
-        var rings=stage.querySelectorAll('.br-ring');
-        if(p.n==='inhale'){stage.classList.remove('exhale');stage.classList.add('inhale');}
-        else if(p.n==='exhale'){stage.classList.remove('inhale');stage.classList.add('exhale');}
-        orb.style.transitionDuration=p.dur+'s';
-        rings.forEach(function(r){r.style.transitionDuration=p.dur+'s';});
-        cue.textContent=p.label;
-      }
+      var stage=document.getElementById('brStage'),cue=document.getElementById('brCue'),
+          btn=document.getElementById('brBtn'),done=document.getElementById('brDone'),
+          again=document.getElementById('brAgain');
+      var CUES=["Let your breath slow","Soften your shoulders","Unclench your jaw","You are safe right now","Let it all be easy","Slow… and steady"];
+      var cueTimer=null,endTimer=null;
+      function clearAll(){if(cueTimer)clearInterval(cueTimer);if(endTimer)clearTimeout(endTimer);cueTimer=endTimer=null;}
 
-      /* ── soft synthesized rain (Web Audio, no external file) ── */
-      var actx=null,rainGain=null,rainNodes=[];
-      function startRain(){
-        try{
-          if(rainNodes.length)return;
-          if(!actx)actx=new (window.AudioContext||window.webkitAudioContext)();
-          if(actx.state==='suspended')actx.resume();
-          var sr=actx.sampleRate,buf=actx.createBuffer(1,sr*3,sr),d=buf.getChannelData(0),i;
-          for(i=0;i<d.length;i++)d[i]=Math.random()*2-1;
-          var src=actx.createBufferSource();src.buffer=buf;src.loop=true;
-          var hp=actx.createBiquadFilter();hp.type='highpass';hp.frequency.value=480;
-          var lp=actx.createBiquadFilter();lp.type='lowpass';lp.frequency.value=2400;lp.Q.value=0.5;
-          rainGain=actx.createGain();rainGain.gain.value=0;
-          var lfo=actx.createOscillator();lfo.frequency.value=0.12;
-          var lfoG=actx.createGain();lfoG.gain.value=320;lfo.connect(lfoG);lfoG.connect(lp.frequency);
-          src.connect(hp);hp.connect(lp);lp.connect(rainGain);rainGain.connect(actx.destination);
-          src.start();lfo.start();
-          rainGain.gain.linearRampToValueAtTime(0.14,actx.currentTime+1.6);
-          rainNodes=[src,lfo];
-        }catch(e){}
+      /* ── calm synthesized heartbeat (Web Audio, no external file) ── */
+      var actx=null,master=null,beatTimer=null;
+      function ensure(){
+        if(!actx)actx=new (window.AudioContext||window.webkitAudioContext)();
+        if(actx.state==='suspended')actx.resume();
+        if(!master){master=actx.createGain();master.gain.value=0.8;var lp=actx.createBiquadFilter();lp.type='lowpass';lp.frequency.value=220;master.connect(lp);lp.connect(actx.destination);}
       }
-      function stopRain(){
-        try{
-          if(rainGain&&actx)rainGain.gain.linearRampToValueAtTime(0,actx.currentTime+1.3);
-          var nodes=rainNodes;rainNodes=[];
-          setTimeout(function(){nodes.forEach(function(n){try{n.stop();}catch(e){}});},1500);
-        }catch(e){}
+      function thump(t,amp){
+        var o=actx.createOscillator();o.type='sine';
+        o.frequency.setValueAtTime(96,t);o.frequency.exponentialRampToValueAtTime(45,t+0.16);
+        var g=actx.createGain();g.gain.setValueAtTime(0.0001,t);g.gain.exponentialRampToValueAtTime(amp,t+0.015);g.gain.exponentialRampToValueAtTime(0.0001,t+0.26);
+        o.connect(g);g.connect(master);o.start(t);o.stop(t+0.32);
       }
+      function beat(){var t=actx.currentTime+0.03;thump(t,0.55);thump(t+0.26,0.36);}
+      function startBeat(){try{ensure();if(beatTimer)return;beat();beatTimer=setInterval(beat,1100);}catch(e){}}
+      function stopBeat(){if(beatTimer){clearInterval(beatTimer);beatTimer=null;}}
 
       function run(){
-        clearAll();startRain();
+        clearAll();startBeat();
         stage.classList.add('running');btn.style.display='none';done.style.display='none';
-        var elapsed=0,idx=0;
-        (function step(){
-          if(elapsed>=TOTAL){finish();return;}
-          var p=PHASES[idx%PHASES.length];setPhase(p);
-          timeouts.push(setTimeout(function(){elapsed+=p.dur;idx++;step();},p.dur*1000));
-        })();
+        var i=0;cue.textContent=CUES[0];
+        cueTimer=setInterval(function(){i=(i+1)%CUES.length;cue.textContent=CUES[i];},10000);
+        endTimer=setTimeout(finish,60000);
       }
       function finish(){
-        clearAll();stopRain();
-        stage.classList.remove('inhale');stage.classList.add('exhale');
+        clearAll();stopBeat();
+        stage.classList.remove('running');
         cue.textContent='Well done';
-        setTimeout(function(){stage.classList.remove('running','exhale');},1200);
         done.style.display='block';
       }
       btn.addEventListener('click',run);
