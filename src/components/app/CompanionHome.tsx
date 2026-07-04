@@ -20,35 +20,64 @@ interface Report {
   suggestSession: boolean;
 }
 
+const PLANS = [
+  { label: "Monthly", price: "₹499", sub: "/mo" },
+  { label: "Quarterly", price: "₹1,199", sub: "≈₹400/mo" },
+  { label: "Yearly", price: "₹3,999", sub: "best value", best: true },
+];
+
 export function CompanionHome({
+  locked = false,
+  firstName,
   letter,
   report,
   affirmations,
 }: {
+  locked?: boolean;
+  firstName?: string | null;
   letter: { body: string; weekOf: string } | null;
   report: Report | null;
   affirmations: { lines: string[]; weekOf: string; nervousState: NervousSystemState | null; todayIndex: number } | null;
 }) {
   const router = useRouter();
   const [tab, setTab] = useState<Tab>("letters");
+  const [plan, setPlan] = useState(2);
+  const [working, setWorking] = useState(false);
 
+  async function unlock() {
+    setWorking(true);
+    await fetch("/api/companion/activate", { method: "POST" });
+    router.refresh();
+  }
   async function cancelMembership() {
+    setWorking(true);
     await fetch("/api/companion/deactivate", { method: "POST" });
     router.refresh();
   }
 
-  const monthLabel = report
-    ? new Date(report.periodEnd).toLocaleDateString("en-US", { month: "long" })
-    : "";
+  const monthLabel = report ? new Date(report.periodEnd).toLocaleDateString("en-US", { month: "long" }) : "";
+  const letterParas = letter ? letter.body.split(/\n\n+/) : [];
 
   return (
     <div className="mx-auto max-w-md px-5 pb-10" style={{ paddingTop: "calc(env(safe-area-inset-top) + 22px)" }}>
       <div className="mb-4 flex items-center justify-between">
         <h1 className="font-serif text-[26px] leading-tight text-ink">Your companion</h1>
-        <span className="rounded-full bg-plum-50 px-3 py-1 text-[10px] font-medium uppercase tracking-wide text-plum-600">
-          Member
+        <span
+          className={clsx(
+            "rounded-full px-3 py-1 text-[10px] font-medium uppercase tracking-wide",
+            locked ? "bg-cream text-ink-muted" : "bg-plum-50 text-plum-600"
+          )}
+        >
+          {locked ? "Preview" : "Member"}
         </span>
       </div>
+
+      {locked && (
+        <p className="mb-4 text-[13px] leading-relaxed text-ink-light">
+          {firstName ? `${firstName}, here` : "Here"}&rsquo;s a peek at what your companion has already written for you.
+          Unlock to read it all.
+        </p>
+      )}
 
       {/* Segmented tabs */}
       <div className="mb-5 flex gap-1 rounded-full bg-cream p-1 text-[12px] font-medium">
@@ -76,19 +105,34 @@ export function CompanionHome({
             <p className="mb-3 text-[12px] text-ink-muted">
               {new Date(letter.weekOf).toLocaleDateString("en-US", { day: "numeric", month: "long" })}
             </p>
-            <p className="whitespace-pre-line font-serif text-[16px] leading-loose text-ink-light">{letter.body}</p>
-            <p className="mt-4 font-serif text-[17px] italic text-plum-600">— with you, always</p>
-            <div className="mt-5 flex gap-2.5">
-              <button className="flex-1 rounded-full bg-plum-50 py-2.5 text-[12.5px] font-semibold text-plum-600 transition active:scale-[0.98]">
-                Save this letter
-              </button>
-              <Link
-                href="/app/journal"
-                className="flex-1 rounded-full border border-parchment py-2.5 text-center text-[12.5px] font-semibold text-ink-light transition active:scale-[0.98]"
-              >
-                Reflect on it
-              </Link>
-            </div>
+            {locked ? (
+              <>
+                <p className="whitespace-pre-line font-serif text-[16px] leading-loose text-ink-light">
+                  {letterParas[0]}
+                </p>
+                <LockedRest>
+                  <p className="whitespace-pre-line font-serif text-[16px] leading-loose text-ink-light">
+                    {letterParas.slice(1).join("\n\n")}
+                  </p>
+                </LockedRest>
+              </>
+            ) : (
+              <>
+                <p className="whitespace-pre-line font-serif text-[16px] leading-loose text-ink-light">{letter.body}</p>
+                <p className="mt-4 font-serif text-[17px] italic text-plum-600">— with you, always</p>
+                <div className="mt-5 flex gap-2.5">
+                  <button className="flex-1 rounded-full bg-plum-50 py-2.5 text-[12.5px] font-semibold text-plum-600 transition active:scale-[0.98]">
+                    Save this letter
+                  </button>
+                  <Link
+                    href="/app/journal"
+                    className="flex-1 rounded-full border border-parchment py-2.5 text-center text-[12.5px] font-semibold text-ink-light transition active:scale-[0.98]"
+                  >
+                    Reflect on it
+                  </Link>
+                </div>
+              </>
+            )}
           </div>
         ) : (
           <EmptyNote>Your first letter arrives after a few days of journaling.</EmptyNote>
@@ -102,82 +146,30 @@ export function CompanionHome({
               <span className="font-accent text-[9.5px] font-extrabold uppercase tracking-[0.14em] text-amber-700">
                 Clarity report
               </span>
-              <span className="rounded-full bg-amber-50 px-2.5 py-0.5 text-[10px] font-medium text-amber-700">
-                {monthLabel}
-              </span>
+              <span className="rounded-full bg-amber-50 px-2.5 py-0.5 text-[10px] font-medium text-amber-700">{monthLabel}</span>
             </div>
             <h2 className="mb-4 font-serif text-2xl text-ink">Your month, mirrored</h2>
 
             <span className="mb-2 block font-accent text-[9px] font-extrabold uppercase tracking-wide text-ink-muted">
               Your month at a glance
             </span>
-            <div className="mb-5 flex flex-col gap-2.5">
-              {report.scoreDeltas.map((d) => {
-                const up = d.end > d.start;
-                const flat = d.end === d.start;
-                return (
-                  <div key={d.key}>
-                    <div className="mb-1 flex justify-between text-[12px]">
-                      <span className="text-ink-light">{d.name}</span>
-                      <span className={clsx("font-semibold", up ? "text-green-600" : flat ? "text-ink-muted" : "text-berry-500")}>
-                        {d.start} → {d.end} {up ? "▲" : flat ? "•" : "▼"}
-                      </span>
-                    </div>
-                    <div className="h-[5px] overflow-hidden rounded-full bg-cream">
-                      <div
-                        className="animate-grow h-full rounded-full"
-                        style={{ width: `${d.end}%`, background: up ? "#00a855" : flat ? "#f0a830" : "#c21a6f", ["--w" as string]: `${d.end}%` } as React.CSSProperties}
-                      />
-                    </div>
-                  </div>
-                );
-              })}
-            </div>
+            <ScoreRow d={report.scoreDeltas[0]} />
 
-            <span className="mb-2 block font-accent text-[9px] font-extrabold uppercase tracking-wide text-ink-muted">
-              What kept showing up
-            </span>
-            <div className="mb-5 flex flex-wrap gap-2">
-              {report.themes.map((t) => (
-                <span key={t} className="rounded-full bg-plum-50 px-3 py-1.5 text-[12px] text-plum-600">
-                  {t}
-                </span>
-              ))}
-            </div>
-
-            <div className="mb-5 rounded-2xl bg-plum-50 p-4">
-              <span className="mb-1.5 block font-accent text-[9px] font-extrabold uppercase tracking-wide text-plum-500">
-                In your own words
-              </span>
-              <p className="font-serif text-[16px] italic leading-snug text-plum-700">&ldquo;{report.quote}&rdquo;</p>
-            </div>
-
-            <span className="mb-2 block font-accent text-[9px] font-extrabold uppercase tracking-wide text-ink-muted">
-              Then vs now
-            </span>
-            <p className="mb-5 text-[13.5px] leading-relaxed text-ink-light">{report.thenVsNow}</p>
-
-            <span className="mb-2 block font-accent text-[9px] font-extrabold uppercase tracking-wide text-ink-muted">
-              Where to focus next
-            </span>
-            <p className="mb-6 text-[13.5px] leading-relaxed text-ink-light">{report.focusNext}</p>
-
-            <div className="flex gap-2.5">
-              <button
-                onClick={() => window.print()}
-                className="flex-1 rounded-full bg-plum-500 py-3 text-[12.5px] font-semibold text-white transition active:scale-[0.98]"
-              >
-                Download PDF
-              </button>
-              {report.suggestSession && (
-                <Link
-                  href="/app/profile"
-                  className="flex-1 rounded-full bg-green-50 py-3 text-center text-[12.5px] font-semibold text-green-700 transition active:scale-[0.98]"
-                >
-                  Book a session
-                </Link>
-              )}
-            </div>
+            {locked ? (
+              <LockedRest tall>
+                <div className="mt-2.5 flex flex-col gap-2.5">
+                  {report.scoreDeltas.slice(1).map((d) => (
+                    <ScoreRow key={d.key} d={d} />
+                  ))}
+                </div>
+                <div className="mt-4 rounded-2xl bg-plum-50 p-4">
+                  <p className="font-serif text-[16px] italic text-plum-700">&ldquo;{report.quote}&rdquo;</p>
+                </div>
+                <p className="mt-3 text-[13.5px] leading-relaxed text-ink-light">{report.thenVsNow}</p>
+              </LockedRest>
+            ) : (
+              <ReportRest report={report} monthLabel={monthLabel} />
+            )}
           </div>
         ) : (
           <EmptyNote>Your first clarity report arrives after your first membership month.</EmptyNote>
@@ -191,41 +183,178 @@ export function CompanionHome({
               <span className="mb-3 block font-accent text-[9.5px] font-extrabold uppercase tracking-[0.14em] text-plum-100">
                 Today&rsquo;s affirmation
               </span>
-              <p className="font-serif text-[24px] leading-snug text-white">
-                {affirmations.lines[affirmations.todayIndex]}
-              </p>
+              <p className="font-serif text-[24px] leading-snug text-white">{affirmations.lines[affirmations.todayIndex]}</p>
               <p className="mt-4 text-[11px] text-plum-200">Chosen for {nervousLabel(affirmations.nervousState)}</p>
             </div>
 
             <span className="mb-2.5 block font-accent text-[9px] font-extrabold uppercase tracking-wide text-ink-muted">
               This week&rsquo;s set
             </span>
-            <div className="flex flex-col gap-2.5">
-              {affirmations.lines.map((line, i) => (
-                <div
-                  key={i}
-                  className={clsx(
-                    "rounded-2xl border p-3.5 text-[14px] leading-snug",
-                    i === affirmations.todayIndex
-                      ? "border-plum-200 bg-plum-50 font-medium text-plum-700"
-                      : "border-parchment bg-white text-ink-light"
-                  )}
-                >
-                  {line}
+            {locked ? (
+              <LockedRest tall>
+                <div className="flex flex-col gap-2.5">
+                  {affirmations.lines.map((line, i) => (
+                    <div key={i} className="rounded-2xl border border-parchment bg-white p-3.5 text-[14px] leading-snug text-ink-light">
+                      {line}
+                    </div>
+                  ))}
                 </div>
-              ))}
-            </div>
+              </LockedRest>
+            ) : (
+              <div className="flex flex-col gap-2.5">
+                {affirmations.lines.map((line, i) => (
+                  <div
+                    key={i}
+                    className={clsx(
+                      "rounded-2xl border p-3.5 text-[14px] leading-snug",
+                      i === affirmations.todayIndex
+                        ? "border-plum-200 bg-plum-50 font-medium text-plum-700"
+                        : "border-parchment bg-white text-ink-light"
+                    )}
+                  >
+                    {line}
+                  </div>
+                ))}
+              </div>
+            )}
           </div>
         ) : (
           <EmptyNote>Your weekly affirmations appear here, one surfaced each day.</EmptyNote>
         ))}
 
-      <button
-        onClick={cancelMembership}
-        className="mx-auto mt-9 block text-[11.5px] text-ink-muted underline underline-offset-2"
-      >
-        Manage membership (test: cancel)
-      </button>
+      {/* ── Unlock (locked) ── */}
+      {locked ? (
+        <div className="mt-6 rounded-2xl border-2 border-plum-100 bg-plum-50/60 p-4">
+          <div className="mb-1 flex items-center gap-2">
+            <div className="flex h-7 w-7 items-center justify-center rounded-full bg-plum-500 text-white">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none">
+                <rect x="5" y="11" width="14" height="9" rx="2" stroke="currentColor" strokeWidth="1.8" />
+                <path d="M8 11V8a4 4 0 0 1 8 0v3" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" />
+              </svg>
+            </div>
+            <h3 className="font-serif text-[19px] text-ink">Unlock your companion</h3>
+          </div>
+          <p className="mb-3.5 text-[12.5px] leading-snug text-ink-muted">
+            Your full weekly letters, monthly clarity report, and daily affirmations — the moment your payment goes through.
+          </p>
+          <div className="mb-3.5 flex gap-2">
+            {PLANS.map((p, i) => (
+              <button
+                key={p.label}
+                onClick={() => setPlan(i)}
+                className={clsx(
+                  "flex-1 rounded-xl border px-2 py-2.5 text-center transition active:scale-[0.98]",
+                  plan === i ? "border-2 border-plum-500 bg-white" : "border border-plum-100 bg-white/70"
+                )}
+              >
+                {p.best && (
+                  <div className="mb-0.5 font-accent text-[8px] font-extrabold uppercase tracking-wide text-plum-600">Best value</div>
+                )}
+                <div className="text-[10.5px] text-ink-muted">{p.label}</div>
+                <div className="font-serif text-[17px] leading-tight text-ink">{p.price}</div>
+                <div className="text-[9px] text-ink-muted">{p.sub}</div>
+              </button>
+            ))}
+          </div>
+          <button
+            onClick={unlock}
+            disabled={working}
+            className="bg-petal-soft w-full rounded-full py-3.5 text-sm font-semibold text-white transition active:scale-[0.98] disabled:opacity-60"
+          >
+            {working ? "Unlocking…" : `Pay ${PLANS[plan].price} & unlock →`}
+          </button>
+          <p className="mt-2.5 text-center text-[11px] text-ink-muted">
+            Payment isn&rsquo;t connected yet — this unlocks instantly for testing. Cancel anytime.
+          </p>
+        </div>
+      ) : (
+        <button onClick={cancelMembership} className="mx-auto mt-9 block text-[11.5px] text-ink-muted underline underline-offset-2">
+          Manage membership (test: cancel)
+        </button>
+      )}
+    </div>
+  );
+}
+
+function ScoreRow({ d }: { d: SampleScoreDelta }) {
+  const up = d.end > d.start;
+  const flat = d.end === d.start;
+  return (
+    <div className="mb-0.5">
+      <div className="mb-1 flex justify-between text-[12px]">
+        <span className="text-ink-light">{d.name}</span>
+        <span className={clsx("font-semibold", up ? "text-green-600" : flat ? "text-ink-muted" : "text-berry-500")}>
+          {d.start} → {d.end} {up ? "▲" : flat ? "•" : "▼"}
+        </span>
+      </div>
+      <div className="h-[5px] overflow-hidden rounded-full bg-cream">
+        <div className="h-full rounded-full" style={{ width: `${d.end}%`, background: up ? "#00a855" : flat ? "#f0a830" : "#c21a6f" }} />
+      </div>
+    </div>
+  );
+}
+
+function ReportRest({ report, monthLabel: _monthLabel }: { report: Report; monthLabel: string }) {
+  return (
+    <>
+      <div className="mb-5 mt-2.5 flex flex-col gap-2.5">
+        {report.scoreDeltas.slice(1).map((d) => (
+          <div key={d.key}>
+            <ScoreRow d={d} />
+          </div>
+        ))}
+      </div>
+      <span className="mb-2 block font-accent text-[9px] font-extrabold uppercase tracking-wide text-ink-muted">What kept showing up</span>
+      <div className="mb-5 flex flex-wrap gap-2">
+        {report.themes.map((t) => (
+          <span key={t} className="rounded-full bg-plum-50 px-3 py-1.5 text-[12px] text-plum-600">
+            {t}
+          </span>
+        ))}
+      </div>
+      <div className="mb-5 rounded-2xl bg-plum-50 p-4">
+        <span className="mb-1.5 block font-accent text-[9px] font-extrabold uppercase tracking-wide text-plum-500">In your own words</span>
+        <p className="font-serif text-[16px] italic leading-snug text-plum-700">&ldquo;{report.quote}&rdquo;</p>
+      </div>
+      <span className="mb-2 block font-accent text-[9px] font-extrabold uppercase tracking-wide text-ink-muted">Then vs now</span>
+      <p className="mb-5 text-[13.5px] leading-relaxed text-ink-light">{report.thenVsNow}</p>
+      <span className="mb-2 block font-accent text-[9px] font-extrabold uppercase tracking-wide text-ink-muted">Where to focus next</span>
+      <p className="mb-6 text-[13.5px] leading-relaxed text-ink-light">{report.focusNext}</p>
+      <div className="flex gap-2.5">
+        <button
+          onClick={() => window.print()}
+          className="flex-1 rounded-full bg-plum-500 py-3 text-[12.5px] font-semibold text-white transition active:scale-[0.98]"
+        >
+          Download PDF
+        </button>
+        {report.suggestSession && (
+          <Link
+            href="/app/profile"
+            className="flex-1 rounded-full bg-green-50 py-3 text-center text-[12.5px] font-semibold text-green-700 transition active:scale-[0.98]"
+          >
+            Book a session
+          </Link>
+        )}
+      </div>
+    </>
+  );
+}
+
+function LockedRest({ children, tall = false }: { children: React.ReactNode; tall?: boolean }) {
+  return (
+    <div className={clsx("relative overflow-hidden", tall ? "max-h-44" : "max-h-28")}>
+      <div className="pointer-events-none select-none blur-[5px]" aria-hidden="true">
+        {children}
+      </div>
+      <div className="absolute inset-0 flex items-end justify-center bg-gradient-to-b from-transparent via-white/50 to-white pb-1">
+        <span className="flex items-center gap-1.5 text-[11px] font-semibold text-plum-600">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none">
+            <rect x="5" y="11" width="14" height="9" rx="2" stroke="currentColor" strokeWidth="2" />
+            <path d="M8 11V8a4 4 0 0 1 8 0v3" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
+          </svg>
+          Unlock to keep reading
+        </span>
+      </div>
     </div>
   );
 }
