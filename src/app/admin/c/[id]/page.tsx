@@ -18,9 +18,9 @@ const NERVOUS_LABEL: Record<string, string> = {
 };
 
 function barColor(level: string) {
-  if (level === "high") return "#5e8e90"; // needs the most care
-  if (level === "medium") return "#e0b62f";
-  return "#2f7d43";
+  if (level === "high") return "#8171d4"; // needs the most care
+  if (level === "medium") return "#e07ba0";
+  return "#6d5cc0";
 }
 
 const fmt = (d: Date) => d.toLocaleDateString("en-GB", { day: "2-digit", month: "short", year: "numeric" });

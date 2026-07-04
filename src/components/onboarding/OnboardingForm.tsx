@@ -53,9 +53,9 @@ const JOURNEY = [
 ];
 
 function levelAccent(level: ScoreLevel) {
-  if (level === "high") return "#5e8e90";
-  if (level === "medium") return "#e0b62f";
-  return "#2f7d43";
+  if (level === "high") return "#8171d4";
+  if (level === "medium") return "#e07ba0";
+  return "#6d5cc0";
 }
 
 function VinitaAvatar({ size = 40 }: { size?: number }) {

@@ -1,10 +1,10 @@
 import type { Metadata, Viewport } from "next";
-import { Fraunces, Plus_Jakarta_Sans } from "next/font/google";
+import { Fraunces, Poppins } from "next/font/google";
 import "./globals.css";
 
-// Fraunces = warm display serif (headlines); Plus Jakarta Sans = clean, highly
-// readable body/UI. Kept under the old CSS-var names so tailwind + call sites
-// need no changes — the fonts loaded into them just changed.
+// Fraunces = warm display serif (headlines); Poppins = friendly rounded body/UI
+// (matches the lavender design). Kept under the old CSS-var names so tailwind +
+// call sites need no changes — the fonts loaded into them just changed.
 const cormorant = Fraunces({
   subsets: ["latin"],
   weight: ["300", "400", "500", "600"],
@@ -12,13 +12,13 @@ const cormorant = Fraunces({
   variable: "--font-cormorant",
 });
 
-const mulish = Plus_Jakarta_Sans({
+const mulish = Poppins({
   subsets: ["latin"],
   weight: ["400", "500", "600", "700"],
   variable: "--font-mulish",
 });
 
-const nunito = Plus_Jakarta_Sans({
+const nunito = Poppins({
   subsets: ["latin"],
   weight: ["600", "700", "800"],
   variable: "--font-nunito",
@@ -35,7 +35,7 @@ export const viewport: Viewport = {
   width: "device-width",
   initialScale: 1,
   viewportFit: "cover",
-  themeColor: "#2f7d43",
+  themeColor: "#8171d4",
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {

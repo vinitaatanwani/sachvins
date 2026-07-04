@@ -7,8 +7,8 @@ export default function manifest(): MetadataRoute.Manifest {
     description: "Guided healing and nervous-system regulation — journaling, meditation, and sound.",
     start_url: "/app/dashboard",
     display: "standalone",
-    background_color: "#fdfbf2",
-    theme_color: "#2f7d43",
+    background_color: "#fbf9ff",
+    theme_color: "#6d5cc0",
     icons: [
       { src: "/icon.png", sizes: "512x512", type: "image/png", purpose: "any" },
       { src: "/apple-icon.png", sizes: "180x180", type: "image/png", purpose: "maskable" },
