@@ -27,8 +27,14 @@ export async function POST(req: NextRequest) {
       kind: "subscription",
     });
   } catch (err) {
+    // The Razorpay SDK rejects API failures with a plain object
+    // ({ statusCode, error: { code, description } }), not an Error — surface the
+    // real status/description so misconfigured keys or account issues are visible.
+    const e = err as { statusCode?: number; error?: { description?: string; code?: string }; message?: string };
+    const detail = e?.error?.description || e?.message || "Razorpay is not configured";
+    console.error("[razorpay/checkout] order creation failed", e?.statusCode, JSON.stringify(e?.error ?? e?.message));
     return NextResponse.json(
-      { error: err instanceof Error ? err.message : "Razorpay is not configured" },
+      { error: e?.statusCode ? `Razorpay error ${e.statusCode}: ${detail}` : detail },
       { status: 500 }
     );
   }
