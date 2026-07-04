@@ -336,6 +336,91 @@ body.quiz-active #assessment{display:block}
     </div>
   </section>
 
+  <section class="block breathe">
+    <style>
+      .breathe{background:radial-gradient(130% 110% at 50% 0%,#f2f7e9,var(--cream) 68%);overflow:hidden}
+      .breathe .binner{text-align:center}
+      .breathe-stage{position:relative;width:300px;height:300px;margin:14px auto 6px;display:flex;align-items:center;justify-content:center}
+      .br-glow{position:absolute;inset:-30px;border-radius:50%;background:radial-gradient(circle,rgba(140,194,100,.4),rgba(236,203,74,.2) 44%,transparent 70%);filter:blur(8px)}
+      .br-ring{position:absolute;border-radius:50%;border:1.5px solid rgba(47,125,67,.16);transition:transform 4s ease-in-out}
+      .br-ring.r1{width:200px;height:200px}
+      .br-ring.r2{width:250px;height:250px;border-color:rgba(47,125,67,.11)}
+      .br-ring.r3{width:300px;height:300px;border-color:rgba(47,125,67,.07)}
+      .br-orb{width:160px;height:160px;border-radius:50%;
+        background:radial-gradient(circle at 38% 32%,#fbfdf6,#c3e2a8 42%,#6fbf5f 72%,#2f7d43);
+        box-shadow:0 18px 42px rgba(47,125,67,.32),inset 0 7px 15px rgba(255,255,255,.65),inset 0 -16px 30px rgba(25,70,38,.28);
+        transform:scale(.58);transition:transform 4s ease-in-out;animation:brIdle 6s ease-in-out infinite}
+      @keyframes brIdle{0%,100%{transform:scale(.56)}50%{transform:scale(.64)}}
+      .breathe-stage.running .br-orb{animation:none}
+      .breathe-stage.inhale .br-orb{transform:scale(1)}
+      .breathe-stage.inhale .br-ring{transform:scale(1.12)}
+      .breathe-stage.exhale .br-orb{transform:scale(.58)}
+      .breathe-stage.exhale .br-ring{transform:scale(1)}
+      .br-cue{font-family:'Fraunces',serif;font-size:22px;color:var(--green-deep);min-height:30px;letter-spacing:.2px;transition:opacity .4s}
+      .br-timer{font-family:'Fraunces',serif;font-size:19px;color:var(--subtle);margin:2px 0 20px;min-height:24px}
+      .br-btn{max-width:300px}
+      .br-done{max-width:420px;margin:0 auto;color:var(--ink3);font-size:15px;line-height:1.6}
+      .br-again{background:none;border:none;color:var(--green);font-weight:700;cursor:pointer;text-decoration:underline;font-family:inherit;font-size:inherit}
+      @media(prefers-reduced-motion:reduce){.br-orb,.br-ring{transition:none!important;animation:none!important}}
+    </style>
+    <div class="wrap binner">
+      <span class="eyebrow">A moment for you</span>
+      <h2 class="sec serif" style="margin:8px 0 6px">Take one slow minute first</h2>
+      <p style="max-width:440px;margin:0 auto 6px;color:var(--ink3);font-size:15px">Before you answer anything, let&rsquo;s settle your nervous system. Sixty seconds — just follow the circle.</p>
+      <div class="breathe-stage" id="brStage">
+        <div class="br-glow"></div>
+        <div class="br-ring r3"></div>
+        <div class="br-ring r2"></div>
+        <div class="br-ring r1"></div>
+        <div class="br-orb" id="brOrb"></div>
+      </div>
+      <div class="br-cue serif" id="brCue">Find a comfortable seat</div>
+      <div class="br-timer" id="brTimer">1:00</div>
+      <button class="btn br-btn" id="brBtn">Begin the minute</button>
+      <p class="br-done" id="brDone" style="display:none">Beautifully done. Notice how you feel now — then begin when you&rsquo;re ready. <button class="br-again" id="brAgain">Take another minute</button></p>
+    </div>
+    <script>
+    (function(){
+      var stage=document.getElementById('brStage'),orb=document.getElementById('brOrb'),
+          cue=document.getElementById('brCue'),timer=document.getElementById('brTimer'),
+          btn=document.getElementById('brBtn'),done=document.getElementById('brDone'),
+          again=document.getElementById('brAgain');
+      var TOTAL=60,PHASES=[{n:'inhale',label:'Breathe in…',dur:4},{n:'hold',label:'Hold',dur:2},{n:'exhale',label:'Breathe out…',dur:6}];
+      var timeouts=[],tick=null;
+      function clearAll(){timeouts.forEach(clearTimeout);timeouts=[];if(tick){clearInterval(tick);tick=null;}}
+      function fmt(s){return '0:'+(s<10?'0':'')+s;}
+      function setPhase(p){
+        var rings=stage.querySelectorAll('.br-ring');
+        if(p.n==='inhale'){stage.classList.remove('exhale');stage.classList.add('inhale');}
+        else if(p.n==='exhale'){stage.classList.remove('inhale');stage.classList.add('exhale');}
+        orb.style.transitionDuration=p.dur+'s';
+        rings.forEach(function(r){r.style.transitionDuration=p.dur+'s';});
+        cue.textContent=p.label;
+      }
+      function run(){
+        clearAll();
+        stage.classList.add('running');btn.style.display='none';done.style.display='none';
+        var remaining=TOTAL;timer.textContent=fmt(remaining);
+        tick=setInterval(function(){remaining--;timer.textContent=fmt(Math.max(0,remaining));if(remaining<=0){clearInterval(tick);tick=null;}},1000);
+        var elapsed=0,idx=0;
+        (function step(){
+          if(elapsed>=TOTAL){finish();return;}
+          var p=PHASES[idx%PHASES.length];setPhase(p);
+          timeouts.push(setTimeout(function(){elapsed+=p.dur;idx++;step();},p.dur*1000));
+        })();
+      }
+      function finish(){
+        clearAll();stage.classList.remove('inhale');stage.classList.add('exhale');
+        cue.textContent='Well done';timer.textContent='';
+        setTimeout(function(){stage.classList.remove('running','exhale');},1200);
+        done.style.display='block';
+      }
+      btn.addEventListener('click',run);
+      again.addEventListener('click',run);
+    })();
+    </script>
+  </section>
+
   <section class="block alt faq">
     <div class="wrap">
       <span class="eyebrow">Questions</span>
