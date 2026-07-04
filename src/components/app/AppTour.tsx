@@ -87,7 +87,10 @@ export function AppTour({ active }: { active: boolean }) {
         <div className="rounded-2xl bg-white p-4 shadow-lg">
           <div className="mb-2 flex items-center justify-between">
             <div className="flex items-center gap-2">
-              <div className="bg-petal flex h-7 w-7 items-center justify-center rounded-full font-serif text-[13px] text-white">V</div>
+              <div className="flex h-7 w-7 items-center justify-center rounded-full bg-white shadow-sm ring-1 ring-black/5">
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img src="/logo-mark.png" alt="Vinita" className="h-[18px] w-[18px] object-contain" />
+              </div>
               <span className="text-[13px] font-semibold text-ink">{step.title}</span>
             </div>
             <span className="font-accent text-[11px] font-bold text-ink-muted">

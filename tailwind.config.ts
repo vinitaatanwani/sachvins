@@ -12,50 +12,52 @@ const config: Config = {
         // Legacy alias names (ink/cream/gold/indigo/sky/…) are kept and remapped
         // to the new palette so every existing screen reskins without touching
         // call sites. Deep Teal leads; coral/orange/gold/magenta are accents.
-        ink: "#2f2a26", // charcoal, warmed
-        "ink-light": "#574d44",
-        "ink-muted": "#8a7f74",
-        "warm-white": "#fff8ed", // page canvas — Warm Cream
-        cream: "#fbf1e1", // warm sunken tint
-        parchment: "#efe3d0", // hairline borders / tracks
-        gold: "#f7931e", // Solar Orange accent (legible on cream)
-        "gold-light": "#f9c74f", // Golden Yellow
-        sage: "#f7931e",
+        ink: "#282a22", // warm charcoal-green
+        "ink-light": "#4c5142",
+        "ink-muted": "#83887a",
+        "warm-white": "#fdfbf2", // page canvas — soft cream
+        cream: "#f5f2e4", // warm sunken tint
+        parchment: "#e6e3d2", // hairline borders / tracks
+        gold: "#c39a20", // deep golden (legible on cream)
+        "gold-light": "#eccb4a", // Golden Yellow (pop)
+        sage: "#82abac", // soft blue-grey neutral
         indigo: {
-          DEFAULT: "#087f71", // brand primary — Deep Teal
-          dark: "#066a5e",
+          DEFAULT: "#2f7d43", // brand primary — Forest Green (pop)
+          dark: "#276a39",
         },
         sunshine: {
-          DEFAULT: "#f9c74f", // Golden Yellow (petal highlight)
-          light: "#fff1cc",
-          dark: "#f7931e",
+          DEFAULT: "#eccb4a", // Golden Yellow (pop)
+          light: "#fdf3c2",
+          dark: "#c39a20",
         },
         sky: {
-          DEFAULT: "#4b174f", // Vinita / depth (Deep Plum)
-          light: "#f2e9f2",
+          DEFAULT: "#3c6467", // depth — deep blue-grey
+          light: "#eef4f4",
         },
 
         // ── Full palette scales ──
+        // green = forest→leaf (primary pop), amber = golden yellows (accent pop),
+        // berry/plum = soft blue-grey (calm neutral / depth).
         green: {
-          50: "#e7f3f0", 100: "#c4e5de", 200: "#93ccc1", 300: "#57b1a2",
-          400: "#229585", 500: "#087f71", 600: "#076a5e", 700: "#06554b",
-          800: "#06443c", 900: "#05332d",
+          50: "#edf6ea", 100: "#d2e8c5", 200: "#aed897", 300: "#8cc264",
+          400: "#57a747", 500: "#2f7d43", 600: "#276a39", 700: "#1f532d",
+          800: "#173f22", 900: "#102a17",
         },
         amber: {
-          50: "#fef3e0", 100: "#fce1b6", 200: "#fbcf86", 300: "#f9c74f",
-          400: "#f7931e", 500: "#e07f16", 600: "#c06a10", 700: "#96530d",
+          50: "#fdf7e1", 100: "#faedb4", 200: "#f4dd80", 300: "#eccb4a",
+          400: "#e0b62f", 500: "#c39a20", 600: "#9b7a16", 700: "#775e10",
         },
         berry: {
-          50: "#fdeaef", 100: "#fbccd6", 200: "#f7a0b0", 300: "#f4788c",
-          400: "#f45b69", 500: "#e2306a", 600: "#d4146e", 700: "#a91058",
+          50: "#eef4f4", 100: "#d6e5e5", 200: "#a8c6c7", 300: "#82abac",
+          400: "#5e8e90", 500: "#467073", 600: "#38585b", 700: "#2a4345",
         },
         plum: {
-          50: "#f2e9f2", 100: "#dcc6de", 200: "#c099c3", 300: "#9b6a9f",
-          400: "#6f3f73", 500: "#4b174f", 600: "#3d1241", 700: "#2e0d31",
+          50: "#eef4f4", 100: "#d3e2e2", 200: "#a8c6c7", 300: "#7ba6a7",
+          400: "#547e80", 500: "#3c6467", 600: "#2f5052", 700: "#233d3f",
         },
-        sand: { 200: "#efe3d0", 300: "#e0d0b6", 400: "#cbb99a" },
-        stone: { 500: "#a4917a", 600: "#8a7f74" },
-        gold_tip: "#f9c74f",
+        sand: { 200: "#e6e3d2", 300: "#d6d2bd", 400: "#bcb89e" },
+        stone: { 500: "#9a9683", 600: "#83887a" },
+        gold_tip: "#eccb4a",
       },
       fontFamily: {
         serif: ["var(--font-cormorant)", "Georgia", "serif"],
@@ -63,15 +65,15 @@ const config: Config = {
         accent: ["var(--font-nunito)", "var(--font-mulish)", "sans-serif"],
       },
       backgroundImage: {
-        petal: "linear-gradient(135deg, #4b174f 0%, #d4146e 42%, #f7931e 78%, #f9c74f 100%)",
-        "petal-soft": "linear-gradient(135deg, #4b174f, #d4146e 52%, #f7931e 95%)",
+        petal: "linear-gradient(135deg, #2f7d43 0%, #57a747 42%, #e0b62f 78%, #eccb4a 100%)",
+        "petal-soft": "linear-gradient(135deg, #2f7d43, #57a747 52%, #e0b62f 95%)",
       },
       boxShadow: {
         clay: "inset 0 2px 3px rgba(255,255,255,.45), inset 0 -5px 11px rgba(0,0,0,.14), 0 9px 20px rgba(0,0,0,.10)",
-        "clay-teal": "0 9px 20px rgba(8,127,113,.28), inset 0 2px 3px rgba(255,255,255,.4), inset 0 -5px 11px rgba(4,70,60,.32)",
-        glass: "0 10px 30px rgba(75,23,79,.08)",
-        soft: "0 12px 30px rgba(75,23,79,.08)",
-        lift: "0 22px 44px rgba(75,23,79,.14)",
+        "clay-teal": "0 9px 20px rgba(47,125,67,.28), inset 0 2px 3px rgba(255,255,255,.4), inset 0 -5px 11px rgba(25,70,38,.32)",
+        glass: "0 10px 30px rgba(40,60,40,.08)",
+        soft: "0 12px 30px rgba(40,60,40,.08)",
+        lift: "0 22px 44px rgba(40,60,40,.14)",
       },
     },
   },

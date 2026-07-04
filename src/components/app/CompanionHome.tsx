@@ -81,7 +81,7 @@ export function CompanionHome({
         currency: order.currency,
         name: "Healing Hands by Vinita",
         description: `Reflective Companion · ${PLANS[plan].label}`,
-        theme: { color: "#087f71" },
+        theme: { color: "#2f7d43" },
         prefill: firstName ? { name: firstName } : undefined,
         handler: async (resp: RazorpayHandlerResponse) => {
           const confirmRes = await fetch("/api/razorpay/confirm", {
@@ -358,7 +358,7 @@ function ScoreRow({ d }: { d: SampleScoreDelta }) {
         </span>
       </div>
       <div className="h-[5px] overflow-hidden rounded-full bg-cream">
-        <div className="h-full rounded-full" style={{ width: `${d.end}%`, background: up ? "#087f71" : flat ? "#f7931e" : "#d4146e" }} />
+        <div className="h-full rounded-full" style={{ width: `${d.end}%`, background: up ? "#2f7d43" : flat ? "#e0b62f" : "#5e8e90" }} />
       </div>
     </div>
   );

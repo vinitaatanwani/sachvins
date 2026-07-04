@@ -6,7 +6,7 @@
 <title>Free Emotional Wellness Assessment — The Clarity Method | SachVins</title>
 <meta name="description" content="A free 7-minute self-assessment by life coach Vinita. Score six areas of your inner life, get your personal emotional portrait, and begin a 7-day healing practice built around you.">
 <meta name="robots" content="index,follow">
-<meta name="theme-color" content="#087f71">
+<meta name="theme-color" content="#2f7d43">
 <!-- TODO: update canonical + og:url + og:image domain after the final domain is connected -->
 <link rel="canonical" href="https://sachvins-landing.vercel.app/">
 <meta property="og:type" content="website">
@@ -40,18 +40,18 @@
 </script>
 <style>
 :root{
-  --cream:#fff8ed;--cream2:#fbf1e1;--sand:#efe3d0;--sand2:#e0d0b6;
-  --ink:#2f2a26;--ink2:#3a332d;--ink3:#574d44;--muted:#8a7f74;--subtle:#a4917a;
-  --green:#087f71;--green-deep:#066a5e;--green-tint:#e7f3f0;--green-text:#06554b;
-  --amber:#f7931e;--amber-deep:#c06a10;--amber-tint:#fef3e0;
-  --berry:#f45b69;--berry-tint:#fdeaef;--berry-text:#a91058;
-  --plum:#4b174f;--plum-tint:#f2e9f2;--gold-tip:#f9c74f;
-  --petal:linear-gradient(135deg,#4b174f 0%,#d4146e 42%,#f7931e 78%,#f9c74f 100%);
+  --cream:#fdfbf2;--cream2:#f5f2e4;--sand:#e6e3d2;--sand2:#d6d2bd;
+  --ink:#282a22;--ink2:#31352a;--ink3:#4c5142;--muted:#83887a;--subtle:#9a9683;
+  --green:#2f7d43;--green-deep:#276a39;--green-tint:#edf6ea;--green-text:#1f532d;
+  --amber:#c39a20;--amber-deep:#9b7a16;--amber-tint:#fdf7e1;
+  --berry:#5e8e90;--berry-tint:#eef4f4;--berry-text:#2a4345;
+  --plum:#3c6467;--plum-tint:#eef4f4;--gold-tip:#eccb4a;
+  --petal:linear-gradient(135deg,#2f7d43 0%,#57a747 42%,#e0b62f 78%,#eccb4a 100%);
 }
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 html{scroll-behavior:smooth}
 body{font-family:'Plus Jakarta Sans',system-ui,sans-serif;line-height:1.7;font-size:16px;color:var(--ink2);
-  background:radial-gradient(120% 90% at 12% 0%,rgba(247,217,184,.32),transparent 55%),radial-gradient(110% 85% at 92% 4%,rgba(205,231,223,.36),transparent 55%),var(--cream);background-attachment:fixed}
+  background:radial-gradient(120% 90% at 10% 0%,rgba(140,194,100,.20),transparent 55%),radial-gradient(115% 85% at 92% 4%,rgba(236,203,74,.22),transparent 55%),radial-gradient(120% 100% at 50% 108%,rgba(168,198,199,.22),transparent 60%),var(--cream);background-attachment:fixed}
 img{max-width:100%;display:block}
 .serif{font-family:'Fraunces',Georgia,serif;font-weight:600;color:var(--ink)}
 .eyebrow{font-family:'Plus Jakarta Sans',sans-serif;font-weight:800;font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--amber-deep)}
@@ -60,9 +60,13 @@ img{max-width:100%;display:block}
 .btn:hover{background:var(--green-deep)}
 .btn:active{transform:scale(.97)}
 .btn:disabled{opacity:.45;cursor:default}
-.btn:focus-visible,button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible{outline:3px solid rgba(8,127,113,.4);outline-offset:2px}
-.avatar{width:56px;height:56px;border-radius:50%;background:var(--petal);color:#fff;display:flex;align-items:center;justify-content:center;font-family:'Fraunces',serif;font-weight:600;font-size:26px;flex-shrink:0}
-.avatar.sm{width:38px;height:38px;font-size:18px}
+.btn:focus-visible,button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible{outline:3px solid rgba(47,125,67,.4);outline-offset:2px}
+.avatar{width:58px;height:58px;border-radius:50%;background:#fff url('assets/logo-mark.png') center/64% no-repeat;box-shadow:0 6px 18px rgba(40,60,40,.12);color:transparent;font-size:0;flex-shrink:0}
+.avatar.sm{width:38px;height:38px;background-size:66%}
+@keyframes btnsheen{0%{transform:translateX(-140%) skewX(-18deg)}55%,100%{transform:translateX(340%) skewX(-18deg)}}
+.btn,.nav-cta{position:relative;overflow:hidden}
+.btn::after,.nav-cta::after{content:"";position:absolute;top:0;left:0;width:38%;height:100%;background:linear-gradient(100deg,transparent,rgba(255,255,255,.45),transparent);transform:translateX(-140%) skewX(-18deg);animation:btnsheen 6s ease-in-out infinite;pointer-events:none}
+@media (prefers-reduced-motion:reduce){.btn::after,.nav-cta::after,.hero .avatar{animation:none!important}}
 /* nav */
 .nav{position:sticky;top:0;z-index:40;background:rgba(255,253,248,.68);backdrop-filter:blur(20px) saturate(1.2);-webkit-backdrop-filter:blur(20px) saturate(1.2);border-bottom:1px solid rgba(255,255,255,.6);box-shadow:0 6px 22px rgba(75,23,79,.05)}
 .nav-in{max-width:960px;margin:0 auto;padding:10px 18px;display:flex;align-items:center;justify-content:space-between;gap:12px}
@@ -71,8 +75,8 @@ img{max-width:100%;display:block}
 .nav-cta:hover{background:var(--green-deep)}
 /* hero */
 .hero{text-align:center;padding:56px 0 60px;position:relative;overflow:hidden}
-.hero::before{content:"";position:absolute;top:-90px;right:-90px;width:340px;height:340px;border-radius:50%;background:radial-gradient(rgba(58,157,143,.13),transparent 65%);pointer-events:none;z-index:0}
-.hero::after{content:"";position:absolute;bottom:-80px;left:-80px;width:300px;height:300px;border-radius:50%;background:radial-gradient(rgba(247,175,120,.15),transparent 65%);pointer-events:none;z-index:0}
+.hero::before{content:"";position:absolute;top:-90px;right:-90px;width:340px;height:340px;border-radius:50%;background:radial-gradient(rgba(140,194,100,.16),transparent 65%);pointer-events:none;z-index:0}
+.hero::after{content:"";position:absolute;bottom:-80px;left:-80px;width:300px;height:300px;border-radius:50%;background:radial-gradient(rgba(236,203,74,.17),transparent 65%);pointer-events:none;z-index:0}
 .hero>*{position:relative;z-index:1}
 @keyframes breathe{0%,100%{transform:scale(1)}50%{transform:scale(1.055)}}
 .hero .avatar{margin:0 auto 18px;animation:breathe 6s ease-in-out infinite}
@@ -133,7 +137,7 @@ p.lead{color:var(--muted);font-size:14.5px;max-width:520px;margin-bottom:26px}
 .faq details[open] summary::after{content:"–"}
 .faq summary::-webkit-details-marker{display:none}
 .faq .a{padding:0 18px 16px;font-size:13.5px;color:var(--muted);line-height:1.65}
-.cta-final{background:var(--petal);border-radius:24px;padding:40px 24px;text-align:center;color:#fff;box-shadow:0 18px 48px rgba(75,23,79,.18)}
+.cta-final{background:var(--petal);border-radius:24px;padding:40px 24px;text-align:center;color:#fff;box-shadow:0 18px 48px rgba(40,60,40,.18)}
 .cta-final h2{font-family:'Fraunces',serif;font-weight:600;font-size:clamp(26px,6vw,34px);margin-bottom:8px}
 .cta-final p{font-size:14px;color:rgba(255,255,255,.85);max-width:400px;margin:0 auto 22px}
 .btn-white{display:inline-block;background:#fff;color:var(--plum);border:none;border-radius:999px;padding:15px 34px;font-family:'Plus Jakarta Sans',sans-serif;font-size:15px;font-weight:700;cursor:pointer;text-decoration:none;transition:transform .2s}
@@ -263,9 +267,9 @@ body.quiz-active #assessment{display:block}
       <p class="lead">A personal score out of 100 for six areas of your inner life. The lower the score, the more that area is asking for your care first — so you finally know where to begin.</p>
       <div class="samplemap" aria-hidden="true">
         <span class="smcap">Sample map</span>
-        <div class="smrow"><div class="sml">💛 Self-Worth — 34/100</div><div class="smt"><i style="width:34%;background:#d4146e"></i></div></div>
-        <div class="smrow"><div class="sml">🌊 Emotional World — 52/100</div><div class="smt"><i style="width:52%;background:#f7931e"></i></div></div>
-        <div class="smrow"><div class="sml">🌿 Relationships — 71/100</div><div class="smt"><i style="width:71%;background:#087f71"></i></div></div>
+        <div class="smrow"><div class="sml">💛 Self-Worth — 34/100</div><div class="smt"><i style="width:34%;background:#5e8e90"></i></div></div>
+        <div class="smrow"><div class="sml">🌊 Emotional World — 52/100</div><div class="smt"><i style="width:52%;background:#e0b62f"></i></div></div>
+        <div class="smrow"><div class="sml">🌿 Relationships — 71/100</div><div class="smt"><i style="width:71%;background:#2f7d43"></i></div></div>
       </div>
       <div class="domains">
         <div class="domain"><div class="ic">🌀</div><h3>Focus &amp; Attention</h3><p>Your mind and where it wanders</p></div>
@@ -498,7 +502,7 @@ function computeScores(){
   });
 }
 function levelLabel(l){return l==="high"?"Needs most attention":(l==="medium"?"Growing edge":"Relative strength");}
-function levelColor(l){return l==="high"?"#d4146e":(l==="medium"?"#f7931e":"#087f71");}
+function levelColor(l){return l==="high"?"#5e8e90":(l==="medium"?"#e0b62f":"#2f7d43");}
 function nervousState(){
   var a=st.answers,hyper=(a[0]+a[1]+a[3]+a[24]+a[25])/5,hypo=(a[26]+a[13])/2;
   if(Math.max(hyper,hypo)<2.25)return"regulated";

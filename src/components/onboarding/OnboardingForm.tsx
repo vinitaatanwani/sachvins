@@ -53,18 +53,19 @@ const JOURNEY = [
 ];
 
 function levelAccent(level: ScoreLevel) {
-  if (level === "high") return "#d4146e";
-  if (level === "medium") return "#f7931e";
-  return "#087f71";
+  if (level === "high") return "#5e8e90";
+  if (level === "medium") return "#e0b62f";
+  return "#2f7d43";
 }
 
 function VinitaAvatar({ size = 40 }: { size?: number }) {
   return (
     <div
-      className="flex shrink-0 items-center justify-center rounded-full bg-petal font-serif text-white"
-      style={{ width: size, height: size, fontSize: size * 0.44 }}
+      className="flex shrink-0 items-center justify-center rounded-full bg-white/80 shadow-soft ring-1 ring-black/5"
+      style={{ width: size, height: size }}
     >
-      V
+      {/* eslint-disable-next-line @next/next/no-img-element */}
+      <img src="/logo-mark.png" alt="Vinita" className="object-contain" style={{ width: size * 0.66, height: size * 0.66 }} />
     </div>
   );
 }

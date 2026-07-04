@@ -19,8 +19,9 @@ export default async function LoginPage({
   return (
     <div className="flex min-h-[100dvh] flex-col items-center justify-center bg-warm-white px-6 py-16">
       <div className="w-full max-w-sm text-center">
-        <div className="bg-petal mx-auto mb-6 flex h-20 w-20 items-center justify-center rounded-full font-serif text-3xl text-white">
-          V
+        <div className="animate-floaty mx-auto mb-6 flex h-24 w-24 items-center justify-center rounded-full bg-white/80 shadow-soft ring-1 ring-black/5 backdrop-blur">
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img src="/logo-mark.png" alt="SachVins" className="h-16 w-16 object-contain" />
         </div>
         <p className="font-accent text-[10px] font-extrabold uppercase tracking-[0.16em] text-plum-500">
           Healing Hands by Vinita

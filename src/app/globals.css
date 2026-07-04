@@ -3,40 +3,42 @@
 @tailwind utilities;
 
 :root {
-  /* SachVins / Healing Hands by Vinita — soothing palette */
-  --ink: #2f2a26;
-  --ink-light: #574d44;
-  --ink-muted: #8a7f74;
-  --warm-white: #fff8ed;
-  --cream: #fbf1e1;
-  --parchment: #efe3d0;
-  --gold: #f7931e;
-  --gold-light: #f9c74f;
-  --sage: #f7931e;
-  --indigo: #087f71;
-  --teal: #087f71;
-  --green: #087f71;
-  --amber: #f7931e;
-  --berry: #f45b69;
-  --magenta: #d4146e;
-  --plum: #4b174f;
-  --gold-tip: #f9c74f;
+  /* SachVins / Healing Hands by Vinita — green + yellow palette */
+  --ink: #282a22;
+  --ink-light: #4c5142;
+  --ink-muted: #83887a;
+  --warm-white: #fdfbf2;
+  --cream: #f5f2e4;
+  --parchment: #e6e3d2;
+  --gold: #c39a20;
+  --gold-light: #eccb4a;
+  --sage: #82abac;
+  --indigo: #2f7d43;
+  --green: #2f7d43;
+  --leaf: #57a747;
+  --amber: #eccb4a;
+  --yellow: #eccb4a;
+  --berry: #5e8e90;
+  --bluegrey: #82abac;
+  --plum: #3c6467;
+  --gold-tip: #eccb4a;
 }
 
 body {
   color: var(--ink);
   background:
-    radial-gradient(120% 90% at 12% 0%, rgba(247, 217, 184, 0.35), transparent 55%),
-    radial-gradient(110% 90% at 92% 6%, rgba(205, 231, 223, 0.4), transparent 55%),
+    radial-gradient(120% 90% at 10% 0%, rgba(140, 194, 100, 0.22), transparent 55%),
+    radial-gradient(115% 90% at 92% 4%, rgba(236, 203, 74, 0.22), transparent 55%),
+    radial-gradient(120% 100% at 50% 108%, rgba(168, 198, 199, 0.24), transparent 60%),
     var(--warm-white);
   background-attachment: fixed;
 }
 
 .bg-petal {
-  background: linear-gradient(135deg, #4b174f 0%, #d4146e 42%, #f7931e 78%, #f9c74f 100%);
+  background: linear-gradient(135deg, #2f7d43 0%, #57a747 42%, #e0b62f 78%, #eccb4a 100%);
 }
 .bg-petal-soft {
-  background: linear-gradient(135deg, #4b174f, #d4146e 52%, #f7931e 95%);
+  background: linear-gradient(135deg, #2f7d43, #57a747 52%, #e0b62f 95%);
 }
 
 .font-accent {
@@ -45,25 +47,25 @@ body {
 
 /* ── Glassmorphism ── frosted, translucent surfaces */
 .glass {
-  background: rgba(255, 253, 248, 0.62);
+  background: rgba(253, 251, 242, 0.62);
   backdrop-filter: blur(20px) saturate(1.2);
   -webkit-backdrop-filter: blur(20px) saturate(1.2);
   border: 1px solid rgba(255, 255, 255, 0.7);
-  box-shadow: 0 10px 30px rgba(75, 23, 79, 0.08);
+  box-shadow: 0 10px 30px rgba(40, 60, 40, 0.08);
 }
 .glass-strong {
-  background: rgba(255, 253, 248, 0.78);
+  background: rgba(253, 251, 242, 0.78);
   backdrop-filter: blur(24px) saturate(1.25);
   -webkit-backdrop-filter: blur(24px) saturate(1.25);
   border: 1px solid rgba(255, 255, 255, 0.8);
-  box-shadow: 0 12px 34px rgba(75, 23, 79, 0.1);
+  box-shadow: 0 12px 34px rgba(40, 60, 40, 0.1);
 }
 .glass-tint {
-  background: linear-gradient(150deg, rgba(205, 231, 223, 0.5), rgba(255, 253, 248, 0.5) 55%, rgba(247, 217, 184, 0.5));
+  background: linear-gradient(150deg, rgba(210, 232, 197, 0.5), rgba(253, 251, 242, 0.5) 55%, rgba(250, 237, 180, 0.5));
   backdrop-filter: blur(26px) saturate(1.25);
   -webkit-backdrop-filter: blur(26px) saturate(1.25);
   border: 1px solid rgba(255, 255, 255, 0.72);
-  box-shadow: 0 20px 50px rgba(75, 23, 79, 0.1), inset 0 1px 0 rgba(255, 255, 255, 0.65);
+  box-shadow: 0 20px 50px rgba(40, 60, 40, 0.1), inset 0 1px 0 rgba(255, 255, 255, 0.65);
 }
 
 /* ── Claymorphism ── soft, inflated surfaces */
@@ -71,14 +73,14 @@ body {
   box-shadow: inset 0 2px 3px rgba(255, 255, 255, 0.45), inset 0 -5px 11px rgba(0, 0, 0, 0.14), 0 9px 20px rgba(0, 0, 0, 0.1);
 }
 .clay-teal {
-  background: linear-gradient(150deg, #159485, #087f71);
+  background: linear-gradient(150deg, #3a944f, #2f7d43);
   color: #fff;
-  box-shadow: 0 9px 20px rgba(8, 127, 113, 0.28), inset 0 2px 3px rgba(255, 255, 255, 0.4), inset 0 -5px 11px rgba(4, 70, 60, 0.32);
+  box-shadow: 0 9px 20px rgba(47, 125, 67, 0.28), inset 0 2px 3px rgba(255, 255, 255, 0.4), inset 0 -5px 11px rgba(25, 70, 38, 0.32);
 }
 .clay-coral {
-  background: linear-gradient(150deg, #f6737f, #e0798a);
-  color: #fff;
-  box-shadow: 0 9px 20px rgba(224, 121, 138, 0.3), inset 0 2px 3px rgba(255, 255, 255, 0.4), inset 0 -5px 11px rgba(150, 60, 75, 0.28);
+  background: linear-gradient(150deg, #f0d45f, #e0b62f);
+  color: #4a3c08;
+  box-shadow: 0 9px 20px rgba(224, 182, 47, 0.3), inset 0 2px 3px rgba(255, 255, 255, 0.5), inset 0 -5px 11px rgba(150, 115, 20, 0.24);
 }
 
 /* ── Ambient motion for hero/meditation orbs ── */
@@ -99,6 +101,54 @@ body {
   50% { transform: translate(28px, 22px) scale(1.06); }
 }
 .animate-drift { animation: drift 26s ease-in-out infinite; }
+
+/* ── More motion ── */
+
+/* Slow gentle spin for haloed orbs */
+@keyframes spin-slow { to { transform: rotate(360deg); } }
+.animate-spin-slow { animation: spin-slow 44s linear infinite; }
+
+/* Sweeping sheen across buttons / cards */
+@keyframes sheen {
+  0% { transform: translateX(-120%) skewX(-18deg); }
+  60%, 100% { transform: translateX(320%) skewX(-18deg); }
+}
+.sheen { position: relative; overflow: hidden; }
+.sheen::after {
+  content: ""; position: absolute; top: 0; left: 0; width: 45%; height: 100%;
+  background: linear-gradient(100deg, transparent, rgba(255, 255, 255, 0.5), transparent);
+  transform: translateX(-120%) skewX(-18deg);
+  animation: sheen 5.5s ease-in-out infinite;
+  pointer-events: none;
+}
+
+/* Soft pulsing glow ring (CTAs, live dots) */
+@keyframes glow-pulse {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(47, 125, 67, 0.35); }
+  50% { box-shadow: 0 0 0 12px rgba(47, 125, 67, 0); }
+}
+.animate-glow { animation: glow-pulse 2.6s ease-in-out infinite; }
+
+/* Gentle up/down bob (badges, chips) */
+@keyframes bob { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-5px); } }
+.animate-bob { animation: bob 3.4s ease-in-out infinite; }
+
+/* Shimmering gradient text (headline highlights) */
+@keyframes text-sheen { to { background-position: 200% center; } }
+.text-shimmer {
+  background: linear-gradient(100deg, #2f7d43, #57a747 30%, #e0b62f 60%, #2f7d43);
+  background-size: 200% auto;
+  -webkit-background-clip: text; background-clip: text; color: transparent;
+  animation: text-sheen 6s linear infinite;
+}
+
+/* Floating ambient leaves/petals */
+@keyframes float-away {
+  0% { transform: translateY(0) rotate(0); opacity: 0; }
+  10% { opacity: 0.5; }
+  90% { opacity: 0.5; }
+  100% { transform: translateY(-120px) rotate(40deg); opacity: 0; }
+}
 
 @keyframes breathe {
   0%, 100% { transform: scale(0.82); }
@@ -194,7 +244,15 @@ body {
   .breath-ring,
   .animate-grow,
   .animate-pop,
-  .celebrate-particle {
+  .celebrate-particle,
+  .animate-floaty,
+  .animate-morph,
+  .animate-drift,
+  .animate-spin-slow,
+  .animate-glow,
+  .animate-bob,
+  .text-shimmer,
+  .sheen::after {
     animation: none !important;
   }
   .animate-zoom-in,
@@ -202,4 +260,5 @@ body {
     opacity: 1 !important;
     transform: none !important;
   }
+  .text-shimmer { color: var(--green) !important; }
 }

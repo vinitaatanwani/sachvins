@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 
-const COLORS = ["#087f71", "#f7931e", "#f45b69", "#4b174f", "#f9c74f"];
+const COLORS = ["#2f7d43", "#e0b62f", "#57a747", "#82abac", "#eccb4a"];
 const PARTICLE_COUNT = 14;
 
 function Burst() {
