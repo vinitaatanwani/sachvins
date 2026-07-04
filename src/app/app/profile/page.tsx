@@ -4,6 +4,7 @@ import { CountUp } from "@/components/motion/CountUp";
 import { CheckInForm } from "@/components/app/CheckInForm";
 import { FocusAreaSwitcher } from "@/components/app/FocusAreaSwitcher";
 import { ResetTestDataButton } from "@/components/app/ResetTestDataButton";
+import { SignOutButton } from "@/components/app/SignOutButton";
 import { FOCUS_AREA_LABELS, type DomainScore } from "@/lib/quiz-data";
 import { SUBSCRIPTION_PLANS, COACHING_PACKAGES, formatInr } from "@/lib/pricing";
 
@@ -127,7 +128,10 @@ export default async function ProfilePage() {
         </div>
       </div>
 
-      <ResetTestDataButton />
+      <div className="mt-1 space-y-2.5">
+        <SignOutButton />
+        <ResetTestDataButton />
+      </div>
     </div>
   );
 }

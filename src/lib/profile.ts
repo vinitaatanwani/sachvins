@@ -1,29 +1,51 @@
-import { cookies } from "next/headers";
 import { prisma } from "@/lib/prisma";
-import { DEVICE_ID_COOKIE } from "@/lib/device-id";
+import { createClient } from "@/lib/supabase/server";
+import type { User } from "@supabase/supabase-js";
 
-// Anonymous per-device identity (see lib/device-id.ts / middleware.ts). Swap
-// this for a real auth lookup (lib/supabase/server.ts) when accounts come back.
+// Identity is the Supabase-authenticated user (Google OAuth). Every /app page
+// and protected API route resolves the current person through these helpers, so
+// keying them to the auth user id makes the whole app per-account. Public
+// marketing/quiz routes don't call these — they stay anonymous (leads).
+
+// The current signed-in user's id, or null if not authenticated. Named
+// getDeviceId for historical reasons (it used to read an anonymous cookie);
+// callers treat the returned value as the Profile id, which still holds.
 export async function getDeviceId(): Promise<string | null> {
-  const cookieStore = await cookies();
-  return cookieStore.get(DEVICE_ID_COOKIE)?.value ?? null;
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  return user?.id ?? null;
+}
+
+// Pull a display name out of the Google identity (falls back gracefully).
+function nameFromUser(user: User): string | null {
+  const m = user.user_metadata ?? {};
+  return (m.full_name as string) || (m.name as string) || null;
+}
+
+// Ensure a Profile row exists for a freshly-authenticated user (called from the
+// OAuth callback). Idempotent; backfills name/email from Google on first create.
+export async function provisionProfileForUser(user: User) {
+  const existing = await prisma.profile.findUnique({ where: { id: user.id } });
+  if (existing) return existing;
+  try {
+    return await prisma.profile.create({
+      data: { id: user.id, email: user.email ?? null, name: nameFromUser(user) },
+    });
+  } catch {
+    // A concurrent request won the create — return whatever now exists.
+    return prisma.profile.findUnique({ where: { id: user.id } });
+  }
 }
 
 export async function getCurrentProfile() {
-  const deviceId = await getDeviceId();
-  if (!deviceId) return null;
-
-  // Read-first, create-if-missing. Avoids the upsert race where two concurrent
-  // requests (e.g. the layout and a page both resolving this device for the
-  // first time) each try to create the row and one fails with P2002.
-  const existing = await prisma.profile.findUnique({ where: { id: deviceId } });
-  if (existing) return existing;
-  try {
-    return await prisma.profile.create({ data: { id: deviceId } });
-  } catch {
-    // A concurrent request won the create — return whatever now exists.
-    return prisma.profile.findUnique({ where: { id: deviceId } });
-  }
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  if (!user) return null;
+  return provisionProfileForUser(user);
 }
 
 export function trialDayNumber(trialStartedAt: Date | null): number {

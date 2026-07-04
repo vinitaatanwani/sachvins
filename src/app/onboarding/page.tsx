@@ -11,7 +11,7 @@ export default async function OnboardingPage({
 }) {
   const { rid } = await searchParams;
   const deviceId = await getDeviceId();
-  if (!deviceId) redirect("/quiz");
+  if (!deviceId) redirect("/login?next=/onboarding");
 
   let profile = await getCurrentProfile();
   if (profile?.onboardedAt) redirect("/app/dashboard");
