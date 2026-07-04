@@ -1,7 +1,7 @@
 import { notFound } from "next/navigation";
 import { requireAdmin } from "@/lib/admin";
 import { prisma } from "@/lib/prisma";
-import { FOCUS_AREA_LABELS, type FocusAreaKey } from "@/lib/quiz-data";
+import { FOCUS_AREA_LABELS, type FocusAreaKey, type DomainScore } from "@/lib/quiz-data";
 import { SUBSCRIPTION_PLANS, type SubscriptionPlanKey } from "@/lib/pricing";
 import { AdminDashboard, type CustomerRow } from "@/components/admin/AdminDashboard";
 
@@ -29,12 +29,13 @@ export default async function AdminPage() {
 
   const fromLeads: CustomerRow[] = leads.map((lead) => {
     const qr = lead.quizResult;
-    const scores = (qr?.domainScores as Record<string, number> | undefined) ?? {};
-    const vals = Object.values(scores);
+    const scores = (qr?.domainScores as unknown as DomainScore[] | undefined) ?? [];
     const focusKey = (qr?.primaryFocusArea ?? null) as FocusAreaKey | null;
+    const focusEntry = focusKey ? scores.find((s) => s.key === focusKey) : undefined;
     const profile = qr?.profileId ? profileMap.get(qr.profileId) : undefined;
     return {
       id: lead.id,
+      detailId: profile?.id ?? lead.id,
       name: lead.name,
       email: lead.email,
       phone: lead.phone,
@@ -42,8 +43,8 @@ export default async function AdminPage() {
       joinedLabel: fmtDate(lead.createdAt),
       focusArea: focusKey,
       focusLabel: focusKey ? FOCUS_AREA_LABELS[focusKey] : null,
-      focusScore: focusKey && scores[focusKey] != null ? scores[focusKey] : null,
-      avgScore: vals.length ? Math.round(vals.reduce((a, b) => a + b, 0) / vals.length) : null,
+      focusScore: focusEntry?.score ?? null,
+      avgScore: scores.length ? Math.round(scores.reduce((a, s) => a + s.score, 0) / scores.length) : null,
       nervousState: qr?.nervousSystemState ?? null,
       age: qr?.age ?? null,
       gender: qr?.gender ?? null,
@@ -62,6 +63,7 @@ export default async function AdminPage() {
     .filter((p) => !referenced.has(p.id))
     .map((p) => ({
       id: p.id,
+      detailId: p.id,
       name: p.name ?? "—",
       email: p.email ?? "—",
       phone: p.phone ?? "—",

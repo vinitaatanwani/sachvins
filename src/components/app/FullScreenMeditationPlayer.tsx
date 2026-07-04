@@ -19,6 +19,19 @@ export function FullScreenMeditationPlayer({ track }: { track: MeditationTrack }
   const [running, setRunning] = useState(false);
   const [complete, setComplete] = useState(false);
   const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  const recordedRef = useRef(false);
+
+  // Record a completed session once (engagement tracking for the owner console).
+  useEffect(() => {
+    if (!complete || recordedRef.current) return;
+    recordedRef.current = true;
+    const minutes = Math.max(1, Math.round(track.steps.reduce((s, st) => s + st.seconds, 0) / 60));
+    fetch("/api/meditation/complete", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ trackId: track.id, title: track.title, minutes }),
+    }).catch(() => {});
+  }, [complete, track]);
 
   useEffect(() => {
     if (!running) return;
@@ -48,6 +61,7 @@ export function FullScreenMeditationPlayer({ track }: { track: MeditationTrack }
     setComplete(false);
     setStepIndex(0);
     setSecondsLeft(track.steps[0].seconds);
+    recordedRef.current = false;
   }
 
   const step = track.steps[stepIndex];

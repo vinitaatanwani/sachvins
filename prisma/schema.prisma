@@ -122,6 +122,7 @@ model Profile {
   reflectiveLetters      ReflectiveLetter[]
   clarityReports         ClarityReport[]
   affirmationSets        AffirmationSet[]
+  meditationSessions     MeditationSession[]
 }
 
 // ── Paid membership: the Reflective Content Engine's stored output ──
@@ -169,6 +170,19 @@ model AffirmationSet {
   createdAt          DateTime  @default(now())
 
   @@index([profileId, weekOf])
+}
+
+// One row per completed meditation session — powers engagement tracking.
+model MeditationSession {
+  id         String   @id @default(uuid())
+  profile    Profile  @relation(fields: [profileId], references: [id], onDelete: Cascade)
+  profileId  String
+  trackId    String
+  title      String
+  minutes    Int
+  createdAt  DateTime @default(now())
+
+  @@index([profileId, createdAt])
 }
 
 model JournalEntry {

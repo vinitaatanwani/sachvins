@@ -2,12 +2,14 @@
 
 import { useMemo, useState } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import clsx from "clsx";
 import { createClient } from "@/lib/supabase/client";
 import { formatInr } from "@/lib/pricing";
 
 export interface CustomerRow {
   id: string;
+  detailId: string;
   name: string;
   email: string;
   phone: string;
@@ -63,6 +65,7 @@ export function AdminDashboard({
   customers: CustomerRow[];
   focusList: { key: string; label: string; count: number }[];
 }) {
+  const router = useRouter();
   const [q, setQ] = useState("");
   const [filter, setFilter] = useState<Filter>("all");
 
@@ -194,13 +197,18 @@ export function AdminDashboard({
                   <th className="px-4 py-3 font-semibold">Status</th>
                   <th className="px-4 py-3 text-center font-semibold">Journals</th>
                   <th className="px-4 py-3 font-semibold">Joined</th>
+                  <th className="px-4 py-3" />
                 </tr>
               </thead>
               <tbody>
                 {rows.map((c) => {
                   const s = statusOf(c);
                   return (
-                    <tr key={c.id} className="border-b border-parchment/60 last:border-0 hover:bg-white/50">
+                    <tr
+                      key={c.id}
+                      onClick={() => router.push(`/admin/c/${c.detailId}`)}
+                      className="cursor-pointer border-b border-parchment/60 last:border-0 hover:bg-white/60"
+                    >
                       <td className="px-4 py-3">
                         <div className="font-semibold text-ink">{c.name}</div>
                         {c.nervousState && (
@@ -232,6 +240,7 @@ export function AdminDashboard({
                       </td>
                       <td className="px-4 py-3 text-center font-semibold text-ink">{c.journalCount}</td>
                       <td className="px-4 py-3 text-ink-muted">{c.joinedLabel}</td>
+                      <td className="px-4 py-3 text-ink-muted">›</td>
                     </tr>
                   );
                 })}
