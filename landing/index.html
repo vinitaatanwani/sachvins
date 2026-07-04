@@ -79,22 +79,31 @@ img{max-width:100%;display:block}
 @keyframes breathe{0%,100%{transform:scale(1)}50%{transform:scale(1.055)}}
 .hero .avatar{margin:0 auto 18px;animation:breathe 6s ease-in-out infinite;background-color:transparent;box-shadow:none;background-size:100%;width:66px;height:66px}
 .hero h1{font-size:clamp(34px,8vw,52px);line-height:1.12;margin:12px 0 16px}
-.hero h1 em{font-style:italic;padding:0 .06em;background:linear-gradient(100deg,#6d5cc0,#a15fb8 45%,#c85f86);-webkit-background-clip:text;background-clip:text;color:transparent;font-weight:600}
-/* white dove gliding across the first fold */
-.dove-lane{position:absolute;top:70px;left:0;width:100%;height:520px;overflow:hidden;pointer-events:none;z-index:0}
-.dove{position:absolute;top:8px;left:0;opacity:0;animation:doveGlide 17s linear infinite;animation-delay:1.2s;filter:drop-shadow(0 8px 16px rgba(109,92,192,.28))}
-@keyframes doveGlide{
-  0%{transform:translate(-9vw,26px) scale(.85);opacity:0}
-  7%{opacity:.95}
-  28%{transform:translate(26vw,-6px) scale(.94)}
-  52%{transform:translate(55vw,12px) scale(1)}
-  78%{transform:translate(84vw,-10px) scale(.94);opacity:.95}
+.hero h1 em{font-style:italic;padding:0 .12em;-webkit-box-decoration-break:clone;box-decoration-break:clone;background:linear-gradient(100deg,#6d5cc0,#a15fb8 45%,#c85f86);-webkit-background-clip:text;background-clip:text;color:transparent;font-weight:600}
+/* two white doves gliding across the first fold, from opposite directions */
+.dove-lane{position:absolute;top:64px;left:0;width:100%;height:560px;overflow:hidden;pointer-events:none;z-index:0}
+.dove{position:absolute;top:0;left:0;opacity:0;will-change:transform;filter:drop-shadow(0 10px 18px rgba(109,92,192,.28))}
+.dove-a{width:78px;animation:doveA 19s linear infinite;animation-delay:1s}
+.dove-b{width:56px;animation:doveB 24s linear infinite;animation-delay:10s;filter:drop-shadow(0 8px 14px rgba(109,92,192,.2))}
+@keyframes doveA{
+  0%{transform:translate(-12vw,64px) rotate(5deg);opacity:0}
+  7%{opacity:1}
+  30%{transform:translate(27vw,10px) rotate(-3deg)}
+  52%{transform:translate(54vw,-4px) rotate(2deg)}
+  78%{transform:translate(86vw,26px) rotate(-4deg);opacity:1}
   93%{opacity:0}
-  100%{transform:translate(106vw,-22px) scale(.85);opacity:0}
+  100%{transform:translate(110vw,52px) rotate(-6deg);opacity:0}
 }
-.dove .wing{transform-origin:31px 25px;animation:doveFlap .75s ease-in-out infinite alternate}
-@keyframes doveFlap{from{transform:rotate(-26deg)}to{transform:rotate(14deg)}}
-@media(prefers-reduced-motion:reduce){.dove,.dove .wing{animation:none!important;opacity:0!important}}
+@keyframes doveB{
+  0%{transform:translate(108vw,40px) scaleX(-1) rotate(-4deg);opacity:0}
+  7%{opacity:.92}
+  30%{transform:translate(68vw,4px) scaleX(-1) rotate(3deg)}
+  55%{transform:translate(38vw,20px) scaleX(-1) rotate(-2deg)}
+  80%{transform:translate(10vw,-2px) scaleX(-1) rotate(3deg);opacity:.92}
+  94%{opacity:0}
+  100%{transform:translate(-14vw,14px) scaleX(-1) rotate(5deg);opacity:0}
+}
+@media(prefers-reduced-motion:reduce){.dove{animation:none!important;opacity:0!important}}
 .hero p.sub{max-width:460px;margin:0 auto 26px;color:var(--ink3);font-size:15.5px}
 .honesty{font-size:12px;color:var(--muted);margin-top:14px}
 .resume-card{background:#fff;border:1px solid var(--sand);border-radius:16px;padding:18px 20px;max-width:420px;margin:18px auto 0;text-align:center}
@@ -264,15 +273,8 @@ body.quiz-active #assessment{display:block}
 
 <main id="marketing">
   <div class="dove-lane" aria-hidden="true">
-    <svg class="dove" width="76" height="60" viewBox="0 0 72 58">
-      <g fill="#fff">
-        <path class="wing" d="M34 26 C29 12 18 4 7 5 C15 11 22 19 28 28 Z"/>
-        <path d="M12 34 C6 36 3 40 1 45 C7 43 12 40 16 37 Z"/>
-        <path d="M10 32 C20 24 34 22 44 25 C50 26 58 24 66 18 C63 27 56 32 47 34 C38 42 24 44 14 39 C10 37 8 35 10 32 Z"/>
-        <circle cx="47" cy="22" r="4.6"/>
-      </g>
-      <path d="M51 20.6 L58 22 L51 23.8 Z" fill="#eab765"/>
-    </svg>
+    <img class="dove dove-a" src="assets/dove.png" alt="">
+    <img class="dove dove-b" src="assets/dove.png" alt="">
   </div>
   <section class="hero wrap">
     <div class="avatar" aria-hidden="true">V</div>
