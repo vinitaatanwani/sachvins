@@ -52,6 +52,33 @@ export function getDailyPrompt(focusArea: FocusAreaKey, dayIndex: number): strin
   return prompts[dayIndex % prompts.length];
 }
 
+// Second journal question — the "pattern" layer, from Vinita's Break Your Life
+// Loop method. Question 1 surfaces the moment + feeling; question 2 gently opens
+// the meaning and the repeating loop underneath it (locate → observe → open).
+export const JOURNAL_LOOP_QUESTIONS: string[] = [
+  "What did that moment make you believe about yourself — and is that a fact, or an old story you've carried for a while?",
+  "Where in your life have you felt this exact feeling before? Name the earliest time you can remember it.",
+  "What did the urge want you to do in that moment — and what were you afraid would happen if you didn't?",
+  "This reaction was once trying to protect you. From what? And how could you protect yourself a little differently today?",
+  "What does this pattern give you for ten minutes — and what does it quietly cost you over ten months?",
+  "What would a calmer version of you do next — one small response that's just 10% different from your usual one?",
+];
+
+export interface JournalPromptSet {
+  q1: string;
+  q2: string;
+}
+
+// A daily two-part reflection: q1 (the moment) tuned to the person's focus area,
+// q2 (the pattern) rotating through the loop questions above.
+export function getDailyPromptSet(focusArea: FocusAreaKey, dayIndex: number): JournalPromptSet {
+  const q1s = JOURNAL_PROMPTS[focusArea];
+  return {
+    q1: q1s[dayIndex % q1s.length],
+    q2: JOURNAL_LOOP_QUESTIONS[dayIndex % JOURNAL_LOOP_QUESTIONS.length],
+  };
+}
+
 // PRD 4.4 — Guided meditation module. No audio narration asset yet, so each
 // track is a self-guided sequence of timed steps with a breathing pacer.
 export interface MeditationStep {

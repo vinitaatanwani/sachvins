@@ -27,7 +27,10 @@ export async function POST(req: NextRequest) {
 
   let reflection: string;
   try {
-    reflection = await generateCoachReflection(entry.content, entry.focusArea);
+    reflection = await generateCoachReflection(
+      { prompt: entry.prompt, content: entry.content, prompt2: entry.prompt2, content2: entry.content2 },
+      entry.focusArea
+    );
   } catch (err) {
     return NextResponse.json(
       { error: err instanceof Error ? err.message : "Could not generate a reflection right now" },

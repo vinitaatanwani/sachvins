@@ -6,6 +6,8 @@ import { getDeviceId } from "@/lib/profile";
 const bodySchema = z.object({
   prompt: z.string().min(1),
   content: z.string().min(1),
+  prompt2: z.string().min(1),
+  content2: z.string().min(1),
   focusArea: z.enum([
     "focus_attention",
     "self_worth",
@@ -30,13 +32,17 @@ export async function POST(req: NextRequest) {
     where: { profileId: deviceId, date: { gte: startOfToday } },
   });
 
-  const contentChanged = existing && existing.content !== parsed.data.content;
+  const contentChanged =
+    existing &&
+    (existing.content !== parsed.data.content || existing.content2 !== parsed.data.content2);
 
   const entry = existing
     ? await prisma.journalEntry.update({
         where: { id: existing.id },
         data: {
           content: parsed.data.content,
+          content2: parsed.data.content2,
+          prompt2: parsed.data.prompt2,
           // A stale reflection would no longer match edited content — clear
           // it so the next request regenerates one instead of showing old advice.
           ...(contentChanged ? { reflection: null } : {}),
@@ -47,6 +53,8 @@ export async function POST(req: NextRequest) {
           profileId: deviceId,
           prompt: parsed.data.prompt,
           content: parsed.data.content,
+          prompt2: parsed.data.prompt2,
+          content2: parsed.data.content2,
           focusArea: parsed.data.focusArea,
         },
       });

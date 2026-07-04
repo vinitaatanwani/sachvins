@@ -191,8 +191,10 @@ model JournalEntry {
   profileId  String
   date       DateTime  @default(now())
   focusArea  FocusArea
-  prompt     String    @db.Text
-  content    String?   @db.Text
+  prompt     String    @db.Text  // question 1 — "the moment"
+  content    String?   @db.Text  // answer 1
+  prompt2    String?   @db.Text  // question 2 — "the pattern" (Break Your Life Loop)
+  content2   String?   @db.Text  // answer 2
   reflection String?   @db.Text
   createdAt  DateTime  @default(now())
 

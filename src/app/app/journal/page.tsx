@@ -1,6 +1,6 @@
 import { getCurrentProfile, trialDayNumber } from "@/lib/profile";
 import { prisma } from "@/lib/prisma";
-import { getDailyPrompt } from "@/lib/content";
+import { getDailyPromptSet } from "@/lib/content";
 import { JournalScreen } from "@/components/app/JournalScreen";
 
 export default async function JournalPage() {
@@ -9,7 +9,7 @@ export default async function JournalPage() {
 
   const focusArea = profile.focusArea ?? "self_worth";
   const dayNumber = trialDayNumber(profile.trialStartedAt);
-  const prompt = getDailyPrompt(focusArea, dayNumber - 1);
+  const { q1, q2 } = getDailyPromptSet(focusArea, dayNumber - 1);
 
   const startOfToday = new Date();
   startOfToday.setHours(0, 0, 0, 0);
@@ -25,9 +25,11 @@ export default async function JournalPage() {
 
   return (
     <JournalScreen
-      prompt={prompt}
+      prompt={todayEntry?.prompt ?? q1}
+      prompt2={todayEntry?.prompt2 ?? q2}
       focusArea={focusArea}
       initialContent={todayEntry?.content ?? ""}
+      initialContent2={todayEntry?.content2 ?? ""}
       initialEntryId={todayEntry?.id ?? null}
       initialReflection={todayEntry?.reflection ?? null}
       pastEntries={pastEntries.map((e) => ({
@@ -35,6 +37,8 @@ export default async function JournalPage() {
         date: e.date.toDateString(),
         prompt: e.prompt,
         content: e.content,
+        prompt2: e.prompt2,
+        content2: e.content2,
       }))}
     />
   );
