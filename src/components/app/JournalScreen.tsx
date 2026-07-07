@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import { useRouter } from "next/navigation";
 import clsx from "clsx";
 import type { FocusAreaKey } from "@/lib/quiz-data";
 import type { SpeechRecognitionLike } from "@/types/speech-recognition";
@@ -14,6 +15,7 @@ interface PastEntry {
   content: string | null;
   prompt2: string | null;
   content2: string | null;
+  reflection: string | null;
 }
 
 type Field = "q1" | "q2";
@@ -22,29 +24,24 @@ export function JournalScreen({
   prompt,
   prompt2,
   focusArea,
-  initialContent,
-  initialContent2,
-  initialEntryId,
-  initialReflection,
   pastEntries,
 }: {
   prompt: string;
   prompt2: string;
   focusArea: FocusAreaKey;
-  initialContent: string;
-  initialContent2: string;
-  initialEntryId: string | null;
-  initialReflection: string | null;
   pastEntries: PastEntry[];
 }) {
+  const router = useRouter();
   const [tab, setTab] = useState<"write" | "history">("write");
-  const [content, setContent] = useState(initialContent);
-  const [content2, setContent2] = useState(initialContent2);
-  const [entryId, setEntryId] = useState(initialEntryId);
+  const [content, setContent] = useState("");
+  const [content2, setContent2] = useState("");
   const [saving, setSaving] = useState(false);
-  const [saved, setSaved] = useState(Boolean(initialContent && initialContent2));
+  // Once a session is saved we swap the writing form for a calm confirmation +
+  // Vinita's note, so the person can pause — or start a fresh entry with a new
+  // question — without their words changing under them.
+  const [justSaved, setJustSaved] = useState(false);
 
-  const [reflection, setReflection] = useState(initialReflection);
+  const [reflection, setReflection] = useState<string | null>(null);
   const [showReply, setShowReply] = useState(false);
   const [replyLoading, setReplyLoading] = useState(false);
   const [celebrate, setCelebrate] = useState(0);
@@ -93,8 +90,6 @@ export function JournalScreen({
         else interim += result[0].transcript;
       }
       setter(baseContentRef.current + finalTranscriptRef.current + interim);
-      setSaved(false);
-      setReflection(null);
     };
     recognition.onerror = () => setRecordingField(null);
     recognition.onend = () => setRecordingField(null);
@@ -106,20 +101,18 @@ export function JournalScreen({
 
   function changeField(field: Field, value: string) {
     (field === "q1" ? setContent : setContent2)(value);
-    setSaved(false);
-    setReflection(null);
   }
 
   function randomFallback() {
     return COACH_FALLBACKS[Math.floor(Math.random() * COACH_FALLBACKS.length)];
   }
 
-  // Save both answers, then immediately fetch a short coaching reply and show it
-  // in a pop-up. If the live reflection isn't available, fall back to a warm
-  // method-aligned line so the person always hears something back.
+  // Save this session as a brand-new entry, then immediately fetch a short
+  // coaching reply and show it in a pop-up. router.refresh() pulls the saved
+  // entry into the Past list and loads the *next* question for another round.
   async function handleSave() {
     setSaving(true);
-    let id = entryId;
+    let id: string | null = null;
     try {
       const res = await fetch("/api/journal", {
         method: "POST",
@@ -127,22 +120,29 @@ export function JournalScreen({
         body: JSON.stringify({ prompt, content, prompt2, content2, focusArea }),
       });
       const data = await res.json();
-      id = data.entryId;
-      setEntryId(id);
-      setSaved(true);
+      id = data.entryId ?? null;
+      setJustSaved(true);
       setCelebrate((c) => c + 1);
     } finally {
       setSaving(false);
     }
-    if (id) await openReply(id, reflection);
+    router.refresh();
+    if (id) await openReply(id);
   }
 
-  async function openReply(id: string, existing: string | null) {
+  // Clear the form and adopt the freshly-loaded next question for another entry.
+  function writeAnother() {
+    setContent("");
+    setContent2("");
+    setReflection(null);
+    setShowReply(false);
+    setJustSaved(false);
+    setTab("write");
+    router.refresh();
+  }
+
+  async function openReply(id: string) {
     setShowReply(true);
-    if (existing) {
-      setReflection(existing);
-      return;
-    }
     setReplyLoading(true);
     try {
       const res = await fetch("/api/journal/reflect", {
@@ -174,62 +174,79 @@ export function JournalScreen({
       </div>
 
       {tab === "write" ? (
-        <div className="flex flex-1 flex-col overflow-y-auto px-5 pb-6">
-          <p className="mb-4 text-[12.5px] leading-relaxed text-ink-muted">
-            Two gentle questions today — the first to notice the moment, the second to see the pattern underneath it.
-          </p>
-
-          <QuestionBlock
-            step={1}
-            label="The moment"
-            question={prompt}
-            value={content}
-            onChange={(v) => changeField("q1", v)}
-            recording={recordingField === "q1"}
-            onMic={() => (recordingField === "q1" ? stopRecording() : startRecording("q1"))}
-            speechSupported={speechSupported}
-            placeholder="Write freely, or tap the mic to talk instead."
-          />
-
-          <QuestionBlock
-            step={2}
-            label="The pattern"
-            question={prompt2}
-            value={content2}
-            onChange={(v) => changeField("q2", v)}
-            recording={recordingField === "q2"}
-            onMic={() => (recordingField === "q2" ? stopRecording() : startRecording("q2"))}
-            speechSupported={speechSupported}
-            placeholder="There's no wrong answer here — just notice what comes up."
-          />
-
-          <div className="pt-1">
-            <button
-              onClick={handleSave}
-              disabled={saving || !bothAnswered}
-              className="w-full rounded-full bg-indigo py-3.5 text-sm font-semibold text-white transition active:scale-[0.98] disabled:opacity-50"
-            >
-              {saving ? "Saving…" : "Save & hear from Vinita"}
-            </button>
-            {!bothAnswered && (
-              <p className="mt-2 text-center text-[11.5px] text-ink-muted">Answer both questions to save.</p>
-            )}
-          </div>
-
-          {saved && reflection && !showReply && (
+        justSaved ? (
+          <div className="flex flex-1 flex-col items-center justify-center px-6 pb-10 text-center">
+            <div className="animate-zoom-in flex h-16 w-16 items-center justify-center rounded-full bg-indigo/12">
+              <svg width="30" height="30" viewBox="0 0 24 24" fill="none">
+                <path d="M5 12.5l4.5 4.5L19 7.5" stroke="var(--color-indigo, #6C5CE7)" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" />
+              </svg>
+            </div>
+            <h2 className="mt-5 font-serif text-[22px] text-ink">Your reflection is saved</h2>
+            <p className="mt-2 max-w-[16rem] text-[13.5px] leading-relaxed text-ink-muted">
+              Vinita has read your words and left you a note. It&rsquo;s saved with this entry — you can revisit it anytime under Past.
+            </p>
             <button
               onClick={() => setShowReply(true)}
-              className="mt-3 w-full rounded-full border border-gold/40 bg-cream py-2.5 text-[13px] font-medium text-ink transition active:scale-[0.98]"
+              className="mt-6 w-full max-w-xs rounded-full border border-gold/40 bg-cream py-3 text-[13.5px] font-medium text-ink transition active:scale-[0.98]"
             >
-              See Vinita&rsquo;s note again
+              See Vinita&rsquo;s note
             </button>
-          )}
-        </div>
+            <button
+              onClick={writeAnother}
+              className="mt-3 w-full max-w-xs rounded-full bg-indigo py-3.5 text-sm font-semibold text-white transition active:scale-[0.98]"
+            >
+              Write another entry
+            </button>
+          </div>
+        ) : (
+          <div className="flex flex-1 flex-col overflow-y-auto px-5 pb-6">
+            <p className="mb-4 text-[12.5px] leading-relaxed text-ink-muted">
+              Two gentle questions — the first to notice the moment, the second to see the pattern underneath it.
+            </p>
+
+            <QuestionBlock
+              step={1}
+              label="The moment"
+              question={prompt}
+              value={content}
+              onChange={(v) => changeField("q1", v)}
+              recording={recordingField === "q1"}
+              onMic={() => (recordingField === "q1" ? stopRecording() : startRecording("q1"))}
+              speechSupported={speechSupported}
+              placeholder="Write freely, or tap the mic to talk instead."
+            />
+
+            <QuestionBlock
+              step={2}
+              label="The pattern"
+              question={prompt2}
+              value={content2}
+              onChange={(v) => changeField("q2", v)}
+              recording={recordingField === "q2"}
+              onMic={() => (recordingField === "q2" ? stopRecording() : startRecording("q2"))}
+              speechSupported={speechSupported}
+              placeholder="There's no wrong answer here — just notice what comes up."
+            />
+
+            <div className="pt-1">
+              <button
+                onClick={handleSave}
+                disabled={saving || !bothAnswered}
+                className="w-full rounded-full bg-indigo py-3.5 text-sm font-semibold text-white transition active:scale-[0.98] disabled:opacity-50"
+              >
+                {saving ? "Saving…" : "Save & hear from Vinita"}
+              </button>
+              {!bothAnswered && (
+                <p className="mt-2 text-center text-[11.5px] text-ink-muted">Answer both questions to save.</p>
+              )}
+            </div>
+          </div>
+        )
       ) : (
         <div className="flex-1 overflow-y-auto px-5 pb-8">
           {pastEntries.length === 0 ? (
             <p className="mt-10 text-center text-sm text-ink-muted">
-              Past entries will show up here once you&rsquo;ve journaled on a few different days.
+              Your entries will show up here once you&rsquo;ve journaled — each one with Vinita&rsquo;s note.
             </p>
           ) : (
             <div className="stagger flex flex-col gap-3">
@@ -243,6 +260,16 @@ export function JournalScreen({
                       <p className="mb-1 font-serif text-[14.5px] text-ink">&ldquo;{entry.prompt2}&rdquo;</p>
                       <p className="whitespace-pre-wrap text-[13.5px] leading-relaxed text-ink-light">{entry.content2}</p>
                     </>
+                  )}
+                  {entry.reflection && (
+                    <div className="mt-3 rounded-xl border border-gold/30 bg-cream p-3">
+                      <div className="mb-1.5 flex items-center gap-1.5">
+                        {/* eslint-disable-next-line @next/next/no-img-element */}
+                        <img src="/logo-mark.png" alt="Vinita" className="h-5 w-5 rounded-full bg-white p-0.5 ring-1 ring-black/5" />
+                        <span className="font-accent text-[10px] font-extrabold uppercase tracking-[0.12em] text-gold">Vinita&rsquo;s note</span>
+                      </div>
+                      <p className="whitespace-pre-wrap text-[13px] leading-relaxed text-ink-light">{entry.reflection}</p>
+                    </div>
                   )}
                 </div>
               ))}

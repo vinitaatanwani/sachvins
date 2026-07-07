@@ -4,6 +4,11 @@ import { prisma } from "@/lib/prisma";
 import { getDeviceId } from "@/lib/profile";
 
 const bodySchema = z.object({
+  // When present, this save edits an in-progress draft (the same journaling
+  // session) instead of starting a new one. Absent → a brand-new entry, so a
+  // person can journal as many times a day as they like, each one its own
+  // entry with its own prompts and its own note from Vinita.
+  entryId: z.string().uuid().optional(),
   prompt: z.string().min(1),
   content: z.string().min(1),
   prompt2: z.string().min(1),
@@ -25,39 +30,33 @@ export async function POST(req: NextRequest) {
   const parsed = bodySchema.safeParse(await req.json());
   if (!parsed.success) return NextResponse.json({ error: "Invalid payload" }, { status: 400 });
 
-  const startOfToday = new Date();
-  startOfToday.setHours(0, 0, 0, 0);
+  const { entryId, prompt, content, prompt2, content2, focusArea } = parsed.data;
 
-  const existing = await prisma.journalEntry.findFirst({
-    where: { profileId: deviceId, date: { gte: startOfToday } },
-  });
-
-  const contentChanged =
-    existing &&
-    (existing.content !== parsed.data.content || existing.content2 !== parsed.data.content2);
-
-  const entry = existing
-    ? await prisma.journalEntry.update({
-        where: { id: existing.id },
-        data: {
-          content: parsed.data.content,
-          content2: parsed.data.content2,
-          prompt2: parsed.data.prompt2,
-          // A stale reflection would no longer match edited content — clear
-          // it so the next request regenerates one instead of showing old advice.
-          ...(contentChanged ? { reflection: null } : {}),
-        },
-      })
-    : await prisma.journalEntry.create({
-        data: {
-          profileId: deviceId,
-          prompt: parsed.data.prompt,
-          content: parsed.data.content,
-          prompt2: parsed.data.prompt2,
-          content2: parsed.data.content2,
-          focusArea: parsed.data.focusArea,
-        },
-      });
+  let entry;
+  if (entryId) {
+    // Editing an existing draft — verify ownership before touching it.
+    const existing = await prisma.journalEntry.findUnique({ where: { id: entryId } });
+    if (!existing || existing.profileId !== deviceId) {
+      return NextResponse.json({ error: "Not found" }, { status: 404 });
+    }
+    const contentChanged =
+      existing.content !== content || existing.content2 !== content2;
+    entry = await prisma.journalEntry.update({
+      where: { id: entryId },
+      data: {
+        content,
+        content2,
+        // A stale reflection would no longer match edited content — clear it so
+        // the next request regenerates a fresh note instead of showing old advice.
+        ...(contentChanged ? { reflection: null } : {}),
+      },
+    });
+  } else {
+    // A fresh journaling session — always a new entry.
+    entry = await prisma.journalEntry.create({
+      data: { profileId: deviceId, prompt, content, prompt2, content2, focusArea },
+    });
+  }
 
   return NextResponse.json({ entryId: entry.id, reflection: entry.reflection });
 }
