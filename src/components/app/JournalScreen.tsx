@@ -5,6 +5,7 @@ import clsx from "clsx";
 import type { FocusAreaKey } from "@/lib/quiz-data";
 import type { SpeechRecognitionLike } from "@/types/speech-recognition";
 import { Celebration } from "@/components/motion/Celebration";
+import { COACH_FALLBACKS } from "@/lib/content";
 
 interface PastEntry {
   id: string;
@@ -44,8 +45,8 @@ export function JournalScreen({
   const [saved, setSaved] = useState(Boolean(initialContent && initialContent2));
 
   const [reflection, setReflection] = useState(initialReflection);
-  const [reflecting, setReflecting] = useState(false);
-  const [reflectError, setReflectError] = useState<string | null>(null);
+  const [showReply, setShowReply] = useState(false);
+  const [replyLoading, setReplyLoading] = useState(false);
   const [celebrate, setCelebrate] = useState(0);
 
   const [recordingField, setRecordingField] = useState<Field | null>(null);
@@ -107,41 +108,54 @@ export function JournalScreen({
     (field === "q1" ? setContent : setContent2)(value);
     setSaved(false);
     setReflection(null);
-    setReflectError(null);
   }
 
+  function randomFallback() {
+    return COACH_FALLBACKS[Math.floor(Math.random() * COACH_FALLBACKS.length)];
+  }
+
+  // Save both answers, then immediately fetch a short coaching reply and show it
+  // in a pop-up. If the live reflection isn't available, fall back to a warm
+  // method-aligned line so the person always hears something back.
   async function handleSave() {
     setSaving(true);
-    const res = await fetch("/api/journal", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ prompt, content, prompt2, content2, focusArea }),
-    });
-    const data = await res.json();
-    setEntryId(data.entryId);
-    setReflection(data.reflection ?? null);
-    setSaving(false);
-    setSaved(true);
-    setCelebrate((c) => c + 1);
+    let id = entryId;
+    try {
+      const res = await fetch("/api/journal", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ prompt, content, prompt2, content2, focusArea }),
+      });
+      const data = await res.json();
+      id = data.entryId;
+      setEntryId(id);
+      setSaved(true);
+      setCelebrate((c) => c + 1);
+    } finally {
+      setSaving(false);
+    }
+    if (id) await openReply(id, reflection);
   }
 
-  async function handleReflect() {
-    if (!entryId) return;
-    setReflecting(true);
-    setReflectError(null);
+  async function openReply(id: string, existing: string | null) {
+    setShowReply(true);
+    if (existing) {
+      setReflection(existing);
+      return;
+    }
+    setReplyLoading(true);
     try {
       const res = await fetch("/api/journal/reflect", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ entryId }),
+        body: JSON.stringify({ entryId: id }),
       });
       const data = await res.json();
-      if (!res.ok) throw new Error(data.error ?? "Could not generate a reflection right now.");
-      setReflection(data.reflection);
-    } catch (err) {
-      setReflectError(err instanceof Error ? err.message : "Could not generate a reflection right now.");
+      setReflection(res.ok && data.reflection ? data.reflection : randomFallback());
+    } catch {
+      setReflection(randomFallback());
     } finally {
-      setReflecting(false);
+      setReplyLoading(false);
     }
   }
 
@@ -195,34 +209,20 @@ export function JournalScreen({
               disabled={saving || !bothAnswered}
               className="w-full rounded-full bg-indigo py-3.5 text-sm font-semibold text-white transition active:scale-[0.98] disabled:opacity-50"
             >
-              {saving ? "Saving…" : saved ? "Saved ✓" : "Save reflection"}
+              {saving ? "Saving…" : "Save & hear from Vinita"}
             </button>
             {!bothAnswered && (
               <p className="mt-2 text-center text-[11.5px] text-ink-muted">Answer both questions to save.</p>
             )}
           </div>
 
-          {saved && entryId && !reflection && (
+          {saved && reflection && !showReply && (
             <button
-              onClick={handleReflect}
-              disabled={reflecting}
-              className="mt-3 w-full rounded-full border border-gold/40 bg-cream py-3 text-sm font-medium text-ink transition active:scale-[0.98] disabled:opacity-60"
+              onClick={() => setShowReply(true)}
+              className="mt-3 w-full rounded-full border border-gold/40 bg-cream py-2.5 text-[13px] font-medium text-ink transition active:scale-[0.98]"
             >
-              {reflecting ? "Vinita is reading…" : "Get a reflection from Vinita"}
+              See Vinita&rsquo;s note again
             </button>
-          )}
-
-          {reflectError && <p className="mt-2 text-center text-xs text-red-600">{reflectError}</p>}
-
-          {reflection && (
-            <div className="mt-4 rounded-2xl border border-gold/30 bg-cream p-4">
-              <div className="mb-2 flex items-center gap-2">
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img src="/logo-mark.png" alt="Vinita" className="h-7 w-7 rounded-full bg-white p-0.5 ring-1 ring-black/5" />
-                <span className="text-[11px] font-medium uppercase tracking-wide text-gold">A reflection from Vinita</span>
-              </div>
-              <p className="whitespace-pre-wrap text-[14px] leading-relaxed text-ink-light">{reflection}</p>
-            </div>
           )}
         </div>
       ) : (
@@ -248,6 +248,39 @@ export function JournalScreen({
               ))}
             </div>
           )}
+        </div>
+      )}
+
+      {showReply && (
+        <div
+          className="fixed inset-0 z-50 flex items-end justify-center bg-plum/30 p-4 backdrop-blur-sm sm:items-center"
+          onClick={() => !replyLoading && setShowReply(false)}
+        >
+          <div
+            onClick={(e) => e.stopPropagation()}
+            className="animate-zoom-in w-full max-w-sm rounded-3xl bg-white p-6 shadow-lift"
+          >
+            <div className="mb-3 flex items-center gap-2.5">
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img src="/logo-mark.png" alt="Vinita" className="h-10 w-10 rounded-full bg-white p-0.5 shadow-soft ring-1 ring-black/5" />
+              <div>
+                <div className="font-serif text-[17px] leading-none text-ink">A word from Vinita</div>
+                <div className="mt-0.5 text-[11px] text-ink-muted">Your coach</div>
+              </div>
+            </div>
+            {replyLoading ? (
+              <p className="animate-pulse py-5 text-center text-[14px] text-ink-muted">Vinita is reading your words…</p>
+            ) : (
+              <p className="whitespace-pre-wrap text-[15px] leading-relaxed text-ink-light">{reflection}</p>
+            )}
+            <button
+              onClick={() => setShowReply(false)}
+              disabled={replyLoading}
+              className="mt-5 w-full rounded-full bg-indigo py-3 text-sm font-semibold text-white transition active:scale-[0.98] disabled:opacity-60"
+            >
+              Thank you
+            </button>
+          </div>
         </div>
       )}
     </div>

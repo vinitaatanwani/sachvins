@@ -52,31 +52,60 @@ export function getDailyPrompt(focusArea: FocusAreaKey, dayIndex: number): strin
   return prompts[dayIndex % prompts.length];
 }
 
-// Second journal question — the "pattern" layer, from Vinita's Break Your Life
-// Loop method. Question 1 surfaces the moment + feeling; question 2 gently opens
-// the meaning and the repeating loop underneath it (locate → observe → open).
-export const JOURNAL_LOOP_QUESTIONS: string[] = [
-  "What did that moment make you believe about yourself — and is that a fact, or an old story you've carried for a while?",
-  "Where in your life have you felt this exact feeling before? Name the earliest time you can remember it.",
-  "What did the urge want you to do in that moment — and what were you afraid would happen if you didn't?",
-  "This reaction was once trying to protect you. From what? And how could you protect yourself a little differently today?",
-  "What does this pattern give you for ten minutes — and what does it quietly cost you over ten months?",
-  "What would a calmer version of you do next — one small response that's just 10% different from your usual one?",
-];
-
 export interface JournalPromptSet {
   q1: string;
   q2: string;
 }
 
-// A daily two-part reflection: q1 (the moment) tuned to the person's focus area,
-// q2 (the pattern) rotating through the loop questions above.
-export function getDailyPromptSet(focusArea: FocusAreaKey, dayIndex: number): JournalPromptSet {
-  const q1s = JOURNAL_PROMPTS[focusArea];
-  return {
-    q1: q1s[dayIndex % q1s.length],
-    q2: JOURNAL_LOOP_QUESTIONS[dayIndex % JOURNAL_LOOP_QUESTIONS.length],
-  };
+// Two connected questions, drawn from Vinita's Break Your Life Loop method.
+// Q1 gently surfaces the wound — a lived moment and the feeling inside it.
+// Q2 builds directly on that same feeling to reveal the pattern and belief
+// underneath (locate → meaning → protection → a 10%-different next step), so
+// the person moves from "what happened" to "what's really going on in me."
+export const JOURNAL_PAIRS: JournalPromptSet[] = [
+  {
+    q1: "Bring to mind a moment recently that quietly stung — something that made you shrink, react, or overthink. What happened, and what did you feel underneath it?",
+    q2: "Sit with that feeling. Where have you felt it before? What does a younger part of you believe that moment says about you — and is that belief truly a fact, or an old story?",
+  },
+  {
+    q1: "When did you last feel not quite enough, unseen, or too much? Describe the moment, and name the feeling as honestly as you can.",
+    q2: "What did you do right after — reach out, go quiet, over-give, prove yourself, pull away? What is that reaction trying to protect you from?",
+  },
+  {
+    q1: "Think of something you keep replaying in your mind. What is the moment, and what emotion sits at the very centre of it?",
+    q2: "If that emotion could speak, what old fear would it name? And what might soften if you knew that fear wasn't the whole truth about you?",
+  },
+  {
+    q1: "Recall a moment you felt an urge to react strongly — to chase, defend, fix, or disappear. What set it off, and what did you feel first?",
+    q2: "That urge has visited before. What does following it quietly cost you each time — and what would a calmer version of you choose instead, even 10% different?",
+  },
+  {
+    q1: "What situation lately left you feeling a way you've felt many times before? Name the moment, and the feeling it stirred.",
+    q2: "Trace it gently backwards — what's the earliest time you remember this feeling? What did you need back then that you may still be reaching for now?",
+  },
+  {
+    q1: "Where in your life right now do you feel most tender, stuck, or on repeat? Describe one recent moment that captures it.",
+    q2: "What story does your mind tell about why it keeps happening? Whose voice does that story sound like — and is it really yours to keep carrying?",
+  },
+];
+
+// A daily two-part reflection. focusArea is kept for context (used by the coach
+// reflection); the connected pair itself rotates by day.
+export function getDailyPromptSet(_focusArea: FocusAreaKey, dayIndex: number): JournalPromptSet {
+  return JOURNAL_PAIRS[((dayIndex % JOURNAL_PAIRS.length) + JOURNAL_PAIRS.length) % JOURNAL_PAIRS.length];
+}
+
+// Gentle 2–3 line coach messages, shown when the live AI reflection isn't
+// available (e.g. ANTHROPIC_API_KEY unset). Warm, method-aligned, forward-looking.
+export const COACH_FALLBACKS: string[] = [
+  "Thank you for looking at this so honestly — that takes real courage. The feeling you named has been trying to protect you for a long time; today, just notice it without obeying it. One small, kinder choice is enough.",
+  "I hear what's underneath your words, and none of it means something is wrong with you. A pattern is only an old way of keeping you safe. See if you can meet it with curiosity instead of judgement — that's where change quietly begins.",
+  "What you're carrying makes sense given all you've lived through. You don't have to fix it today; you only have to see the loop. Choose one response that's ten percent gentler than your usual one, and let that be enough for now.",
+  "There's a tender, younger part of you inside this story, and it's asking to be understood, not criticised. Place a hand on your heart, take one slow breath, and let today be about compassion rather than solving. I'm right here with you.",
+];
+
+export function getCoachFallback(dayIndex: number): string {
+  return COACH_FALLBACKS[((dayIndex % COACH_FALLBACKS.length) + COACH_FALLBACKS.length) % COACH_FALLBACKS.length];
 }
 
 // PRD 4.4 — Guided meditation module. No audio narration asset yet, so each

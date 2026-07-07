@@ -157,6 +157,11 @@ export default async function CustomerDetailPage({ params }: { params: Promise<{
                     <p className="line-clamp-3 text-[13px] leading-relaxed text-ink-light">
                       {j.content?.trim() || <span className="text-ink-muted">— (voice / empty)</span>}
                     </p>
+                    {j.content2?.trim() && (
+                      <p className="mt-1.5 line-clamp-2 border-t border-parchment pt-1.5 text-[12.5px] leading-relaxed text-ink-muted">
+                        {j.content2}
+                      </p>
+                    )}
                   </div>
                 ))}
                 {journals.length > 5 && <p className="text-center text-[12px] text-ink-muted">+ {journals.length - 5} more</p>}
