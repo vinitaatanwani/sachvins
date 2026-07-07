@@ -89,10 +89,16 @@ export function BottomTabBar() {
 
   return (
     <nav
-      className="z-30 flex-shrink-0 border-t border-white/60 backdrop-blur-xl"
-      style={{ paddingBottom: "env(safe-area-inset-bottom)", background: "rgba(255,253,248,0.72)", boxShadow: "0 -6px 24px rgba(75,23,79,0.06)" }}
+      className="z-30 flex-shrink-0 border-t-2 border-indigo/25 backdrop-blur-xl"
+      style={{
+        paddingBottom: "env(safe-area-inset-bottom)",
+        // More solid, faintly pink surface + stronger lift so the bar clearly
+        // reads as a separate element anchored to the bottom of the screen.
+        background: "rgba(255,251,253,0.94)",
+        boxShadow: "0 -10px 28px rgba(194,63,116,0.14)",
+      }}
     >
-      <div className="mx-auto flex max-w-md items-stretch justify-between px-1.5">
+      <div className="mx-auto flex max-w-md items-stretch justify-between px-1.5 pt-1">
         {TABS.map((tab) => {
           const active = pathname.startsWith(tab.href);
           return (
@@ -100,12 +106,23 @@ export function BottomTabBar() {
               key={tab.href}
               href={tab.href}
               className={clsx(
-                "flex flex-1 flex-col items-center gap-1 py-2.5 text-[9.5px] font-medium tracking-tight transition-colors",
+                "relative flex flex-1 flex-col items-center gap-1 py-2 text-[9.5px] font-medium tracking-tight transition-colors",
                 active ? "text-indigo" : "text-ink-muted"
               )}
             >
-              <span className="[&>svg]:h-[22px] [&>svg]:w-[22px]">{tab.icon(active)}</span>
-              {tab.label}
+              {/* Pink indicator bar riding the top edge of the active tab */}
+              {active && (
+                <span className="absolute top-0 h-[3px] w-8 rounded-full bg-indigo" />
+              )}
+              <span
+                className={clsx(
+                  "flex h-9 w-9 items-center justify-center rounded-full transition-colors [&>svg]:h-[22px] [&>svg]:w-[22px]",
+                  active && "bg-indigo/12"
+                )}
+              >
+                {tab.icon(active)}
+              </span>
+              <span className={clsx(active && "font-semibold")}>{tab.label}</span>
             </Link>
           );
         })}
