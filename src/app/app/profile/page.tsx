@@ -10,10 +10,8 @@ import { requireAdmin } from "@/lib/admin";
 import { FOCUS_AREA_LABELS, type DomainScore } from "@/lib/quiz-data";
 import { SUBSCRIPTION_PLANS, COACHING_PACKAGES, formatInr } from "@/lib/pricing";
 
-function startOfWeek(date: Date) {
+function startOfDay(date: Date) {
   const d = new Date(date);
-  const day = d.getDay();
-  d.setDate(d.getDate() - day);
   d.setHours(0, 0, 0, 0);
   return d;
 }
@@ -24,15 +22,16 @@ export default async function ProfilePage() {
 
   const admin = await requireAdmin();
 
-  const [latestQuizResult, journalEntryCount, checkIns] = await Promise.all([
+  const [latestQuizResult, journalEntryCount, checkInCount, recentCheckIns] = await Promise.all([
     prisma.quizResult.findFirst({ where: { profileId: profile.id }, orderBy: { createdAt: "desc" } }),
     prisma.journalEntry.count({ where: { profileId: profile.id } }),
-    prisma.weeklyCheckIn.findMany({ where: { profileId: profile.id }, orderBy: { weekOf: "desc" }, take: 8 }),
+    prisma.weeklyCheckIn.count({ where: { profileId: profile.id } }),
+    prisma.weeklyCheckIn.findMany({ where: { profileId: profile.id }, orderBy: { weekOf: "desc" }, take: 1 }),
   ]);
 
   const domainScores = (latestQuizResult?.domainScores as unknown as DomainScore[] | undefined) ?? [];
-  const thisWeekStart = startOfWeek(new Date());
-  const alreadyCheckedInThisWeek = checkIns.some((c) => c.weekOf.getTime() === thisWeekStart.getTime());
+  const todayStart = startOfDay(new Date());
+  const alreadyCheckedInToday = recentCheckIns.some((c) => startOfDay(c.weekOf).getTime() === todayStart.getTime());
   const initial = (profile.name ?? "Friend").trim().charAt(0).toUpperCase();
 
   return (
@@ -55,8 +54,8 @@ export default async function ProfilePage() {
           <p className="text-[12px] text-ink-muted">journal entries</p>
         </div>
         <div className="rounded-2xl border border-black/8 bg-white p-4">
-          <CountUp value={checkIns.length} className="font-serif text-3xl text-ink" />
-          <p className="text-[12px] text-ink-muted">weekly check-ins</p>
+          <CountUp value={checkInCount} className="font-serif text-3xl text-ink" />
+          <p className="text-[12px] text-ink-muted">daily check-ins</p>
         </div>
       </div>
 
@@ -85,7 +84,7 @@ export default async function ProfilePage() {
       )}
 
       <div className="mb-5">
-        <CheckInForm alreadyCheckedInThisWeek={alreadyCheckedInThisWeek} />
+        <CheckInForm alreadyCheckedInToday={alreadyCheckedInToday} />
       </div>
 
       {profile.focusArea && (

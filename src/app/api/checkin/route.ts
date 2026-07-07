@@ -3,15 +3,27 @@ import { z } from "zod";
 import { prisma } from "@/lib/prisma";
 import { getDeviceId } from "@/lib/profile";
 
+// Daily emoji check-in: how the person feels right now + where they feel heavy
+// in the body. Stored in the existing check-in table (responses JSON), one row
+// per day that the person can update if they check in again the same day.
+const MOODS = ["happy", "energetic", "frustrated", "sad"] as const;
+const BODY_AREAS = ["head", "chest", "stomach", "shoulders", "throat", "none"] as const;
+
 const bodySchema = z.object({
-  responses: z.record(z.string(), z.number().int().min(1).max(4)),
+  mood: z.enum(MOODS),
+  bodyArea: z.enum(BODY_AREAS),
 });
 
-function startOfWeek(date: Date) {
+// A rough 0-100 wellbeing value so the stored score stays meaningful.
+const MOOD_SCORE: Record<(typeof MOODS)[number], number> = {
+  happy: 100,
+  energetic: 85,
+  frustrated: 35,
+  sad: 20,
+};
+
+function startOfDay(date: Date) {
   const d = new Date(date);
-  const day = d.getDay();
-  const diff = d.getDate() - day; // week starts Sunday
-  d.setDate(diff);
   d.setHours(0, 0, 0, 0);
   return d;
 }
@@ -23,17 +35,23 @@ export async function POST(req: NextRequest) {
   const parsed = bodySchema.safeParse(await req.json());
   if (!parsed.success) return NextResponse.json({ error: "Invalid payload" }, { status: 400 });
 
-  const values = Object.values(parsed.data.responses);
-  const focusScore = Math.round((values.reduce((s, v) => s + v, 0) / (values.length * 4)) * 100);
+  const { mood, bodyArea } = parsed.data;
+  const focusScore = MOOD_SCORE[mood];
+  const today = startOfDay(new Date());
 
-  const checkIn = await prisma.weeklyCheckIn.create({
-    data: {
-      profileId: deviceId,
-      weekOf: startOfWeek(new Date()),
-      responses: parsed.data.responses,
-      focusScore,
-    },
+  // One check-in per day: update today's if it exists, otherwise create it.
+  const existing = await prisma.weeklyCheckIn.findFirst({
+    where: { profileId: deviceId, weekOf: { gte: today } },
   });
 
-  return NextResponse.json({ checkInId: checkIn.id, focusScore });
+  const checkIn = existing
+    ? await prisma.weeklyCheckIn.update({
+        where: { id: existing.id },
+        data: { responses: { mood, bodyArea }, focusScore },
+      })
+    : await prisma.weeklyCheckIn.create({
+        data: { profileId: deviceId, weekOf: today, responses: { mood, bodyArea }, focusScore },
+      });
+
+  return NextResponse.json({ checkInId: checkIn.id, mood, bodyArea });
 }
