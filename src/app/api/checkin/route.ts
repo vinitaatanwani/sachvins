@@ -6,8 +6,31 @@ import { getDeviceId } from "@/lib/profile";
 // Daily emoji check-in: how the person feels right now + where they feel heavy
 // in the body. Stored in the existing check-in table (responses JSON), one row
 // per day that the person can update if they check in again the same day.
-const MOODS = ["happy", "energetic", "frustrated", "sad"] as const;
-const BODY_AREAS = ["head", "chest", "stomach", "shoulders", "throat", "none"] as const;
+const MOODS = [
+  "happy",
+  "calm",
+  "energetic",
+  "grateful",
+  "meh",
+  "tired",
+  "anxious",
+  "frustrated",
+  "irritated",
+  "angry",
+  "sad",
+  "overwhelmed",
+] as const;
+const BODY_AREAS = [
+  "head",
+  "jaw",
+  "throat",
+  "chest",
+  "stomach",
+  "shoulders",
+  "legs",
+  "allover",
+  "none",
+] as const;
 
 const bodySchema = z.object({
   mood: z.enum(MOODS),
@@ -17,8 +40,16 @@ const bodySchema = z.object({
 // A rough 0-100 wellbeing value so the stored score stays meaningful.
 const MOOD_SCORE: Record<(typeof MOODS)[number], number> = {
   happy: 100,
+  calm: 92,
+  grateful: 90,
   energetic: 85,
+  meh: 55,
+  tired: 45,
+  irritated: 38,
+  anxious: 35,
   frustrated: 35,
+  angry: 25,
+  overwhelmed: 25,
   sad: 20,
 };
 

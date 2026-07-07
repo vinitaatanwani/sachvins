@@ -6,18 +6,29 @@ import { useRouter } from "next/navigation";
 // Q1 — how are you feeling right now (emoji mood).
 const MOODS = [
   { key: "happy", emoji: "😊", label: "Happy" },
+  { key: "calm", emoji: "😌", label: "Calm" },
   { key: "energetic", emoji: "⚡", label: "Energetic" },
+  { key: "grateful", emoji: "🙏", label: "Grateful" },
+  { key: "meh", emoji: "😐", label: "Meh" },
+  { key: "tired", emoji: "😴", label: "Tired" },
+  { key: "anxious", emoji: "😰", label: "Anxious" },
   { key: "frustrated", emoji: "😤", label: "Frustrated" },
+  { key: "irritated", emoji: "😒", label: "Irritated" },
+  { key: "angry", emoji: "😠", label: "Angry" },
   { key: "sad", emoji: "😢", label: "Sad" },
+  { key: "overwhelmed", emoji: "😩", label: "Overwhelmed" },
 ];
 
 // Q2 — where in the body it feels heaviest right now.
 const BODY_AREAS = [
   { key: "head", emoji: "🧠", label: "Head" },
+  { key: "jaw", emoji: "😬", label: "Jaw" },
+  { key: "throat", emoji: "😮‍💨", label: "Throat" },
   { key: "chest", emoji: "💗", label: "Chest" },
   { key: "stomach", emoji: "🌀", label: "Stomach" },
   { key: "shoulders", emoji: "💆", label: "Shoulders" },
-  { key: "throat", emoji: "😮‍💨", label: "Throat" },
+  { key: "legs", emoji: "🦵", label: "Legs" },
+  { key: "allover", emoji: "🌫️", label: "All over" },
   { key: "none", emoji: "✨", label: "I feel light" },
 ];
 
