@@ -80,34 +80,6 @@ img{max-width:100%;display:block}
 .hero .avatar{margin:0 auto 18px;animation:breathe 6s ease-in-out infinite;background-color:transparent;box-shadow:none;background-size:100%;width:66px;height:66px}
 .hero h1{font-size:clamp(34px,8vw,52px);line-height:1.12;margin:12px 0 16px}
 .hero h1 em{font-family:'Dancing Script',cursive;font-style:normal;font-weight:700;font-size:1.16em;line-height:1;padding:0 .1em;-webkit-box-decoration-break:clone;box-decoration-break:clone;background:linear-gradient(100deg,#6d5cc0,#a15fb8 45%,#c85f86);-webkit-background-clip:text;background-clip:text;color:transparent}
-/* two white doves gliding across the first fold, from opposite directions */
-.dove-lane{position:absolute;top:64px;left:0;width:100%;height:560px;overflow:hidden;pointer-events:none;z-index:0}
-.dove{position:absolute;top:0;left:0;opacity:0;will-change:transform}
-.dove-a{animation:doveA 19s linear infinite;animation-delay:1s}
-.dove-b{animation:doveB 24s linear infinite;animation-delay:10s}
-.dove-body{display:block;transform-origin:58% 54%;will-change:transform;filter:drop-shadow(0 10px 18px rgba(109,92,192,.26))}
-.dove-a .dove-body{width:82px;animation:flap .44s ease-in-out infinite alternate}
-.dove-b .dove-body{width:58px;animation:flap .36s ease-in-out infinite alternate;filter:drop-shadow(0 8px 14px rgba(109,92,192,.2))}
-@keyframes flap{from{transform:scaleY(1.04) rotate(1deg)}to{transform:scaleY(.74) translateY(-5%) rotate(-2.5deg)}}
-@keyframes doveA{
-  0%{transform:translate(-12vw,64px) rotate(5deg);opacity:0}
-  7%{opacity:1}
-  30%{transform:translate(27vw,10px) rotate(-3deg)}
-  52%{transform:translate(54vw,-4px) rotate(2deg)}
-  78%{transform:translate(86vw,26px) rotate(-4deg);opacity:1}
-  93%{opacity:0}
-  100%{transform:translate(110vw,52px) rotate(-6deg);opacity:0}
-}
-@keyframes doveB{
-  0%{transform:translate(108vw,40px) scaleX(-1) rotate(-4deg);opacity:0}
-  7%{opacity:.92}
-  30%{transform:translate(68vw,4px) scaleX(-1) rotate(3deg)}
-  55%{transform:translate(38vw,20px) scaleX(-1) rotate(-2deg)}
-  80%{transform:translate(10vw,-2px) scaleX(-1) rotate(3deg);opacity:.92}
-  94%{opacity:0}
-  100%{transform:translate(-14vw,14px) scaleX(-1) rotate(5deg);opacity:0}
-}
-@media(prefers-reduced-motion:reduce){.dove,.dove-body{animation:none!important;opacity:0!important}}
 .hero p.sub{max-width:460px;margin:0 auto 26px;color:var(--ink3);font-size:15.5px}
 .honesty{font-size:12px;color:var(--muted);margin-top:14px}
 .resume-card{background:#fff;border:1px solid var(--sand);border-radius:16px;padding:18px 20px;max-width:420px;margin:18px auto 0;text-align:center}
@@ -276,10 +248,6 @@ body.quiz-active #assessment{display:block}
 <!-- Meta Pixel: paste your pixel base code here. Events QuizStart / QuizComplete / LeadCaptured fire automatically once fbq exists. -->
 
 <main id="marketing">
-  <div class="dove-lane" aria-hidden="true">
-    <div class="dove dove-a"><img class="dove-body" src="assets/dove.png" alt=""></div>
-    <div class="dove dove-b"><img class="dove-body" src="assets/dove.png" alt=""></div>
-  </div>
   <section class="hero wrap">
     <div class="avatar" aria-hidden="true">V</div>
     <span class="eyebrow">Healing Hands by Vinita</span>
