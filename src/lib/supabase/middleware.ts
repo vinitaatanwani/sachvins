@@ -4,6 +4,11 @@ import { NextResponse, type NextRequest } from "next/server";
 const PROTECTED_PREFIXES = ["/app", "/onboarding", "/admin"];
 
 export async function updateSession(request: NextRequest) {
+  // Only protected routes need an auth check. Public marketing/quiz/login pages
+  // skip the Supabase Auth round-trip entirely, so they render immediately.
+  const isProtected = PROTECTED_PREFIXES.some((p) => request.nextUrl.pathname.startsWith(p));
+  if (!isProtected) return NextResponse.next({ request });
+
   let supabaseResponse = NextResponse.next({ request });
 
   const supabase = createServerClient(
@@ -29,9 +34,7 @@ export async function updateSession(request: NextRequest) {
     data: { user },
   } = await supabase.auth.getUser();
 
-  const isProtected = PROTECTED_PREFIXES.some((p) => request.nextUrl.pathname.startsWith(p));
-
-  if (!user && isProtected) {
+  if (!user) {
     const url = request.nextUrl.clone();
     url.pathname = "/login";
     url.search = "";

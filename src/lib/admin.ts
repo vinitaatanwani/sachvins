@@ -1,4 +1,4 @@
-import { createClient } from "@/lib/supabase/server";
+import { getAuthUser } from "@/lib/profile";
 
 // Owner/admin access is by Google email allowlist — no separate password. Set
 // ADMIN_EMAILS (comma-separated) to override; defaults to Vinita's account.
@@ -12,12 +12,9 @@ export function isAdminEmail(email?: string | null): boolean {
 }
 
 // The current signed-in email (or null), for admin checks in server components.
+// Reuses the cached auth-user fetch so it doesn't add another network round-trip.
 export async function getCurrentEmail(): Promise<string | null> {
-  const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-  return user?.email ?? null;
+  return (await getAuthUser())?.email ?? null;
 }
 
 // Returns the signed-in email only if it's an admin; otherwise null.
