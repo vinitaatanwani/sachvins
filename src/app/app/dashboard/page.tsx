@@ -3,9 +3,12 @@ import { getCurrentProfile, trialDayNumber } from "@/lib/profile";
 import { prisma } from "@/lib/prisma";
 import { getDailyPrompt, recommendedMeditation, recommendedSoundTrack } from "@/lib/content";
 
-function greeting(hour: number, name: string | null) {
-  const time = hour < 12 ? "Good morning" : hour < 17 ? "Good afternoon" : "Good evening";
-  return name ? `${time}, ${name.split(" ")[0]}` : time;
+// A warm, time-independent greeting. We deliberately avoid "Good morning/
+// afternoon/evening" because the hour is computed on the server (UTC/Tokyo),
+// which doesn't match the person's local time — it used to say "afternoon" at
+// night. This greets them the same way at any hour.
+function firstNameOf(name: string | null) {
+  return name ? name.split(" ")[0] : null;
 }
 
 export default async function DashboardPage() {
@@ -28,9 +31,14 @@ export default async function DashboardPage() {
 
   return (
     <div className="stagger mx-auto max-w-md px-5 pb-8" style={{ paddingTop: "calc(env(safe-area-inset-top) + 24px)" }}>
-      <div className="mb-6 flex items-center justify-between">
-        <h1 className="font-serif text-[26px] leading-tight text-ink">{greeting(hour, profile.name)}</h1>
-        <span className="rounded-full bg-cream px-3 py-1.5 text-[11px] font-medium text-ink-light">
+      <div className="mb-6 flex items-start justify-between gap-3">
+        <div>
+          <h1 className="font-serif text-[26px] leading-tight text-ink">
+            {firstNameOf(profile.name) ? `Hi, ${firstNameOf(profile.name)}` : "Hi there"}
+          </h1>
+          <p className="mt-1.5 text-[14px] text-ink-muted">How are you feeling today?</p>
+        </div>
+        <span className="whitespace-nowrap rounded-full bg-cream px-3 py-1.5 text-[11px] font-medium text-ink-light">
           {trialActive ? `Day ${dayNumber} of 7` : "Subscribed"}
         </span>
       </div>
