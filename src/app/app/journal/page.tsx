@@ -3,6 +3,11 @@ import { prisma } from "@/lib/prisma";
 import { getDailyPromptSet } from "@/lib/content";
 import { JournalScreen } from "@/components/app/JournalScreen";
 
+// Never serve a cached copy of this page. Every time it's opened it re-reads the
+// entry count (for a fresh question) and the full history from the database, so
+// a blank writing area and the newest Past list are always what the person sees.
+export const dynamic = "force-dynamic";
+
 export default async function JournalPage() {
   const profile = await getCurrentProfile();
   if (!profile) return null;
