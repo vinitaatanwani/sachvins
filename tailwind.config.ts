@@ -22,8 +22,8 @@ const config: Config = {
         "gold-light": "#f2a1c0", // soft pink
         sage: "#5bb894", // mint accent
         indigo: {
-          DEFAULT: "#dd5b8f", // brand primary — rose pink (button-safe, from palette)
-          dark: "#c23f74",
+          DEFAULT: "#6d5cc0", // brand primary — lavender (button-safe)
+          dark: "#58489e",
         },
         sunshine: {
           DEFAULT: "#f2a1c0", // soft pink (accent pop)

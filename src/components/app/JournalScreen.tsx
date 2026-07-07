@@ -178,7 +178,7 @@ export function JournalScreen({
           <div className="flex flex-1 flex-col items-center justify-center px-6 pb-10 text-center">
             <div className="animate-zoom-in flex h-16 w-16 items-center justify-center rounded-full bg-indigo/12">
               <svg width="30" height="30" viewBox="0 0 24 24" fill="none">
-                <path d="M5 12.5l4.5 4.5L19 7.5" stroke="var(--indigo, #dd5b8f)" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" />
+                <path d="M5 12.5l4.5 4.5L19 7.5" stroke="var(--indigo, #6d5cc0)" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" />
               </svg>
             </div>
             <h2 className="mt-5 font-serif text-[22px] text-ink">Your reflection is saved</h2>
