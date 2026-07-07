@@ -2,6 +2,7 @@ import { notFound } from "next/navigation";
 import Link from "next/link";
 import { requireAdmin } from "@/lib/admin";
 import { prisma } from "@/lib/prisma";
+import { trialDayNumber } from "@/lib/profile";
 import {
   FOCUS_AREA_LABELS,
   getLevelLabel,
@@ -15,6 +16,34 @@ const NERVOUS_LABEL: Record<string, string> = {
   regulated: "Settled / regulated",
   fight_flight: "Fight / Flight",
   freeze_fawn: "Freeze / Fawn",
+};
+
+// Daily check-in vocabulary (mirrors the app's CheckInForm), so we can turn the
+// stored { mood, bodyArea } into readable, coaching-friendly language.
+const MOOD_META: Record<string, { emoji: string; label: string; tone: "pos" | "neu" | "neg" }> = {
+  happy: { emoji: "😊", label: "happy", tone: "pos" },
+  calm: { emoji: "😌", label: "calm", tone: "pos" },
+  energetic: { emoji: "⚡", label: "energetic", tone: "pos" },
+  grateful: { emoji: "🙏", label: "grateful", tone: "pos" },
+  meh: { emoji: "😐", label: "meh", tone: "neu" },
+  tired: { emoji: "😴", label: "tired", tone: "neu" },
+  anxious: { emoji: "😰", label: "anxious", tone: "neg" },
+  frustrated: { emoji: "😤", label: "frustrated", tone: "neg" },
+  irritated: { emoji: "😒", label: "irritated", tone: "neg" },
+  angry: { emoji: "😠", label: "angry", tone: "neg" },
+  sad: { emoji: "😢", label: "sad", tone: "neg" },
+  overwhelmed: { emoji: "😩", label: "overwhelmed", tone: "neg" },
+};
+const BODY_META: Record<string, { emoji: string; label: string }> = {
+  head: { emoji: "🧠", label: "head" },
+  jaw: { emoji: "😬", label: "jaw" },
+  throat: { emoji: "😮‍💨", label: "throat" },
+  chest: { emoji: "💗", label: "chest" },
+  stomach: { emoji: "🌀", label: "stomach" },
+  shoulders: { emoji: "💆", label: "shoulders" },
+  legs: { emoji: "🦵", label: "legs" },
+  allover: { emoji: "🌫️", label: "all over" },
+  none: { emoji: "✨", label: "light — no heaviness" },
 };
 
 function barColor(level: string) {
@@ -75,6 +104,70 @@ export default async function CustomerDetailPage({ params }: { params: Promise<{
 
   const activeFocus = (profile?.focusArea ?? quiz?.primaryFocusArea ?? null) as FocusAreaKey | null;
 
+  // --- Daily check-ins (mood + body) ------------------------------------------
+  type MoodCheck = { at: Date; mood?: string; bodyArea?: string };
+  const moodCheckIns: MoodCheck[] = checkIns
+    .map((c) => ({ at: c.createdAt, ...(c.responses as { mood?: string; bodyArea?: string }) }))
+    .filter((c) => c.mood && MOOD_META[c.mood]); // ignore any legacy pulse rows
+  const latestMood = moodCheckIns[0] ?? null;
+  const recentMoods = moodCheckIns.slice(0, 7);
+  const negRecent = recentMoods.filter((c) => MOOD_META[c.mood!]?.tone === "neg").length;
+  const posRecent = recentMoods.filter((c) => MOOD_META[c.mood!]?.tone === "pos").length;
+
+  // --- Practice regularity ----------------------------------------------------
+  const dayKey = (d: Date) => new Date(d).toDateString();
+  const activeDays = new Set<string>();
+  journals.forEach((j) => within(j.date, 7) && activeDays.add(dayKey(j.date)));
+  checkIns.forEach((c) => within(c.createdAt, 7) && activeDays.add(dayKey(c.createdAt)));
+  meds.forEach((m) => within(m.createdAt, 7) && activeDays.add(dayKey(m.createdAt)));
+  const activeDays7 = activeDays.size;
+  const totalTouches = journals.length + checkIns.length + meds.length;
+
+  let regularity: { label: string; tone: "good" | "mid" | "low"; note: string };
+  if (totalTouches === 0)
+    regularity = { label: "Not started", tone: "low", note: "Hasn't begun the daily practices yet — a gentle first-session goal." };
+  else if (activeDays7 >= 4)
+    regularity = { label: "Consistent", tone: "good", note: `Active ${activeDays7} of the last 7 days — showing up regularly.` };
+  else if (activeDays7 >= 2)
+    regularity = { label: "On & off", tone: "mid", note: `Active ${activeDays7} of the last 7 days — habit is still forming.` };
+  else if (activeDays7 === 1)
+    regularity = { label: "Light", tone: "mid", note: "Only one active day this week — could use encouragement to build rhythm." };
+  else
+    regularity = { label: "Drifted", tone: "low", note: "No practice in the last 7 days — worth re-engaging warmly." };
+
+  // --- Status line ------------------------------------------------------------
+  const statusLine = profile?.membershipActive
+    ? "Companion member (paid)"
+    : profile?.onboardedAt
+      ? `Day ${trialDayNumber(profile.trialStartedAt)} of 7 · free trial`
+      : profile
+        ? "Signed up · not onboarded"
+        : "Lead only (took the quiz)";
+
+  // --- "Currently going through" narrative ------------------------------------
+  let currentState: string;
+  if (latestMood) {
+    const m = MOOD_META[latestMood.mood!];
+    const b = latestMood.bodyArea ? BODY_META[latestMood.bodyArea] : undefined;
+    const bodyBit =
+      latestMood.bodyArea === "none"
+        ? " and physically light"
+        : b
+          ? `, carrying it in the ${b.label}`
+          : "";
+    currentState = `Their last check-in: feeling ${m.emoji} ${m.label}${bodyBit}.`;
+    if (recentMoods.length >= 3 && negRecent >= Math.ceil(recentMoods.length * 0.6))
+      currentState += " Recent check-ins skew heavy — mostly difficult emotions lately.";
+    else if (recentMoods.length >= 3 && posRecent >= Math.ceil(recentMoods.length * 0.6))
+      currentState += " Recent check-ins have been mostly light and positive.";
+    else if (recentMoods.length >= 3) currentState += " Their mood has been mixed this week.";
+  } else {
+    currentState = "No daily check-ins yet — no live read on how they're feeling day to day.";
+  }
+
+  // --- "Working through" (areas needing the most care) ------------------------
+  const highDomains = scores.filter((s) => s.level === "high").map((s) => s.name);
+
   return (
     <div className="min-h-[100dvh] px-5 py-8 sm:px-8">
       <div className="mx-auto max-w-4xl">
@@ -99,6 +192,63 @@ export default async function CustomerDetailPage({ params }: { params: Promise<{
             </span>
           </div>
         </div>
+
+        {/* Coaching snapshot — a quick, human read before a 1:1 session */}
+        <section className="glass mb-6 rounded-2xl p-5">
+          <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
+            <h2 className="font-serif text-xl text-ink">Coaching snapshot</h2>
+            <span
+              className={`rounded-full px-3 py-1.5 text-[12px] font-semibold ${
+                regularity.tone === "good"
+                  ? "bg-green-500 text-white"
+                  : regularity.tone === "mid"
+                    ? "bg-amber-100 text-amber-700"
+                    : "bg-cream text-ink-muted"
+              }`}
+            >
+              Practice: {regularity.label}
+            </span>
+          </div>
+
+          <div className="grid gap-x-6 gap-y-4 sm:grid-cols-2">
+            <SnapRow label="Where they are">
+              {statusLine}
+              {profile?.createdAt ? ` · joined ${fmt(profile.createdAt)}` : ""}
+            </SnapRow>
+            <SnapRow label="Practising regularly?">
+              {regularity.note}{" "}
+              <span className="text-ink-muted">
+                ({journals.length} journals · {moodCheckIns.length} check-ins · {medsTotalMin}m meditation)
+              </span>
+            </SnapRow>
+            <SnapRow label="Currently going through">{currentState}</SnapRow>
+            <SnapRow label="Working on">
+              {activeFocus ? FOCUS_AREA_LABELS[activeFocus] : "—"}
+              {highDomains.length > 0 && (
+                <>
+                  {" "}· needs the most care in{" "}
+                  <b className="text-ink">{highDomains.slice(0, 2).join(" & ")}</b>
+                </>
+              )}
+              {quiz?.nervousSystemState && <> · {NERVOUS_LABEL[quiz.nervousSystemState] ?? quiz.nervousSystemState}</>}
+            </SnapRow>
+          </div>
+
+          <div className="mt-4 rounded-xl border-l-[3px] border-indigo bg-cream/60 px-4 py-3 text-[13.5px] leading-relaxed text-ink-light">
+            <span className="font-semibold text-ink">Coaching angle: </span>
+            {activeFocus
+              ? `Anchor the session in their ${FOCUS_AREA_LABELS[activeFocus]} work${
+                  highDomains.length
+                    ? `, and the ${highDomains.slice(0, 2).join(" & ")} area${highDomains.length > 1 ? "s" : ""} scoring hardest`
+                    : ""
+                }. ${
+                  regularity.tone === "low"
+                    ? "Re-establishing one small daily practice is the first win."
+                    : "They already have momentum — deepen it."
+                }`
+              : "Start from their quiz portrait and what surfaces live in the session."}
+          </div>
+        </section>
 
         <div className="grid gap-6 md:grid-cols-2">
           {/* Questionnaire results */}
@@ -133,6 +283,40 @@ export default async function CustomerDetailPage({ params }: { params: Promise<{
               </>
             ) : (
               <p className="text-sm text-ink-muted">No questionnaire on file.</p>
+            )}
+          </section>
+
+          {/* Daily check-ins — mood + where they feel it in the body */}
+          <section className="glass rounded-2xl p-5 md:col-span-2">
+            <div className="mb-3 flex items-center justify-between">
+              <h2 className="font-serif text-xl text-ink">Daily check-ins</h2>
+              <span className="rounded-full bg-green-50 px-3 py-1 text-[12px] font-semibold text-green-700">
+                {moodCheckIns.length} logged
+              </span>
+            </div>
+            {moodCheckIns.length > 0 ? (
+              <div className="flex flex-wrap gap-2">
+                {moodCheckIns.slice(0, 16).map((c, i) => {
+                  const m = MOOD_META[c.mood!];
+                  const b = c.bodyArea ? BODY_META[c.bodyArea] : undefined;
+                  return (
+                    <div key={i} className="rounded-xl border border-parchment bg-white/60 px-3 py-2">
+                      <div className="text-[10.5px] text-ink-muted">{fmt(c.at)}</div>
+                      <div className="mt-0.5 text-[13px] text-ink-light">
+                        {m.emoji} {cap(m.label)}
+                        {b && c.bodyArea !== "none" && (
+                          <span className="text-ink-muted"> · {b.emoji} {cap(b.label)}</span>
+                        )}
+                      </div>
+                    </div>
+                  );
+                })}
+                {moodCheckIns.length > 16 && (
+                  <div className="self-center text-[12px] text-ink-muted">+ {moodCheckIns.length - 16} more</div>
+                )}
+              </div>
+            ) : (
+              <p className="text-sm text-ink-muted">No daily check-ins yet.</p>
             )}
           </section>
 
@@ -200,6 +384,17 @@ export default async function CustomerDetailPage({ params }: { params: Promise<{
           </section>
         </div>
       </div>
+    </div>
+  );
+}
+
+const cap = (s: string) => s.charAt(0).toUpperCase() + s.slice(1);
+
+function SnapRow({ label, children }: { label: string; children: React.ReactNode }) {
+  return (
+    <div>
+      <div className="mb-1 text-[10.5px] font-semibold uppercase tracking-wide text-ink-muted">{label}</div>
+      <div className="text-[13.5px] leading-relaxed text-ink-light">{children}</div>
     </div>
   );
 }
