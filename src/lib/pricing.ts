@@ -30,6 +30,11 @@ export const COACHING_PACKAGES = {
 
 export type CoachingPackageKey = keyof typeof COACHING_PACKAGES;
 
+// How long a purchased coaching package keeps its 1-hour booking access open,
+// measured from the purchase date. Derived at read-time from purchasedAt, so no
+// separate expiry column is needed.
+export const COACHING_ACCESS_DAYS = 180; // 6 months
+
 export function formatInr(amount: number): string {
   return new Intl.NumberFormat("en-IN", {
     style: "currency",

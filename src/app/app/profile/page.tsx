@@ -8,7 +8,7 @@ import { ResetTestDataButton } from "@/components/app/ResetTestDataButton";
 import { SignOutButton } from "@/components/app/SignOutButton";
 import { requireAdmin } from "@/lib/admin";
 import { FOCUS_AREA_LABELS, type DomainScore } from "@/lib/quiz-data";
-import { SUBSCRIPTION_PLANS, COACHING_PACKAGES, formatInr } from "@/lib/pricing";
+import { SUBSCRIPTION_PLANS, formatInr } from "@/lib/pricing";
 
 function startOfDay(date: Date) {
   const d = new Date(date);
@@ -105,18 +105,16 @@ export default async function ProfilePage() {
         </p>
         <Link
           href="/app/book"
-          className="mb-3 block rounded-full bg-indigo py-3 text-center text-[13px] font-semibold text-white transition active:scale-[0.98]"
+          className="mb-2.5 block rounded-full bg-indigo py-3 text-center text-[13px] font-semibold text-white transition active:scale-[0.98]"
         >
           Book your free 20-min session →
         </Link>
-        <div className="flex gap-2 text-[11.5px] text-ink-light">
-          <span className="rounded-lg bg-cream px-2.5 py-1">
-            7-session {formatInr(COACHING_PACKAGES.seven_session.priceMinInr)}+
-          </span>
-          <span className="rounded-lg bg-cream px-2.5 py-1">
-            11-session {formatInr(COACHING_PACKAGES.eleven_session.priceMinInr)}+
-          </span>
-        </div>
+        <Link
+          href="/app/coaching"
+          className="block rounded-full border border-indigo/40 py-3 text-center text-[13px] font-semibold text-indigo transition active:scale-[0.98]"
+        >
+          Explore 1-hour coaching packages →
+        </Link>
       </div>
 
       <div className="mb-8 rounded-2xl border border-black/8 bg-white p-4">
