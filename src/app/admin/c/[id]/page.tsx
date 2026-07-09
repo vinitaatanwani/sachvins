@@ -4,6 +4,7 @@ import { requireAdmin } from "@/lib/admin";
 import { prisma } from "@/lib/prisma";
 import { trialDayNumber } from "@/lib/profile";
 import {
+  AREA_DESCRIPTIONS,
   FOCUS_AREA_LABELS,
   getLevelLabel,
   type DomainScore,
@@ -46,11 +47,30 @@ const BODY_META: Record<string, { emoji: string; label: string }> = {
   none: { emoji: "✨", label: "light — no heaviness" },
 };
 
+// Status colours so the graph reads at a glance. Bar width is the wellness
+// score (higher = healthier), so short + rose = needs the most attention,
+// long + green = a relative strength.
 function barColor(level: string) {
-  if (level === "high") return "#8171d4"; // needs the most care
-  if (level === "medium") return "#e07ba0";
-  return "#6d5cc0";
+  if (level === "high") return "#e0567f"; // low score → needs most attention
+  if (level === "medium") return "#e8a44c"; // growing edge
+  return "#5bb894"; // relative strength
 }
+
+// Concise coaching direction per area — "what can help" for the 1:1.
+const COACHING_MOVES: Record<FocusAreaKey, string> = {
+  focus_attention:
+    "Regulate before focusing — short nervous-system resets (breath, grounding) plus one protected single-tasking window a day.",
+  self_worth:
+    "Inner-child / reparenting work to soften the inner critic; name the 'my worth is conditional' story and practise unconditional self-acknowledgement.",
+  relationships:
+    "Boundary and needs work — help them see the give-until-empty vs. stay-behind-glass pattern and practise small, honest asks.",
+  career_purpose:
+    "Separate fear from laziness; values clarity plus tiny low-stakes actions to close the gap between where they are and where they sense they could be.",
+  emotional_world:
+    "Build capacity to feel and release — permission to feel, somatic processing, steady support so held emotion can move instead of exhausting them.",
+  spirituality:
+    "Make room for meaning — a simple daily stillness/reflection practice to sit with the big questions instead of avoiding the silence.",
+};
 
 const fmt = (d: Date) => d.toLocaleDateString("en-GB", { day: "2-digit", month: "short", year: "numeric" });
 
@@ -166,7 +186,15 @@ export default async function CustomerDetailPage({ params }: { params: Promise<{
   }
 
   // --- "Working through" (areas needing the most care) ------------------------
-  const highDomains = scores.filter((s) => s.level === "high").map((s) => s.name);
+  const scoresAsc = [...scores].sort((a, b) => a.score - b.score);
+  const highDomains = scoresAsc.filter((s) => s.level === "high").map((s) => s.name);
+  // The areas to unpack for coaching: the ones flagged "needs most attention",
+  // or — if none are that low — simply the two lowest-scoring areas.
+  const supportAreas = (
+    scoresAsc.some((s) => s.level === "high")
+      ? scoresAsc.filter((s) => s.level === "high")
+      : scoresAsc
+  ).slice(0, 3);
 
   return (
     <div className="min-h-[100dvh] px-5 py-8 sm:px-8">
@@ -256,7 +284,7 @@ export default async function CustomerDetailPage({ params }: { params: Promise<{
             <h2 className="mb-4 font-serif text-xl text-ink">Questionnaire results</h2>
             {quiz ? (
               <>
-                <div className="mb-5 flex flex-col gap-2.5">
+                <div className="mb-3 flex flex-col gap-2.5">
                   {scores.map((s) => (
                     <div key={s.key}>
                       <div className="mb-1 flex justify-between text-[13px]">
@@ -269,7 +297,13 @@ export default async function CustomerDetailPage({ params }: { params: Promise<{
                     </div>
                   ))}
                 </div>
-                <div className="mb-4 flex flex-wrap gap-2 text-[12px]">
+                <div className="mb-5 flex flex-wrap gap-x-4 gap-y-1.5 text-[11.5px] text-ink-muted">
+                  <Legend color="#e0567f" label="Needs most attention · 0–35" />
+                  <Legend color="#e8a44c" label="Growing edge · 36–64" />
+                  <Legend color="#5bb894" label="Relative strength · 65–100" />
+                </div>
+
+                <div className="mb-5 flex flex-wrap gap-2 text-[12px]">
                   <Tag>Primary: {FOCUS_AREA_LABELS[quiz.primaryFocusArea as FocusAreaKey]}</Tag>
                   {quiz.secondaryFocusArea && <Tag>Secondary: {FOCUS_AREA_LABELS[quiz.secondaryFocusArea as FocusAreaKey]}</Tag>}
                   <Tag>{NERVOUS_LABEL[quiz.nervousSystemState] ?? quiz.nervousSystemState}</Tag>
@@ -277,8 +311,45 @@ export default async function CustomerDetailPage({ params }: { params: Promise<{
                   {quiz.gender && <Tag>{quiz.gender}</Tag>}
                   {quiz.maritalStatus && <Tag>{quiz.maritalStatus}</Tag>}
                 </div>
-                <div className="rounded-xl border-l-[3px] border-green-400 bg-cream/60 px-4 py-3 text-[13.5px] leading-relaxed text-ink-light">
-                  {quiz.emotionalPortrait}
+
+                {/* Where they need the most support — struggle + what can help */}
+                {supportAreas.length > 0 && (
+                  <div className="mb-5">
+                    <h3 className="mb-2.5 text-[12px] font-semibold uppercase tracking-wide text-ink-muted">
+                      Where they need the most support
+                    </h3>
+                    <div className="flex flex-col gap-2.5">
+                      {supportAreas.map((s) => (
+                        <div key={s.key} className="rounded-xl border border-parchment bg-white/60 p-4">
+                          <div className="mb-2 flex items-center justify-between gap-3">
+                            <span className="font-semibold text-ink">{s.icon} {s.name}</span>
+                            <span
+                              className="whitespace-nowrap rounded-full px-2.5 py-0.5 text-[11px] font-semibold"
+                              style={{ background: `${barColor(s.level)}22`, color: barColor(s.level) }}
+                            >
+                              {s.score}/100 · {getLevelLabel(s.level)}
+                            </span>
+                          </div>
+                          <p className="text-[13px] leading-relaxed text-ink-light">
+                            {AREA_DESCRIPTIONS[s.level][s.key]}
+                          </p>
+                          <p className="mt-2.5 rounded-lg bg-cream/70 px-3 py-2 text-[12.5px] leading-relaxed text-ink-light">
+                            <span className="font-semibold text-ink">What can help: </span>
+                            {COACHING_MOVES[s.key]}
+                          </p>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                <div>
+                  <h3 className="mb-2 text-[12px] font-semibold uppercase tracking-wide text-ink-muted">
+                    Emotional portrait
+                  </h3>
+                  <div className="rounded-xl border-l-[3px] border-indigo bg-cream/60 px-4 py-3 text-[13.5px] leading-relaxed text-ink-light">
+                    {quiz.emotionalPortrait}
+                  </div>
                 </div>
               </>
             ) : (
@@ -396,6 +467,15 @@ function SnapRow({ label, children }: { label: string; children: React.ReactNode
       <div className="mb-1 text-[10.5px] font-semibold uppercase tracking-wide text-ink-muted">{label}</div>
       <div className="text-[13.5px] leading-relaxed text-ink-light">{children}</div>
     </div>
+  );
+}
+
+function Legend({ color, label }: { color: string; label: string }) {
+  return (
+    <span className="inline-flex items-center gap-1.5">
+      <span className="h-2.5 w-2.5 rounded-full" style={{ background: color }} />
+      {label}
+    </span>
   );
 }
 
