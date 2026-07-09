@@ -96,13 +96,19 @@ export default async function ProfilePage() {
       <div className="mb-5 rounded-2xl border border-black/8 bg-white p-4">
         <div className="mb-1 flex items-center justify-between">
           <h3 className="text-[13px] font-medium text-ink">1:1 Coaching</h3>
-          <span className="rounded-full bg-cream px-2 py-0.5 text-[10px] font-medium uppercase text-ink-muted">
-            Coming soon
+          <span className="rounded-full bg-indigo/12 px-2 py-0.5 text-[10px] font-semibold uppercase text-indigo">
+            Free intro
           </span>
         </div>
         <p className="mb-3 text-[12.5px] text-ink-muted">
-          A free 20-minute Clarity Session, plus optional coaching packages.
+          A free 20-minute Clarity Session with Vinita over Zoom, plus optional coaching packages.
         </p>
+        <Link
+          href="/app/book"
+          className="mb-3 block rounded-full bg-indigo py-3 text-center text-[13px] font-semibold text-white transition active:scale-[0.98]"
+        >
+          Book your free 20-min session →
+        </Link>
         <div className="flex gap-2 text-[11.5px] text-ink-light">
           <span className="rounded-lg bg-cream px-2.5 py-1">
             7-session {formatInr(COACHING_PACKAGES.seven_session.priceMinInr)}+
