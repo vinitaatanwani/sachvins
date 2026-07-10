@@ -24,7 +24,11 @@ export default async function DashboardPage() {
   const meditation = recommendedMeditation(focusArea, profile.nervousSystemState, timeOfDay);
   const soundTrack = recommendedSoundTrack(profile.nervousSystemState);
 
-  const trialActive = !subscription || subscription.status === "trialing";
+  // "Subscribed" covers both paid paths: an active Companion membership
+  // (profile.membershipActive) or an active plan on the Subscription table.
+  // Subscribed people are past the trial, so they never see the trial pill/banner.
+  const isSubscribed = profile.membershipActive || subscription?.status === "active";
+  const trialActive = !isSubscribed && (!subscription || subscription.status === "trialing");
   const daysLeft = profile.trialEndsAt
     ? Math.max(0, Math.ceil((profile.trialEndsAt.getTime() - Date.now()) / (1000 * 60 * 60 * 24)))
     : 7;
