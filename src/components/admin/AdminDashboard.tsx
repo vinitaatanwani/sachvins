@@ -29,6 +29,9 @@ export interface CustomerRow {
   isUser: boolean;
   onboarded: boolean;
   membershipActive: boolean;
+  coachingActive: boolean;
+  coachingPackageType: string | null;
+  coachingUntil: string | null;
   journalCount: number;
   checkInCount: number;
   plan: string | null;
@@ -39,10 +42,11 @@ interface Stats {
   quizCount: number;
   appUsers: number;
   activeMembers: number;
+  oneToOneClients: number;
   revenue: number;
 }
 
-type Filter = "all" | "members" | "users" | "leads";
+type Filter = "all" | "members" | "one_to_one" | "users" | "leads";
 
 const NERVOUS_LABEL: Record<string, string> = {
   regulated: "Settled",
@@ -77,6 +81,7 @@ export function AdminDashboard({
     const needle = q.trim().toLowerCase();
     return customers.filter((c) => {
       if (filter === "members" && !c.membershipActive) return false;
+      if (filter === "one_to_one" && !c.coachingActive) return false;
       if (filter === "users" && !c.isUser) return false;
       if (filter === "leads" && c.isUser) return false;
       if (!needle) return true;
@@ -97,12 +102,12 @@ export function AdminDashboard({
   }
 
   function exportCsv() {
-    const head = ["Name", "Email", "Phone", "Focus area", "Focus score", "Avg score", "Nervous state", "Age", "Gender", "Status", "Journals", "Check-ins", "Plan", "Joined"];
+    const head = ["Name", "Email", "Phone", "Focus area", "Focus score", "Avg score", "Nervous state", "Age", "Gender", "Status", "1:1 access", "1:1 until", "Journals", "Check-ins", "Plan", "Joined"];
     const esc = (v: unknown) => `"${String(v ?? "").replace(/"/g, '""')}"`;
     const lines = rows.map((c) =>
       [c.name, c.email, c.phone, c.focusLabel ?? "", c.focusScore ?? "", c.avgScore ?? "",
        c.nervousState ? NERVOUS_LABEL[c.nervousState] ?? c.nervousState : "", c.age ?? "", c.gender ?? "",
-       statusOf(c).label, c.journalCount, c.checkInCount, c.plan ?? "", c.joinedLabel]
+       statusOf(c).label, c.coachingActive ? "Yes" : "", c.coachingUntil ?? "", c.journalCount, c.checkInCount, c.plan ?? "", c.joinedLabel]
         .map(esc).join(",")
     );
     const blob = new Blob([[head.map(esc).join(","), ...lines].join("\n")], { type: "text/csv" });
@@ -141,11 +146,12 @@ export function AdminDashboard({
         </div>
 
         {/* Stat cards */}
-        <div className="mb-7 grid grid-cols-2 gap-3 sm:grid-cols-5">
+        <div className="mb-7 grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-6">
           <Stat label="Leads" value={stats.totalLeads} hint="assessments started" />
           <Stat label="Quizzes done" value={stats.quizCount} />
           <Stat label="App users" value={stats.appUsers} hint="onboarded" />
           <Stat label="Members" value={stats.activeMembers} accent hint="paid Companion" />
+          <Stat label="1:1 clients" value={stats.oneToOneClients} accent hint="paid coaching" />
           <Stat label="Revenue / mo" value={formatInr(stats.revenue)} accent />
         </div>
 
@@ -176,7 +182,7 @@ export function AdminDashboard({
             className="h-10 flex-1 min-w-[200px] rounded-full border border-parchment bg-white px-4 text-[14px] outline-none focus:border-green-400"
           />
           <div className="flex gap-1 rounded-full bg-cream p-1 text-[12.5px] font-medium">
-            {([["all", "All"], ["members", "Members"], ["users", "Users"], ["leads", "Leads"]] as const).map(([k, l]) => (
+            {([["all", "All"], ["members", "Members"], ["one_to_one", "1:1 clients"], ["users", "Users"], ["leads", "Leads"]] as const).map(([k, l]) => (
               <button
                 key={k}
                 onClick={() => setFilter(k)}
@@ -240,6 +246,9 @@ export function AdminDashboard({
                       </td>
                       <td className="px-4 py-3">
                         <span className={clsx("rounded-full px-2.5 py-1 text-[11px] font-semibold", s.cls)}>{s.label}</span>
+                        {c.coachingActive && (
+                          <span className="ml-1.5 rounded-full bg-plum-100 px-2 py-1 text-[11px] font-semibold text-plum-700">1:1</span>
+                        )}
                         {c.plan && <span className="ml-1.5 text-[11px] text-ink-muted">{c.plan}</span>}
                       </td>
                       <td className="px-4 py-3 text-center font-semibold text-ink">{c.journalCount}</td>

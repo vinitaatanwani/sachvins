@@ -3,6 +3,7 @@ import { z } from "zod";
 import { prisma } from "@/lib/prisma";
 import { requireAdmin } from "@/lib/admin";
 import { activateMembership } from "@/lib/membership";
+import { COACHING_PACKAGES } from "@/lib/pricing";
 
 // Owner-only CRUD for a person in the console: edit contact details + focus,
 // grant or revoke paid Companion access, and delete duplicate rows (a Lead or a
@@ -26,6 +27,9 @@ const patchSchema = z
     phone: z.string().trim().max(40).optional(),
     focusArea: z.enum(FOCUS).nullable().optional(),
     membershipActive: z.boolean().optional(),
+    // Paid 1:1 coaching access (unlocks the 1-hour calendar booking).
+    coachingActive: z.boolean().optional(),
+    coachingPackageType: z.enum(["seven_session", "eleven_session"]).optional(),
   })
   .refine((d) => d.profileId || d.leadId, { message: "profileId or leadId required" });
 
@@ -34,7 +38,8 @@ export async function PATCH(req: NextRequest) {
 
   const parsed = patchSchema.safeParse(await req.json());
   if (!parsed.success) return NextResponse.json({ error: "Invalid payload" }, { status: 400 });
-  const { profileId, leadId, name, email, phone, focusArea, membershipActive } = parsed.data;
+  const { profileId, leadId, name, email, phone, focusArea, membershipActive, coachingActive, coachingPackageType } =
+    parsed.data;
 
   // Lead requires non-null name/email/phone, so only write the fields provided.
   if (leadId) {
@@ -76,6 +81,45 @@ export async function PATCH(req: NextRequest) {
           data: { membershipActive: false, membershipSince: null },
         }),
       ]);
+    }
+
+    // Paid 1:1 coaching access. Granting creates (or refreshes) an active
+    // package so their 1-hour booking calendar opens for the next 180 days;
+    // revoking cancels any active package. Mirrors a real Razorpay purchase.
+    if (coachingActive === true) {
+      const key = coachingPackageType ?? "seven_session";
+      const pkg = COACHING_PACKAGES[key];
+      const existing = await prisma.coachingPackage.findFirst({
+        where: { profileId, status: "active" },
+        orderBy: { purchasedAt: "desc" },
+      });
+      if (existing) {
+        await prisma.coachingPackage.update({
+          where: { id: existing.id },
+          data: {
+            packageType: key,
+            sessionsTotal: pkg.sessions,
+            priceInr: pkg.defaultPriceInr,
+            purchasedAt: new Date(),
+          },
+        });
+      } else {
+        await prisma.coachingPackage.create({
+          data: {
+            profileId,
+            packageType: key,
+            priceInr: pkg.defaultPriceInr,
+            sessionsTotal: pkg.sessions,
+            status: "active",
+            purchasedAt: new Date(),
+          },
+        });
+      }
+    } else if (coachingActive === false) {
+      await prisma.coachingPackage.updateMany({
+        where: { profileId, status: "active" },
+        data: { status: "canceled" },
+      });
     }
   }
 

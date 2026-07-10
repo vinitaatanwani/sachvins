@@ -2,7 +2,7 @@ import { notFound } from "next/navigation";
 import { requireAdmin } from "@/lib/admin";
 import { prisma } from "@/lib/prisma";
 import { FOCUS_AREA_LABELS, type FocusAreaKey, type DomainScore } from "@/lib/quiz-data";
-import { SUBSCRIPTION_PLANS, type SubscriptionPlanKey } from "@/lib/pricing";
+import { SUBSCRIPTION_PLANS, COACHING_ACCESS_DAYS, type SubscriptionPlanKey } from "@/lib/pricing";
 import { AdminDashboard, type CustomerRow } from "@/components/admin/AdminDashboard";
 
 // Always fresh — this is an owner console over live data.
@@ -15,7 +15,11 @@ export default async function AdminPage() {
   const [leads, profiles, quizCount] = await Promise.all([
     prisma.lead.findMany({ include: { quizResult: true }, orderBy: { createdAt: "desc" } }),
     prisma.profile.findMany({
-      include: { subscription: true, _count: { select: { journalEntries: true, checkIns: true } } },
+      include: {
+        subscription: true,
+        coachingPackages: { where: { status: "active" }, orderBy: { purchasedAt: "desc" }, take: 1 },
+        _count: { select: { journalEntries: true, checkIns: true } },
+      },
     }),
     prisma.quizResult.count(),
   ]);
@@ -27,12 +31,24 @@ export default async function AdminPage() {
   // (avoids a locale hydration mismatch).
   const fmtDate = (d: Date) => d.toLocaleDateString("en-GB", { day: "2-digit", month: "short", year: "numeric" });
 
+  // Paid 1:1 coaching access: the most recent active package still inside its
+  // 180-day booking window. Returns the package key + how long access lasts.
+  type ProfileWithPkgs = (typeof profiles)[number];
+  function coachingAccessOf(profile: ProfileWithPkgs | undefined) {
+    const pkg = profile?.coachingPackages?.[0];
+    if (!pkg?.purchasedAt) return { active: false, packageType: null as string | null, until: null as string | null };
+    const expiresAt = new Date(pkg.purchasedAt.getTime() + COACHING_ACCESS_DAYS * 86_400_000);
+    if (expiresAt <= new Date()) return { active: false, packageType: null, until: null };
+    return { active: true, packageType: pkg.packageType as string, until: fmtDate(expiresAt) };
+  }
+
   const fromLeads: CustomerRow[] = leads.map((lead) => {
     const qr = lead.quizResult;
     const scores = (qr?.domainScores as unknown as DomainScore[] | undefined) ?? [];
     const focusKey = (qr?.primaryFocusArea ?? null) as FocusAreaKey | null;
     const focusEntry = focusKey ? scores.find((s) => s.key === focusKey) : undefined;
     const profile = qr?.profileId ? profileMap.get(qr.profileId) : undefined;
+    const coaching = coachingAccessOf(profile);
     return {
       id: lead.id,
       detailId: profile?.id ?? lead.id,
@@ -54,6 +70,9 @@ export default async function AdminPage() {
       isUser: !!profile,
       onboarded: !!profile?.onboardedAt,
       membershipActive: !!profile?.membershipActive,
+      coachingActive: coaching.active,
+      coachingPackageType: coaching.packageType,
+      coachingUntil: coaching.until,
       journalCount: profile?._count.journalEntries ?? 0,
       checkInCount: profile?._count.checkIns ?? 0,
       plan: profile?.subscription?.plan ?? null,
@@ -63,7 +82,9 @@ export default async function AdminPage() {
   // App users who never came through a lead (e.g. the owner's own account).
   const fromProfiles: CustomerRow[] = profiles
     .filter((p) => !referenced.has(p.id))
-    .map((p) => ({
+    .map((p) => {
+      const coaching = coachingAccessOf(p);
+      return {
       id: p.id,
       detailId: p.id,
       leadId: null,
@@ -84,10 +105,14 @@ export default async function AdminPage() {
       isUser: true,
       onboarded: !!p.onboardedAt,
       membershipActive: !!p.membershipActive,
+      coachingActive: coaching.active,
+      coachingPackageType: coaching.packageType,
+      coachingUntil: coaching.until,
       journalCount: p._count.journalEntries,
       checkInCount: p._count.checkIns,
       plan: p.subscription?.plan ?? null,
-    }));
+      };
+    });
 
   const customers = [...fromLeads, ...fromProfiles].sort(
     (a, b) => +new Date(b.createdAt) - +new Date(a.createdAt)
@@ -110,6 +135,7 @@ export default async function AdminPage() {
     quizCount,
     appUsers: profiles.filter((p) => p.onboardedAt).length,
     activeMembers: profiles.filter((p) => p.membershipActive).length,
+    oneToOneClients: profiles.filter((p) => coachingAccessOf(p).active).length,
     revenue,
   };
 
