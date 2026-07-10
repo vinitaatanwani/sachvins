@@ -590,7 +590,7 @@ function computeScores(){
   });
 }
 function levelLabel(l){return l==="high"?"Needs most attention":(l==="medium"?"Growing edge":"Relative strength");}
-function levelColor(l){return l==="high"?"#8171d4":(l==="medium"?"#e07ba0":"#5bb894");}
+function levelColor(l){return l==="high"?"#e0567f":(l==="medium"?"#e8a44c":"#5bb894");}
 function nervousState(){
   var a=st.answers,hyper=(a[0]+a[1]+a[3]+a[24]+a[25])/5,hypo=(a[26]+a[13])/2;
   if(Math.max(hyper,hypo)<2.25)return"regulated";

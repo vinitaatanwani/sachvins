@@ -11,7 +11,12 @@ export default async function OnboardingPage({
 }) {
   const { rid } = await searchParams;
   const deviceId = await getDeviceId();
-  if (!deviceId) redirect("/login?next=/onboarding");
+  // Preserve the quiz handoff (rid) through the login bounce, so the person's
+  // results still personalize onboarding after they sign in.
+  if (!deviceId) {
+    const next = rid ? `/onboarding?rid=${encodeURIComponent(rid)}` : "/onboarding";
+    redirect(`/login?next=${encodeURIComponent(next)}`);
+  }
 
   let profile = await getCurrentProfile();
   if (profile?.onboardedAt) redirect("/app/dashboard");

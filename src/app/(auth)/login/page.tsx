@@ -1,21 +1,9 @@
 import { Suspense } from "react";
-import { GoogleSignInButton } from "@/components/auth/GoogleSignInButton";
+import { LoginActions } from "@/components/auth/LoginActions";
 
-const ERROR_MESSAGES: Record<string, string> = {
-  oauth: "We couldn't complete Google sign-in. Please try again.",
-  missing_code: "Sign-in didn't finish. Please try again.",
-};
-
-export default async function LoginPage({
-  searchParams,
-}: {
-  searchParams: Promise<{ next?: string; error?: string }>;
-}) {
-  const { next, error } = await searchParams;
-  // Only allow app-relative destinations (guards against open redirects).
-  const safeNext = next && next.startsWith("/") ? next : "/app/dashboard";
-  const errorMessage = error ? ERROR_MESSAGES[error] ?? "Something went wrong. Please try again." : null;
-
+// Static shell — ?next= and ?error= are read client-side in LoginActions so
+// this page prerenders and serves instantly from the edge cache.
+export default function LoginPage() {
   return (
     <div className="flex min-h-[100dvh] flex-col items-center justify-center bg-warm-white px-6 py-16">
       <div className="w-full max-w-sm text-center">
@@ -31,13 +19,9 @@ export default async function LoginPage({
           Sign in to begin — your reflections, progress, and companion stay with you on every device.
         </p>
 
-        <div className="mt-8">
-          <Suspense>
-            <GoogleSignInButton next={safeNext} />
-          </Suspense>
-        </div>
-
-        {errorMessage && <p className="mt-4 text-[12.5px] text-berry-500">{errorMessage}</p>}
+        <Suspense>
+          <LoginActions />
+        </Suspense>
 
         <p className="mt-8 text-[11.5px] leading-relaxed text-ink-muted">
           By continuing you agree to our care-first approach. We only use your account to save your

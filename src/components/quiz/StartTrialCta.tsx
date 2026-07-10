@@ -16,7 +16,7 @@ export function StartTrialCta({ quizResultId }: { quizResultId: string }) {
       </p>
       <button
         onClick={() => router.push(`/onboarding?rid=${quizResultId}`)}
-        className="rounded-lg bg-indigo px-9 py-3.5 text-sm font-medium text-white transition hover:-translate-y-0.5 hover:bg-indigo-dark"
+        className="rounded-lg bg-white px-9 py-3.5 text-sm font-semibold text-indigo shadow-lg transition hover:-translate-y-0.5"
       >
         Start my free 7-day trial
       </button>

@@ -25,7 +25,7 @@ export default function HomePage() {
           <div className="mt-8 flex flex-col items-center gap-3">
             <Link
               href="/quiz"
-              className="rounded-lg bg-indigo px-9 py-4 text-sm font-medium text-white transition hover:-translate-y-0.5 hover:bg-indigo-dark"
+              className="rounded-lg bg-white px-9 py-4 text-sm font-semibold text-indigo shadow-lg transition hover:-translate-y-0.5"
             >
               Take the free assessment
             </Link>

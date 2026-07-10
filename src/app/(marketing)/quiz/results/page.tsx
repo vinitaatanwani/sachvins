@@ -9,10 +9,12 @@ import {
   type ScoreLevel,
 } from "@/lib/quiz-data";
 
+// Status colours matching the owner console: bar width is the wellness score
+// (higher = healthier), so short + rose = needs the most attention.
 function levelBarColor(level: ScoreLevel) {
-  if (level === "high") return "#8171d4"; // magenta — needs the most care
-  if (level === "medium") return "#e07ba0"; // orange — growing edge
-  return "#5bb894"; // mint — relative strength
+  if (level === "high") return "#e0567f"; // rose — needs most attention
+  if (level === "medium") return "#e8a44c"; // amber — growing edge
+  return "#5bb894"; // green — relative strength
 }
 
 function levelPillClasses(level: ScoreLevel) {
