@@ -4,7 +4,6 @@ import { CountUp } from "@/components/motion/CountUp";
 import { CheckInForm } from "@/components/app/CheckInForm";
 import { FocusAreaSwitcher } from "@/components/app/FocusAreaSwitcher";
 import Link from "next/link";
-import { ResetTestDataButton } from "@/components/app/ResetTestDataButton";
 import { SignOutButton } from "@/components/app/SignOutButton";
 import { requireAdmin } from "@/lib/admin";
 import { FOCUS_AREA_LABELS, type DomainScore } from "@/lib/quiz-data";
@@ -150,23 +149,27 @@ export default async function ProfilePage() {
         </Link>
       </div>
 
-      <div className="mb-8 rounded-2xl border border-black/8 bg-white p-4">
-        <div className="mb-1 flex items-center justify-between">
-          <h3 className="text-[13px] font-medium text-ink">Subscription</h3>
-          <span className="rounded-full bg-cream px-2 py-0.5 text-[10px] font-medium uppercase text-ink-muted">
-            Coming soon
-          </span>
+      {/* The subscription upsell is only for people who haven't subscribed yet.
+          Members already have it, so we don't show them a "coming soon" card. */}
+      {!profile.membershipActive && (
+        <div className="mb-8 rounded-2xl border border-black/8 bg-white p-4">
+          <div className="mb-1 flex items-center justify-between">
+            <h3 className="text-[13px] font-medium text-ink">Subscription</h3>
+            <span className="rounded-full bg-cream px-2 py-0.5 text-[10px] font-medium uppercase text-ink-muted">
+              Coming soon
+            </span>
+          </div>
+          <p className="mb-3 text-[12.5px] text-ink-muted">Keep your practice going after the free trial.</p>
+          <div className="flex gap-2 text-[11.5px] text-ink-light">
+            <span className="rounded-lg bg-cream px-2.5 py-1">
+              Monthly {formatInr(SUBSCRIPTION_PLANS.monthly.priceInr)}
+            </span>
+            <span className="rounded-lg bg-cream px-2.5 py-1">
+              Yearly {formatInr(SUBSCRIPTION_PLANS.yearly.priceInr)}
+            </span>
+          </div>
         </div>
-        <p className="mb-3 text-[12.5px] text-ink-muted">Keep your practice going after the free trial.</p>
-        <div className="flex gap-2 text-[11.5px] text-ink-light">
-          <span className="rounded-lg bg-cream px-2.5 py-1">
-            Monthly {formatInr(SUBSCRIPTION_PLANS.monthly.priceInr)}
-          </span>
-          <span className="rounded-lg bg-cream px-2.5 py-1">
-            Yearly {formatInr(SUBSCRIPTION_PLANS.yearly.priceInr)}
-          </span>
-        </div>
-      </div>
+      )}
 
       <div className="mt-1 space-y-2.5">
         {admin && (
@@ -178,7 +181,6 @@ export default async function ProfilePage() {
           </Link>
         )}
         <SignOutButton />
-        <ResetTestDataButton />
       </div>
     </div>
   );
