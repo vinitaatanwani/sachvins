@@ -9,11 +9,34 @@ import { SignOutButton } from "@/components/app/SignOutButton";
 import { requireAdmin } from "@/lib/admin";
 import { FOCUS_AREA_LABELS, type DomainScore } from "@/lib/quiz-data";
 import { SUBSCRIPTION_PLANS, formatInr } from "@/lib/pricing";
+import { DailyKindnessCard, type KindnessDay } from "@/components/app/DailyKindnessCard";
+import { todaysKindness } from "@/lib/kindness";
 
 function startOfDay(date: Date) {
   const d = new Date(date);
   d.setHours(0, 0, 0, 0);
   return d;
+}
+
+const DOW = ["M", "T", "W", "T", "F", "S", "S"];
+
+// This week's kindness activity (Mon–Sun) for the streak strip on the card.
+async function loadKindnessWeek(profileId: string) {
+  const today = startOfDay(new Date());
+  const monday = startOfDay(new Date());
+  monday.setDate(monday.getDate() - ((monday.getDay() + 6) % 7));
+
+  const logs = await prisma.kindnessLog.findMany({ where: { profileId, date: { gte: monday } } });
+  const doneSet = new Set(logs.map((l) => startOfDay(l.date).getTime()));
+
+  const week: KindnessDay[] = [];
+  for (let i = 0; i < 7; i++) {
+    const d = new Date(monday);
+    d.setDate(monday.getDate() + i);
+    const t = d.getTime();
+    week.push({ label: DOW[i], done: doneSet.has(t), isToday: t === today.getTime(), future: t > today.getTime() });
+  }
+  return { week, count: week.filter((w) => w.done).length, doneToday: doneSet.has(today.getTime()) };
 }
 
 export default async function ProfilePage() {
@@ -33,6 +56,7 @@ export default async function ProfilePage() {
   const todayStart = startOfDay(new Date());
   const alreadyCheckedInToday = recentCheckIns.some((c) => startOfDay(c.weekOf).getTime() === todayStart.getTime());
   const initial = (profile.name ?? "Friend").trim().charAt(0).toUpperCase();
+  const kindness = profile.membershipActive ? await loadKindnessWeek(profile.id) : null;
 
   return (
     <div className="mx-auto max-w-md px-5 pb-10" style={{ paddingTop: "calc(env(safe-area-inset-top) + 24px)" }}>
@@ -47,6 +71,15 @@ export default async function ProfilePage() {
           )}
         </div>
       </div>
+
+      {kindness && (
+        <DailyKindnessCard
+          reminder={todaysKindness()}
+          doneToday={kindness.doneToday}
+          week={kindness.week}
+          count={kindness.count}
+        />
+      )}
 
       <div className="stagger mb-5 grid grid-cols-2 gap-3">
         <div className="rounded-2xl border border-black/8 bg-white p-4">

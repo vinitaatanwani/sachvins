@@ -123,6 +123,21 @@ model Profile {
   clarityReports         ClarityReport[]
   affirmationSets        AffirmationSet[]
   meditationSessions     MeditationSession[]
+  kindnessLogs           KindnessLog[]
+}
+
+// One row per day a member marked their daily kindness "done" — powers the
+// gentle "days you were kind to yourself" streak. The reminder text itself isn't
+// stored (it's derived from the date), only that they acknowledged it.
+model KindnessLog {
+  id        String   @id @default(uuid())
+  profile   Profile  @relation(fields: [profileId], references: [id], onDelete: Cascade)
+  profileId String
+  date      DateTime // start of the calendar day
+  createdAt DateTime @default(now())
+
+  @@unique([profileId, date])
+  @@index([profileId, date])
 }
 
 // ── Paid membership: the Reflective Content Engine's stored output ──
