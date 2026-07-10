@@ -11,10 +11,8 @@ import { COACH_FALLBACKS } from "@/lib/content";
 interface PastEntry {
   id: string;
   date: string;
-  prompt: string;
-  content: string | null;
-  prompt2: string | null;
-  content2: string | null;
+  // Only Vinita's note is surfaced in Past — the person's own answers are never
+  // sent to the client here, so revisiting can't re-open the wound.
   reflection: string | null;
 }
 
@@ -250,27 +248,23 @@ export function JournalScreen({
             </p>
           ) : (
             <div className="stagger flex flex-col gap-3">
+              {/* Past shows only Vinita's note, never the person's own answers —
+                  re-reading the raw entry can re-open the wound. */}
               {pastEntries.map((entry) => (
                 <div key={entry.id} className="rounded-2xl border border-black/8 bg-white p-4">
                   <p className="mb-2 text-[11px] font-medium uppercase tracking-wide text-ink-muted">{entry.date}</p>
-                  <p className="mb-1 font-serif text-[14.5px] text-ink">&ldquo;{entry.prompt}&rdquo;</p>
-                  <p className="mb-3 whitespace-pre-wrap text-[13.5px] leading-relaxed text-ink-light">{entry.content}</p>
-                  {entry.prompt2 && (
-                    <>
-                      <p className="mb-1 font-serif text-[14.5px] text-ink">&ldquo;{entry.prompt2}&rdquo;</p>
-                      <p className="whitespace-pre-wrap text-[13.5px] leading-relaxed text-ink-light">{entry.content2}</p>
-                    </>
-                  )}
-                  {entry.reflection && (
-                    <div className="mt-3 rounded-xl border border-gold/30 bg-cream p-3">
-                      <div className="mb-1.5 flex items-center gap-1.5">
-                        {/* eslint-disable-next-line @next/next/no-img-element */}
-                        <img src="/logo-mark.png" alt="Vinita" className="h-5 w-5 rounded-full bg-white p-0.5 ring-1 ring-black/5" />
-                        <span className="font-accent text-[10px] font-extrabold uppercase tracking-[0.12em] text-gold">Vinita&rsquo;s note</span>
-                      </div>
-                      <p className="whitespace-pre-wrap text-[13px] leading-relaxed text-ink-light">{entry.reflection}</p>
+                  <div className="rounded-xl border border-gold/30 bg-cream p-3">
+                    <div className="mb-1.5 flex items-center gap-1.5">
+                      {/* eslint-disable-next-line @next/next/no-img-element */}
+                      <img src="/logo-mark.png" alt="Vinita" className="h-5 w-5 rounded-full bg-white p-0.5 ring-1 ring-black/5" />
+                      <span className="font-accent text-[10px] font-extrabold uppercase tracking-[0.12em] text-gold">Vinita&rsquo;s note</span>
                     </div>
-                  )}
+                    {entry.reflection ? (
+                      <p className="whitespace-pre-wrap text-[13px] leading-relaxed text-ink-light">{entry.reflection}</p>
+                    ) : (
+                      <p className="text-[13px] leading-relaxed text-ink-muted">Vinita&rsquo;s note for this reflection is on its way.</p>
+                    )}
+                  </div>
                 </div>
               ))}
             </div>

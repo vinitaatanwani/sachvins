@@ -36,10 +36,8 @@ export default async function JournalPage() {
       pastEntries={pastEntries.map((e) => ({
         id: e.id,
         date: e.date.toDateString(),
-        prompt: e.prompt,
-        content: e.content,
-        prompt2: e.prompt2,
-        content2: e.content2,
+        // Past surfaces only Vinita's note — the raw answers are intentionally
+        // not sent to the client so revisiting can't re-trigger the wound.
         reflection: e.reflection,
       }))}
     />
