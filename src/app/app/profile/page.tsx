@@ -44,18 +44,26 @@ export default async function ProfilePage() {
 
   const admin = await requireAdmin();
 
-  const [latestQuizResult, journalEntryCount, checkInCount, recentCheckIns] = await Promise.all([
-    prisma.quizResult.findFirst({ where: { profileId: profile.id }, orderBy: { createdAt: "desc" } }),
-    prisma.journalEntry.count({ where: { profileId: profile.id } }),
-    prisma.weeklyCheckIn.count({ where: { profileId: profile.id } }),
-    prisma.weeklyCheckIn.findMany({ where: { profileId: profile.id }, orderBy: { weekOf: "desc" }, take: 1 }),
-  ]);
+  const [latestQuizResult, journalEntryCount, checkInCount, recentCheckIns, freeSessionCount, coachingCount] =
+    await Promise.all([
+      prisma.quizResult.findFirst({ where: { profileId: profile.id }, orderBy: { createdAt: "desc" } }),
+      prisma.journalEntry.count({ where: { profileId: profile.id } }),
+      prisma.weeklyCheckIn.count({ where: { profileId: profile.id } }),
+      prisma.weeklyCheckIn.findMany({ where: { profileId: profile.id }, orderBy: { weekOf: "desc" }, take: 1 }),
+      prisma.claritySession.count({ where: { profileId: profile.id } }),
+      prisma.coachingPackage.count({ where: { profileId: profile.id, status: { in: ["active", "completed"] } } }),
+    ]);
 
   const domainScores = (latestQuizResult?.domainScores as unknown as DomainScore[] | undefined) ?? [];
   const todayStart = startOfDay(new Date());
   const alreadyCheckedInToday = recentCheckIns.some((c) => startOfDay(c.weekOf).getTime() === todayStart.getTime());
   const initial = (profile.name ?? "Friend").trim().charAt(0).toUpperCase();
   const kindness = profile.membershipActive ? await loadKindnessWeek(profile.id) : null;
+
+  // The free 20-min Clarity Session is a one-time intro: offer it only to someone
+  // who hasn't booked it before and isn't already a paying 1:1 client.
+  const hasCoaching = coachingCount > 0;
+  const showFreeSession = freeSessionCount === 0 && !hasCoaching;
 
   return (
     <div className="mx-auto max-w-md px-5 pb-10" style={{ paddingTop: "calc(env(safe-area-inset-top) + 24px)" }}>
@@ -128,24 +136,36 @@ export default async function ProfilePage() {
       <div className="mb-5 rounded-2xl border border-black/8 bg-white p-4">
         <div className="mb-1 flex items-center justify-between">
           <h3 className="text-[13px] font-medium text-ink">1:1 Coaching</h3>
-          <span className="rounded-full bg-indigo/12 px-2 py-0.5 text-[10px] font-semibold uppercase text-indigo">
-            Free intro
-          </span>
+          {showFreeSession && (
+            <span className="rounded-full bg-indigo/12 px-2 py-0.5 text-[10px] font-semibold uppercase text-indigo">
+              Free intro
+            </span>
+          )}
         </div>
         <p className="mb-3 text-[12.5px] text-ink-muted">
-          A free 20-minute Clarity Session with Vinita over Zoom, plus optional coaching packages.
+          {showFreeSession
+            ? "A free 20-minute Clarity Session with Vinita over Zoom, plus optional coaching packages."
+            : hasCoaching
+              ? "Your 1:1 coaching with Vinita over Zoom — book and manage your sessions."
+              : "Go deeper with 1:1 coaching sessions with Vinita over Zoom."}
         </p>
-        <Link
-          href="/app/book"
-          className="mb-2.5 block rounded-full bg-indigo py-3 text-center text-[13px] font-semibold text-white transition active:scale-[0.98]"
-        >
-          Book your free 20-min session →
-        </Link>
+        {showFreeSession && (
+          <Link
+            href="/app/book"
+            className="mb-2.5 block rounded-full bg-indigo py-3 text-center text-[13px] font-semibold text-white transition active:scale-[0.98]"
+          >
+            Book your free 20-min session →
+          </Link>
+        )}
         <Link
           href="/app/coaching"
-          className="block rounded-full border border-indigo/40 py-3 text-center text-[13px] font-semibold text-indigo transition active:scale-[0.98]"
+          className={
+            showFreeSession
+              ? "block rounded-full border border-indigo/40 py-3 text-center text-[13px] font-semibold text-indigo transition active:scale-[0.98]"
+              : "block rounded-full bg-indigo py-3 text-center text-[13px] font-semibold text-white transition active:scale-[0.98]"
+          }
         >
-          Explore 1-hour coaching packages →
+          {hasCoaching ? "Go to your 1-hour sessions →" : "Explore 1-hour coaching packages →"}
         </Link>
       </div>
 
