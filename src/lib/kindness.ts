@@ -105,16 +105,24 @@ export const KINDNESS_REMINDERS: string[] = [
   "And if no one has reminded you lately, let me remind you: you deserve your own kindness too. Not someday. Not after you fix everything. Today.",
 ];
 
-// Deterministic daily rotation: everyone sees the same reminder on a given day,
-// advancing by one each day and cycling through all 100 (~3+ months, then it
-// gently repeats). Kept server-side so the popup and the profile card always
-// show the same note for "today".
-export function kindnessIndexForDay(date: Date = new Date()): number {
-  const dayNumber = Math.floor(date.getTime() / 86_400_000);
-  const n = KINDNESS_REMINDERS.length;
-  return ((dayNumber % n) + n) % n;
+// A stable per-person offset from their id, so two people are almost never on
+// the same reminder the same day. Simple string hash → 0..(n-1).
+function offsetForProfile(profileId: string, n: number): number {
+  let h = 0;
+  for (let i = 0; i < profileId.length; i++) h = (h * 31 + profileId.charCodeAt(i)) | 0;
+  return ((h % n) + n) % n;
 }
 
-export function todaysKindness(date: Date = new Date()): string {
-  return KINDNESS_REMINDERS[kindnessIndexForDay(date)];
+// Personalised daily rotation: each person starts at their own point in the list
+// and advances one reminder per day, so different people see different notes on
+// the same day and everyone still cycles through all 100 over time. Deterministic
+// and server-side, so the popup and the profile card always match for "today".
+export function kindnessIndexFor(profileId: string, date: Date = new Date()): number {
+  const dayNumber = Math.floor(date.getTime() / 86_400_000);
+  const n = KINDNESS_REMINDERS.length;
+  return ((dayNumber + offsetForProfile(profileId, n)) % n + n) % n;
+}
+
+export function kindnessForProfile(profileId: string, date: Date = new Date()): string {
+  return KINDNESS_REMINDERS[kindnessIndexFor(profileId, date)];
 }

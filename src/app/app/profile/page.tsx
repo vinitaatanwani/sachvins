@@ -10,7 +10,7 @@ import { requireAdmin } from "@/lib/admin";
 import { FOCUS_AREA_LABELS, type DomainScore } from "@/lib/quiz-data";
 import { SUBSCRIPTION_PLANS, formatInr } from "@/lib/pricing";
 import { DailyKindnessCard, type KindnessDay } from "@/components/app/DailyKindnessCard";
-import { todaysKindness } from "@/lib/kindness";
+import { kindnessForProfile } from "@/lib/kindness";
 
 function startOfDay(date: Date) {
   const d = new Date(date);
@@ -74,7 +74,7 @@ export default async function ProfilePage() {
 
       {kindness && (
         <DailyKindnessCard
-          reminder={todaysKindness()}
+          reminder={kindnessForProfile(profile.id)}
           doneToday={kindness.doneToday}
           week={kindness.week}
           count={kindness.count}

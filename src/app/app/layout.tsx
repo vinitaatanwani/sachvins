@@ -4,7 +4,7 @@ import { BottomTabBar } from "@/components/app/BottomTabBar";
 import { AppTour } from "@/components/app/AppTour";
 import { PageTransition } from "@/components/motion/PageTransition";
 import { DailyKindnessPopup } from "@/components/app/DailyKindnessPopup";
-import { todaysKindness } from "@/lib/kindness";
+import { kindnessForProfile } from "@/lib/kindness";
 
 export default async function AppLayout({ children }: { children: React.ReactNode }) {
   const profile = await getCurrentProfile();
@@ -20,7 +20,9 @@ export default async function AppLayout({ children }: { children: React.ReactNod
       </main>
       <BottomTabBar />
       <AppTour active={!profile.hasSeenAppTour} />
-      {profile.membershipActive && <DailyKindnessPopup reminder={todaysKindness()} dayKey={dayKey} />}
+      {profile.membershipActive && (
+        <DailyKindnessPopup reminder={kindnessForProfile(profile.id)} dayKey={dayKey} />
+      )}
     </div>
   );
 }
