@@ -6,10 +6,13 @@ import { useRouter } from "next/navigation";
 import clsx from "clsx";
 import { createClient } from "@/lib/supabase/client";
 import { formatInr } from "@/lib/pricing";
+import { AdminEditModal } from "./AdminEditModal";
 
 export interface CustomerRow {
   id: string;
   detailId: string;
+  leadId: string | null;
+  profileId: string | null;
   name: string;
   email: string;
   phone: string;
@@ -68,6 +71,7 @@ export function AdminDashboard({
   const router = useRouter();
   const [q, setQ] = useState("");
   const [filter, setFilter] = useState<Filter>("all");
+  const [editing, setEditing] = useState<CustomerRow | null>(null);
 
   const rows = useMemo(() => {
     const needle = q.trim().toLowerCase();
@@ -197,7 +201,7 @@ export function AdminDashboard({
                   <th className="px-4 py-3 font-semibold">Status</th>
                   <th className="px-4 py-3 text-center font-semibold">Journals</th>
                   <th className="px-4 py-3 font-semibold">Joined</th>
-                  <th className="px-4 py-3" />
+                  <th className="px-4 py-3 text-right font-semibold">Edit</th>
                 </tr>
               </thead>
               <tbody>
@@ -240,7 +244,17 @@ export function AdminDashboard({
                       </td>
                       <td className="px-4 py-3 text-center font-semibold text-ink">{c.journalCount}</td>
                       <td className="px-4 py-3 text-ink-muted">{c.joinedLabel}</td>
-                      <td className="px-4 py-3 text-ink-muted">›</td>
+                      <td className="px-4 py-3 text-right">
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            setEditing(c);
+                          }}
+                          className="rounded-full border border-parchment bg-white px-3 py-1.5 text-[12px] font-semibold text-ink-light transition hover:bg-cream active:scale-95"
+                        >
+                          Edit
+                        </button>
+                      </td>
                     </tr>
                   );
                 })}
@@ -253,6 +267,8 @@ export function AdminDashboard({
           Showing {rows.length} of {customers.length} · updated live
         </p>
       </div>
+
+      {editing && <AdminEditModal row={editing} onClose={() => setEditing(null)} />}
     </div>
   );
 }

@@ -36,6 +36,8 @@ export default async function AdminPage() {
     return {
       id: lead.id,
       detailId: profile?.id ?? lead.id,
+      leadId: lead.id,
+      profileId: profile?.id ?? null,
       name: lead.name,
       email: lead.email,
       phone: lead.phone,
@@ -64,6 +66,8 @@ export default async function AdminPage() {
     .map((p) => ({
       id: p.id,
       detailId: p.id,
+      leadId: null,
+      profileId: p.id,
       name: p.name ?? "—",
       email: p.email ?? "—",
       phone: p.phone ?? "—",
