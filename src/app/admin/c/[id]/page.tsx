@@ -85,6 +85,7 @@ export default async function CustomerDetailPage({ params }: { params: Promise<{
       quizResults: { orderBy: { createdAt: "desc" }, take: 1 },
       journalEntries: { orderBy: { date: "desc" } },
       meditationSessions: { orderBy: { createdAt: "desc" } },
+      quietSits: { orderBy: { createdAt: "desc" } },
       checkIns: { orderBy: { createdAt: "desc" } },
       subscription: true,
     },
@@ -113,6 +114,18 @@ export default async function CustomerDetailPage({ params }: { params: Promise<{
   const journals = profile?.journalEntries ?? [];
   const meds = profile?.meditationSessions ?? [];
   const checkIns = profile?.checkIns ?? [];
+  const quietSits = profile?.quietSits ?? [];
+  // What most often surfaces in their Quiet Minute sits — a coaching signal.
+  const arrivedCounts = new Map<string, number>();
+  quietSits.forEach((s) => s.arrived && arrivedCounts.set(s.arrived, (arrivedCounts.get(s.arrived) ?? 0) + 1));
+  const topArrived = [...arrivedCounts.entries()].sort((a, b) => b[1] - a[1])[0]?.[0] ?? null;
+  const ARRIVED_LABEL: Record<string, string> = {
+    restlessness: "restlessness",
+    todo: "a to-do list",
+    ache: "an old ache",
+    sadness: "sadness",
+    nothing: "almost nothing",
+  };
 
   const now = Date.now();
   const within = (d: Date, days: number) => now - +d < days * 864e5;
@@ -434,11 +447,17 @@ export default async function CustomerDetailPage({ params }: { params: Promise<{
                 {isMeditating ? "Active" : "Not lately"}
               </span>
             </div>
-            <div className="mb-4 grid grid-cols-3 gap-2 text-center">
+            <div className="mb-4 grid grid-cols-4 gap-2 text-center">
               <Metric label="Sessions" value={meds.length} />
               <Metric label="Minutes" value={medsTotalMin} />
               <Metric label="Check-ins" value={checkIns.length} />
+              <Metric label="Quiet sits" value={quietSits.length} />
             </div>
+            {topArrived && (
+              <p className="mb-3 text-[12.5px] text-ink-muted">
+                In their quiet sits, what arrives most is <b className="text-ink">{ARRIVED_LABEL[topArrived] ?? topArrived}</b>.
+              </p>
+            )}
             <p className="mb-3 text-[12.5px] text-ink-muted">Last session: <b className="text-ink">{lastMed ? fmt(lastMed) : "—"}</b></p>
             {meds.length > 0 ? (
               <div className="flex flex-col gap-2">

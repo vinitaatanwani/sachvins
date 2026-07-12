@@ -124,6 +124,22 @@ model Profile {
   affirmationSets        AffirmationSet[]
   meditationSessions     MeditationSession[]
   kindnessLogs           KindnessLog[]
+  quietSits              QuietSit[]
+}
+
+// One row per completed Quiet Minute sit (members-only stillness practice).
+// `arrived` is what surfaced in the quiet (restlessness / a to-do / an old
+// ache / sadness / almost nothing) — shown back to Vinita for coaching, and
+// the sit count drives the gentle 60s → 90s → ... capacity growth.
+model QuietSit {
+  id        String   @id @default(uuid())
+  profile   Profile  @relation(fields: [profileId], references: [id], onDelete: Cascade)
+  profileId String
+  seconds   Int
+  arrived   String?
+  createdAt DateTime @default(now())
+
+  @@index([profileId, createdAt])
 }
 
 // One row per day a member marked their daily kindness "done" — powers the

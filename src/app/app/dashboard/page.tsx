@@ -57,6 +57,24 @@ export default async function DashboardPage() {
         </Link>
       )}
 
+      {/* Members: the Quiet Minute — a daily invitation into 60s of stillness */}
+      {profile.membershipActive && (
+        <Link
+          href="/app/quiet"
+          className="mb-4 block rounded-2xl border border-indigo/15 bg-indigo/5 px-5 py-4 transition active:scale-[0.98]"
+        >
+          <div className="mb-1 flex items-center gap-2">
+            <span className="text-[11px] font-semibold uppercase tracking-[0.12em] text-indigo">
+              The quiet minute
+            </span>
+          </div>
+          <p className="font-serif text-[17px] leading-snug text-ink">Filling every gap today?</p>
+          <p className="mt-1 text-[12.5px] leading-relaxed text-ink-muted">
+            The pull to stay busy is usually a feeling asking not to be felt. Sit with it for a minute →
+          </p>
+        </Link>
+      )}
+
       {/* Hero: today's recommended session */}
       <Link
         href="/app/meditate"
