@@ -2,6 +2,7 @@ import { cache } from "react";
 import { prisma } from "@/lib/prisma";
 import { createClient } from "@/lib/supabase/server";
 import type { User } from "@supabase/supabase-js";
+import type { Profile } from "@prisma/client";
 
 // Identity is the Supabase-authenticated user (Google OAuth). Every /app page
 // and protected API route resolves the current person through these helpers, so
@@ -32,15 +33,51 @@ function nameFromUser(user: User): string | null {
   return (m.full_name as string) || (m.name as string) || null;
 }
 
+// One person, one account: if this email already took the quiz as a lead, claim
+// that lead (and its quiz result) for the profile — so the same email never
+// shows up as two separate people, and their assessment follows them in.
+async function adoptLeadByEmail(profile: Profile): Promise<Profile> {
+  if (!profile.email) return profile;
+  const lead = await prisma.lead.findFirst({
+    where: { email: { equals: profile.email, mode: "insensitive" }, convertedToProfileId: null },
+    include: { quizResult: true },
+    orderBy: { createdAt: "desc" },
+  });
+  if (!lead) return profile;
+
+  const qr = lead.quizResult;
+  const updated = await prisma.profile.update({
+    where: { id: profile.id },
+    data: {
+      name: profile.name ?? lead.name,
+      phone: profile.phone ?? lead.phone,
+      ...(qr
+        ? {
+            focusArea: profile.focusArea ?? qr.primaryFocusArea,
+            nervousSystemState: profile.nervousSystemState ?? qr.nervousSystemState,
+          }
+        : {}),
+    },
+  });
+  await prisma.lead.update({ where: { id: lead.id }, data: { convertedToProfileId: profile.id } });
+  if (qr && !qr.profileId) {
+    await prisma.quizResult.update({ where: { id: qr.id }, data: { profileId: profile.id } });
+  }
+  return updated;
+}
+
 // Ensure a Profile row exists for a freshly-authenticated user (called from the
-// OAuth callback). Idempotent; backfills name/email from Google on first create.
+// OAuth callback). Idempotent; backfills name/email from Google on first create,
+// and adopts any existing quiz lead with the same email so no duplicate person
+// is ever created.
 export async function provisionProfileForUser(user: User) {
   const existing = await prisma.profile.findUnique({ where: { id: user.id } });
   if (existing) return existing;
   try {
-    return await prisma.profile.create({
+    const created = await prisma.profile.create({
       data: { id: user.id, email: user.email ?? null, name: nameFromUser(user) },
     });
+    return await adoptLeadByEmail(created);
   } catch {
     // A concurrent request won the create — return whatever now exists.
     return prisma.profile.findUnique({ where: { id: user.id } });

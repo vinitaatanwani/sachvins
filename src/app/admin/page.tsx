@@ -25,7 +25,31 @@ export default async function AdminPage() {
   ]);
 
   const profileMap = new Map(profiles.map((p) => [p.id, p]));
-  const referenced = new Set(leads.map((l) => l.quizResult?.profileId).filter(Boolean));
+
+  // One row per person: leads also match a profile by email (case-insensitive),
+  // not only via the quiz link — so the same address never appears as two
+  // people. Where two profiles share an email (legacy data), prefer the
+  // onboarded/newest one.
+  const profileByEmail = new Map<string, (typeof profiles)[number]>();
+  for (const p of profiles) {
+    if (!p.email) continue;
+    const key = p.email.toLowerCase();
+    const cur = profileByEmail.get(key);
+    if (!cur || (!cur.onboardedAt && p.onboardedAt) || (+p.createdAt > +cur.createdAt && !!p.onboardedAt === !!cur.onboardedAt)) {
+      profileByEmail.set(key, p);
+    }
+  }
+
+  // Keep only the newest lead per email (repeat quiz attempts collapse to one).
+  const seenLeadEmails = new Set<string>();
+  const dedupedLeads = leads.filter((l) => {
+    const key = l.email.toLowerCase();
+    if (seenLeadEmails.has(key)) return false;
+    seenLeadEmails.add(key);
+    return true;
+  });
+
+  const referenced = new Set<string>();
 
   // Format the date on the server so it renders identically on the client
   // (avoids a locale hydration mismatch).
@@ -42,12 +66,14 @@ export default async function AdminPage() {
     return { active: true, packageType: pkg.packageType as string, until: fmtDate(expiresAt) };
   }
 
-  const fromLeads: CustomerRow[] = leads.map((lead) => {
+  const fromLeads: CustomerRow[] = dedupedLeads.map((lead) => {
     const qr = lead.quizResult;
     const scores = (qr?.domainScores as unknown as DomainScore[] | undefined) ?? [];
     const focusKey = (qr?.primaryFocusArea ?? null) as FocusAreaKey | null;
     const focusEntry = focusKey ? scores.find((s) => s.key === focusKey) : undefined;
-    const profile = qr?.profileId ? profileMap.get(qr.profileId) : undefined;
+    const profile =
+      (qr?.profileId ? profileMap.get(qr.profileId) : undefined) ?? profileByEmail.get(lead.email.toLowerCase());
+    if (profile) referenced.add(profile.id);
     const coaching = coachingAccessOf(profile);
     return {
       id: lead.id,
