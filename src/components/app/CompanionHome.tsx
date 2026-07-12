@@ -2,7 +2,6 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import Link from "next/link";
 import clsx from "clsx";
 import type { NervousSystemState } from "@/lib/quiz-data";
 import { nervousLabel } from "@/lib/companion-content";
@@ -10,7 +9,7 @@ import { JourneyTab } from "./JourneyTab";
 import type { JourneyData } from "@/lib/journey";
 import { loadRazorpayCheckout, type RazorpayHandlerResponse } from "@/lib/razorpay-client";
 
-type Tab = "letters" | "journey" | "affirmations";
+type Tab = "journey" | "affirmations";
 
 // Plan card order must match the SubscriptionPlan keys the checkout API expects.
 const PLAN_KEYS = ["monthly", "quarterly", "yearly"] as const;
@@ -25,19 +24,17 @@ export function CompanionHome({
   locked = false,
   razorpayKeyId = null,
   firstName,
-  letter,
   journey,
   affirmations,
 }: {
   locked?: boolean;
   razorpayKeyId?: string | null;
   firstName?: string | null;
-  letter: { body: string; weekOf: string } | null;
   journey: JourneyData | null;
   affirmations: { lines: string[]; weekOf: string; nervousState: NervousSystemState | null; todayIndex: number } | null;
 }) {
   const router = useRouter();
-  const [tab, setTab] = useState<Tab>(locked ? "journey" : "letters");
+  const [tab, setTab] = useState<Tab>("journey");
   const [plan, setPlan] = useState(2);
   const [working, setWorking] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -105,7 +102,6 @@ export function CompanionHome({
     router.refresh();
   }
 
-  const letterParas = letter ? letter.body.split(/\n\n+/) : [];
 
   return (
     <div className="mx-auto max-w-md px-5 pb-10" style={{ paddingTop: "calc(env(safe-area-inset-top) + 22px)" }}>
@@ -123,18 +119,14 @@ export function CompanionHome({
 
       {locked && (
         <p className="mb-4 text-[13px] leading-relaxed text-ink-light">
-          {firstName ? `${firstName}, here` : "Here"}&rsquo;s a peek at what your companion has already written for you.
-          Unlock to read it all.
+          {firstName ? `${firstName}, here` : "Here"}&rsquo;s a peek at your companion — your real journey, and daily affirmations tuned to you.
+          Unlock to open it all.
         </p>
       )}
 
       {/* Segmented tabs */}
       <div className="mb-5 flex gap-1 rounded-full bg-cream p-1 text-[12px] font-medium">
-        {(
-          (locked
-            ? [["journey", "Journey"], ["affirmations", "Affirmations"]]
-            : [["letters", "Letters"], ["journey", "Journey"], ["affirmations", "Affirmations"]]) as [Tab, string][]
-        ).map(([key, label]) => (
+        {([["journey", "Journey"], ["affirmations", "Affirmations"]] as const).map(([key, label]) => (
           <button
             key={key}
             onClick={() => setTab(key)}
@@ -147,49 +139,6 @@ export function CompanionHome({
           </button>
         ))}
       </div>
-
-      {/* ── Letters: members only — Vinita's letters are part of the paid tier ── */}
-      {tab === "letters" && !locked &&
-        (letter ? (
-          <div className="animate-zoom-in rounded-2xl border border-plum-100 bg-white p-5">
-            <span className="mb-1 block font-accent text-[9.5px] font-extrabold uppercase tracking-[0.14em] text-plum-500">
-              A letter for you
-            </span>
-            <p className="mb-3 text-[12px] text-ink-muted">
-              {new Date(letter.weekOf).toLocaleDateString("en-US", { day: "numeric", month: "long" })}
-            </p>
-            {locked ? (
-              <>
-                <p className="whitespace-pre-line font-serif text-[16px] leading-loose text-ink-light">
-                  {letterParas[0]}
-                </p>
-                <LockedRest>
-                  <p className="whitespace-pre-line font-serif text-[16px] leading-loose text-ink-light">
-                    {letterParas.slice(1).join("\n\n")}
-                  </p>
-                </LockedRest>
-              </>
-            ) : (
-              <>
-                <p className="whitespace-pre-line font-serif text-[16px] leading-loose text-ink-light">{letter.body}</p>
-                <p className="mt-4 font-serif text-[17px] italic text-plum-600">— with you, always</p>
-                <div className="mt-5 flex gap-2.5">
-                  <button className="flex-1 rounded-full bg-plum-50 py-2.5 text-[12.5px] font-semibold text-plum-600 transition active:scale-[0.98]">
-                    Save this letter
-                  </button>
-                  <Link
-                    href="/app/journal"
-                    className="flex-1 rounded-full border border-parchment py-2.5 text-center text-[12.5px] font-semibold text-ink-light transition active:scale-[0.98]"
-                  >
-                    Reflect on it
-                  </Link>
-                </div>
-              </>
-            )}
-          </div>
-        ) : (
-          <EmptyNote>Your first letter from Vinita arrives once you begin journaling — she writes back to what you write.</EmptyNote>
-        ))}
 
       {/* ── Journey: this month, mirrored from their real practice ── */}
       {tab === "journey" &&
@@ -268,7 +217,7 @@ export function CompanionHome({
             <h3 className="font-serif text-[19px] text-ink">Unlock your companion</h3>
           </div>
           <p className="mb-3.5 text-[12.5px] leading-snug text-ink-muted">
-            Your full weekly letters and daily affirmations — the moment your payment goes through.
+            Your full journey — your month mirrored back — and daily affirmations, the moment your payment goes through.
           </p>
           <div className="mb-3.5 flex gap-2">
             {PLANS.map((p, i) => (

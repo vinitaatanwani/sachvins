@@ -4,7 +4,6 @@ import { activateMembership } from "@/lib/membership";
 import { prisma } from "@/lib/prisma";
 import { CompanionHome } from "@/components/app/CompanionHome";
 import { loadJourney } from "@/lib/journey";
-import { ensureWeeklyLetter } from "@/lib/letter";
 import { affirmationIndexForToday, startOfThisWeek, SAMPLE_AFFIRMATIONS } from "@/lib/companion-content";
 
 export default async function CompanionPage() {
@@ -34,7 +33,6 @@ export default async function CompanionPage() {
         locked
         razorpayKeyId={razorpayKeyId}
         firstName={firstName}
-        letter={null}
         journey={journey}
         affirmations={{
           lines: SAMPLE_AFFIRMATIONS,
@@ -46,10 +44,10 @@ export default async function CompanionPage() {
     );
   }
 
-  const [letter, affSet] = await Promise.all([
-    ensureWeeklyLetter(profile),
-    prisma.affirmationSet.findFirst({ where: { profileId: profile.id }, orderBy: { weekOf: "desc" } }),
-  ]);
+  const affSet = await prisma.affirmationSet.findFirst({
+    where: { profileId: profile.id },
+    orderBy: { weekOf: "desc" },
+  });
 
   const lines = (affSet?.lines as unknown as string[] | undefined) ?? [];
   const todayIndex = affSet ? affirmationIndexForToday(affSet.weekOf, lines) : 0;
@@ -57,7 +55,6 @@ export default async function CompanionPage() {
   return (
     <CompanionHome
       firstName={firstName}
-      letter={letter ? { body: letter.body, weekOf: letter.weekOf.toISOString() } : null}
       journey={journey}
       affirmations={
         affSet
