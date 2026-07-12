@@ -10,8 +10,26 @@ import {
   type ArrivedKey,
   type QuietProgress,
 } from "@/lib/quiet";
+import { heartbeatWavUrl } from "@/lib/heartbeat-audio";
 
 type Phase = "ready" | "sitting" | "after";
+
+// The classic heart, beating at 60 BPM in sync with the lub-dub audio loop.
+function BeatingHeart({ size, className }: { size: number; className?: string }) {
+  return (
+    <svg
+      className={clsx("heartbeat", className)}
+      width={size}
+      height={size}
+      viewBox="0 0 24 24"
+      fill="currentColor"
+      aria-hidden="true"
+      style={{ filter: "drop-shadow(0 10px 30px rgba(224, 123, 160, 0.45))" }}
+    >
+      <path d="M12 21s-6.7-4.3-9.3-8.1C.9 10.2 1.6 6.6 4.6 5.4c2-.8 3.9.1 4.9 1.6l.5.8.5-.8c1-1.5 2.9-2.4 4.9-1.6 3 1.2 3.7 4.8 1.9 7.5C18.7 16.7 12 21 12 21z" />
+    </svg>
+  );
+}
 
 // The Quiet Minute: a stillness practice for people who avoid stillness.
 // The only goal is to stay for the whole countdown — leaving early is allowed
@@ -24,22 +42,38 @@ export function QuietMinute({ initial }: { initial: QuietProgress }) {
   const [saved, setSaved] = useState(false);
   const [saving, setSaving] = useState(false);
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  const heartbeatRef = useRef<HTMLAudioElement | null>(null);
 
   const seconds = initial.seconds;
+
+  function stopHeartbeat() {
+    heartbeatRef.current?.pause();
+    heartbeatRef.current = null;
+  }
 
   useEffect(() => {
     return () => {
       if (timerRef.current) clearInterval(timerRef.current);
+      stopHeartbeat();
     };
   }, []);
 
   function begin() {
+    // A soft 60 BPM lub-dub for the whole sit (started here, inside the tap,
+    // so phones allow the audio). Looped 1s WAV — same technique as the tones.
+    const beat = new Audio(heartbeatWavUrl());
+    beat.loop = true;
+    beat.setAttribute("playsinline", "");
+    void beat.play().catch(() => {});
+    heartbeatRef.current = beat;
+
     setRemaining(seconds);
     setPhase("sitting");
     timerRef.current = setInterval(() => {
       setRemaining((r) => {
         if (r <= 1) {
           if (timerRef.current) clearInterval(timerRef.current);
+          stopHeartbeat();
           setPhase("after");
           return 0;
         }
@@ -50,6 +84,7 @@ export function QuietMinute({ initial }: { initial: QuietProgress }) {
 
   function leave() {
     if (timerRef.current) clearInterval(timerRef.current);
+    stopHeartbeat();
     setPhase("ready");
     setRemaining(seconds);
   }
@@ -81,15 +116,19 @@ export function QuietMinute({ initial }: { initial: QuietProgress }) {
       <div className="flex min-h-[100dvh] flex-col items-center bg-plum-700 px-6 text-center" style={{ paddingTop: "calc(env(safe-area-inset-top) + 28px)", paddingBottom: "calc(env(safe-area-inset-bottom) + 28px)" }}>
         <p className="text-[11px] font-medium uppercase tracking-[0.14em] text-plum-200">The quiet minute</p>
 
-        <div className="flex flex-1 flex-col items-center justify-center gap-8">
-          <div className="relative flex h-44 w-44 items-center justify-center">
-            <span className="breath-ring absolute inset-0 rounded-full bg-plum-300/20" />
-            <span className="breath-ring absolute inset-4 rounded-full bg-plum-300/25" style={{ animationDelay: "-2s" }} />
-            <span className="breathing-circle absolute inset-9 rounded-full bg-plum-400/90" />
-            <span className="relative font-serif text-4xl text-white">
-              {mm}:{ss}
-            </span>
+        <div className="flex flex-1 flex-col items-center justify-center gap-7">
+          <div className="relative flex h-48 w-48 items-center justify-center">
+            <span className="breath-ring absolute inset-0 rounded-full bg-pink-400/10" />
+            <span className="breath-ring absolute inset-5 rounded-full bg-pink-400/15" style={{ animationDelay: "-2s" }} />
+            <BeatingHeart size={150} className="relative text-pink-400" />
           </div>
+          <p
+            className="font-serif text-[56px] leading-none text-white"
+            style={{ fontVariantNumeric: "tabular-nums" }}
+            aria-live="polite"
+          >
+            {mm}:{ss}
+          </p>
           <div>
             <p className="font-serif text-xl leading-snug text-plum-50">
               You don&rsquo;t have to relax.
@@ -99,7 +138,7 @@ export function QuietMinute({ initial }: { initial: QuietProgress }) {
             <p className="mt-3 text-[13px] leading-relaxed text-plum-200">
               The urge to check something will visit.
               <br />
-              Let it pass through. Breathe with the circle.
+              Let it pass through. Breathe with the heartbeat.
             </p>
           </div>
         </div>
@@ -217,15 +256,17 @@ export function QuietMinute({ initial }: { initial: QuietProgress }) {
       </p>
 
       <div className="my-auto flex flex-col items-center py-10">
-        <div className="relative flex h-40 w-40 items-center justify-center">
-          <span className="breath-ring absolute inset-0 rounded-full bg-indigo/10" />
-          <span className="breath-ring absolute inset-4 rounded-full bg-indigo/15" style={{ animationDelay: "-2s" }} />
-          <span className="breathing-circle absolute inset-9 rounded-full bg-indigo/80" />
-          <span className="relative font-serif text-3xl text-white">
-            {Math.floor(seconds / 60)}:{String(seconds % 60).padStart(2, "0")}
-          </span>
+        <div className="relative flex h-44 w-44 items-center justify-center">
+          <span className="breath-ring absolute inset-0 rounded-full bg-pink-400/10" />
+          <span className="breath-ring absolute inset-5 rounded-full bg-pink-400/15" style={{ animationDelay: "-2s" }} />
+          <BeatingHeart size={130} className="relative text-pink-400" />
         </div>
-        <p className="mt-6 text-center text-[12px] text-ink-muted">No music. No goal. Just staying.</p>
+        <p className="mt-4 font-serif text-4xl text-ink" style={{ fontVariantNumeric: "tabular-nums" }}>
+          {Math.floor(seconds / 60)}:{String(seconds % 60).padStart(2, "0")}
+        </p>
+        <p className="mt-4 text-center text-[12px] text-ink-muted">
+          A soft heartbeat will keep you company. No goal. Just staying.
+        </p>
       </div>
 
       <button

@@ -171,6 +171,22 @@ body {
   animation: breathe-scale 9s ease-in-out infinite;
 }
 
+/* Quiet Minute: a 60 BPM lub-dub, timed to match the heartbeat audio loop
+   (lub at 0s, dub at 0.35s). */
+@keyframes heartbeat {
+  0% { transform: scale(1); }
+  8% { transform: scale(1.14); }
+  22% { transform: scale(1); }
+  35% { transform: scale(1.1); }
+  52% { transform: scale(1); }
+  100% { transform: scale(1); }
+}
+
+.heartbeat {
+  animation: heartbeat 1s ease-in-out infinite;
+  transform-origin: center;
+}
+
 /* ── Micro-interactions ── */
 
 /* 1 · Zoom-to-open — screens bloom in on navigation */
