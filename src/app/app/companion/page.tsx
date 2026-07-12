@@ -4,12 +4,7 @@ import { activateMembership } from "@/lib/membership";
 import { prisma } from "@/lib/prisma";
 import { CompanionHome } from "@/components/app/CompanionHome";
 import { loadJourney } from "@/lib/journey";
-import {
-  affirmationIndexForToday,
-  startOfThisWeek,
-  SAMPLE_LETTER_BODY,
-  SAMPLE_AFFIRMATIONS,
-} from "@/lib/companion-content";
+import { affirmationIndexForToday, startOfThisWeek, SAMPLE_AFFIRMATIONS } from "@/lib/companion-content";
 
 export default async function CompanionPage() {
   let profile = await getCurrentProfile();
@@ -38,7 +33,7 @@ export default async function CompanionPage() {
         locked
         razorpayKeyId={razorpayKeyId}
         firstName={firstName}
-        letter={{ body: SAMPLE_LETTER_BODY, weekOf: weekOf.toISOString() }}
+        letter={null}
         journey={journey}
         affirmations={{
           lines: SAMPLE_AFFIRMATIONS,

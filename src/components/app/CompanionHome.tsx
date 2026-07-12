@@ -37,7 +37,7 @@ export function CompanionHome({
   affirmations: { lines: string[]; weekOf: string; nervousState: NervousSystemState | null; todayIndex: number } | null;
 }) {
   const router = useRouter();
-  const [tab, setTab] = useState<Tab>("letters");
+  const [tab, setTab] = useState<Tab>(locked ? "journey" : "letters");
   const [plan, setPlan] = useState(2);
   const [working, setWorking] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -130,7 +130,11 @@ export function CompanionHome({
 
       {/* Segmented tabs */}
       <div className="mb-5 flex gap-1 rounded-full bg-cream p-1 text-[12px] font-medium">
-        {([["letters", "Letters"], ["journey", "Journey"], ["affirmations", "Affirmations"]] as const).map(([key, label]) => (
+        {(
+          (locked
+            ? [["journey", "Journey"], ["affirmations", "Affirmations"]]
+            : [["letters", "Letters"], ["journey", "Journey"], ["affirmations", "Affirmations"]]) as [Tab, string][]
+        ).map(([key, label]) => (
           <button
             key={key}
             onClick={() => setTab(key)}
@@ -144,8 +148,8 @@ export function CompanionHome({
         ))}
       </div>
 
-      {/* ── Letters ── */}
-      {tab === "letters" &&
+      {/* ── Letters: members only — Vinita's letters are part of the paid tier ── */}
+      {tab === "letters" && !locked &&
         (letter ? (
           <div className="animate-zoom-in rounded-2xl border border-plum-100 bg-white p-5">
             <span className="mb-1 block font-accent text-[9.5px] font-extrabold uppercase tracking-[0.14em] text-plum-500">
