@@ -210,10 +210,25 @@ export const SOUND_TRACKS: SoundTrack[] = [
   { id: "hz-852", hz: 852, title: "852 Hz — Stillness", theme: "Quieting the mind, returning to spirit", nervousSystemStates: ["regulated", "freeze_fawn"] },
 ];
 
-export function recommendedSoundTrack(state: NervousSystemState | null | undefined): SoundTrack {
+// Each focus area has a natural home frequency, so the recommended session
+// changes with the person's current focus (switching focus → a new sound).
+const FOCUS_SOUND: Record<FocusAreaKey, string> = {
+  focus_attention: "hz-741", // clarity, problem-solving, focus
+  self_worth: "hz-528", // calm, balance, transformation (the "love" frequency)
+  relationships: "hz-639", // relationships and reconnecting
+  career_purpose: "hz-417", // facilitating change, undoing stuck situations
+  emotional_world: "hz-396", // releasing fear and guilt
+  spirituality: "hz-852", // quieting the mind, returning to spirit
+};
+
+export function recommendedSoundTrack(
+  focusArea: FocusAreaKey | null | undefined,
+  state: NervousSystemState | null | undefined
+): SoundTrack {
   const fallback = SOUND_TRACKS.find((t) => t.id === "hz-528")!;
-  if (!state) return fallback;
-  return SOUND_TRACKS.find((t) => t.nervousSystemStates.includes(state)) ?? fallback;
+  if (focusArea) return SOUND_TRACKS.find((t) => t.id === FOCUS_SOUND[focusArea]) ?? fallback;
+  if (state) return SOUND_TRACKS.find((t) => t.nervousSystemStates.includes(state)) ?? fallback;
+  return fallback;
 }
 
 export function recommendedMeditation(

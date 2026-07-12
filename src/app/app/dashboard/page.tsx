@@ -22,7 +22,7 @@ export default async function DashboardPage() {
   const hour = new Date().getHours();
   const timeOfDay = hour < 15 ? "morning" : "evening";
   const meditation = recommendedMeditation(focusArea, profile.nervousSystemState, timeOfDay);
-  const soundTrack = recommendedSoundTrack(profile.nervousSystemState);
+  const soundTrack = recommendedSoundTrack(focusArea, profile.nervousSystemState);
 
   // "Subscribed" covers both paid paths: an active Companion membership
   // (profile.membershipActive) or an active plan on the Subscription table.

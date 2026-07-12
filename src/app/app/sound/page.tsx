@@ -4,7 +4,7 @@ import { SoundBrowser } from "@/components/app/SoundBrowser";
 
 export default async function SoundPage() {
   const profile = await getCurrentProfile();
-  const recommended = recommendedSoundTrack(profile?.nervousSystemState);
+  const recommended = recommendedSoundTrack(profile?.focusArea, profile?.nervousSystemState);
 
   return (
     <div className="mx-auto max-w-md px-5 pb-8" style={{ paddingTop: "calc(env(safe-area-inset-top) + 24px)" }}>
