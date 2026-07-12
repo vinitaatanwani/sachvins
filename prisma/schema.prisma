@@ -132,12 +132,13 @@ model Profile {
 // ache / sadness / almost nothing) — shown back to Vinita for coaching, and
 // the sit count drives the gentle 60s → 90s → ... capacity growth.
 model QuietSit {
-  id        String   @id @default(uuid())
-  profile   Profile  @relation(fields: [profileId], references: [id], onDelete: Cascade)
-  profileId String
-  seconds   Int
-  arrived   String?
-  createdAt DateTime @default(now())
+  id          String   @id @default(uuid())
+  profile     Profile  @relation(fields: [profileId], references: [id], onDelete: Cascade)
+  profileId   String
+  seconds     Int
+  arrived     String?
+  arrivedText String?  @db.Text // their own words when none of the options fit
+  createdAt   DateTime @default(now())
 
   @@index([profileId, createdAt])
 }

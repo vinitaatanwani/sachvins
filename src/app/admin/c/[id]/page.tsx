@@ -125,7 +125,10 @@ export default async function CustomerDetailPage({ params }: { params: Promise<{
     ache: "an old ache",
     sadness: "sadness",
     nothing: "almost nothing",
+    other: "something of their own",
   };
+  // Their own words ("Something else…") — the most precise coaching signal.
+  const quietWords = quietSits.filter((s) => s.arrivedText?.trim()).slice(0, 3);
 
   const now = Date.now();
   const within = (d: Date, days: number) => now - +d < days * 864e5;
@@ -457,6 +460,15 @@ export default async function CustomerDetailPage({ params }: { params: Promise<{
               <p className="mb-3 text-[12.5px] text-ink-muted">
                 In their quiet sits, what arrives most is <b className="text-ink">{ARRIVED_LABEL[topArrived] ?? topArrived}</b>.
               </p>
+            )}
+            {quietWords.length > 0 && (
+              <div className="mb-3 flex flex-col gap-1.5">
+                {quietWords.map((s) => (
+                  <p key={s.id} className="rounded-lg border-l-2 border-indigo/40 bg-cream/60 px-3 py-2 text-[12.5px] leading-relaxed text-ink-light">
+                    &ldquo;{s.arrivedText}&rdquo; <span className="text-ink-muted">· {fmt(s.createdAt)}</span>
+                  </p>
+                ))}
+              </div>
             )}
             <p className="mb-3 text-[12.5px] text-ink-muted">Last session: <b className="text-ink">{lastMed ? fmt(lastMed) : "—"}</b></p>
             {meds.length > 0 ? (

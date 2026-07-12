@@ -36,6 +36,9 @@ export const ARRIVED_OPTIONS = [
   { key: "ache", label: "An old ache" },
   { key: "sadness", label: "Sadness" },
   { key: "nothing", label: "Almost nothing" },
+  // "other" opens a small text box — their own words are saved (arrivedText)
+  // and shown in the owner console, so Vinita can meet them more precisely.
+  { key: "other", label: "Something else…" },
 ] as const;
 
 export type ArrivedKey = (typeof ARRIVED_OPTIONS)[number]["key"];
@@ -47,4 +50,6 @@ export const ARRIVED_REFLECTIONS: Record<ArrivedKey, string> = {
   ache: "An old ache only visits when it finally feels safe enough to be felt. Something in you is ready.",
   sadness: "Sadness that gets a minute of company is softer than sadness that gets silence. You gave it that.",
   nothing: "“Almost nothing” is the sound of a nervous system settling. Quiet like this is earned.",
+  other:
+    "Thank you for giving it your own words — naming what visits is how it begins to soften. I've kept them safe, and we'll meet them together.",
 };

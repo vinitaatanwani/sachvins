@@ -7,6 +7,8 @@ import { quietProgress, ARRIVED_OPTIONS } from "@/lib/quiet";
 const bodySchema = z.object({
   seconds: z.number().int().min(30).max(600),
   arrived: z.enum(ARRIVED_OPTIONS.map((o) => o.key) as [string, ...string[]]).optional(),
+  // Their own words when none of the options fit ("Something else…").
+  arrivedText: z.string().trim().max(600).optional(),
 });
 
 // Records a completed Quiet Minute sit (members only) and returns the updated
@@ -20,7 +22,12 @@ export async function POST(req: NextRequest) {
   if (!parsed.success) return NextResponse.json({ error: "Invalid payload" }, { status: 400 });
 
   await prisma.quietSit.create({
-    data: { profileId: profile.id, seconds: parsed.data.seconds, arrived: parsed.data.arrived ?? null },
+    data: {
+      profileId: profile.id,
+      seconds: parsed.data.seconds,
+      arrived: parsed.data.arrived ?? null,
+      arrivedText: parsed.data.arrivedText || null,
+    },
   });
 
   const weekAgo = new Date(Date.now() - 7 * 86_400_000);

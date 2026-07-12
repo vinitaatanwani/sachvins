@@ -39,6 +39,7 @@ export function QuietMinute({ initial }: { initial: QuietProgress }) {
   const [remaining, setRemaining] = useState(initial.seconds);
   const [progress, setProgress] = useState<QuietProgress & { sitsThisWeek?: number }>(initial);
   const [arrived, setArrived] = useState<ArrivedKey | null>(null);
+  const [otherText, setOtherText] = useState("");
   const [saved, setSaved] = useState(false);
   const [saving, setSaving] = useState(false);
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
@@ -89,15 +90,22 @@ export function QuietMinute({ initial }: { initial: QuietProgress }) {
     setRemaining(seconds);
   }
 
-  async function saveSit(choice: ArrivedKey) {
+  // Tapping a named feeling saves right away; "Something else…" first opens a
+  // text box so they can say it in their own words, then saves those words.
+  function selectOption(choice: ArrivedKey) {
     if (saving || saved) return;
     setArrived(choice);
+    if (choice !== "other") void saveSit(choice);
+  }
+
+  async function saveSit(choice: ArrivedKey, text?: string) {
+    if (saving || saved) return;
     setSaving(true);
     try {
       const res = await fetch("/api/quiet-sit", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ seconds, arrived: choice }),
+        body: JSON.stringify({ seconds, arrived: choice, ...(text ? { arrivedText: text } : {}) }),
       });
       if (res.ok) {
         setProgress(await res.json());
@@ -170,7 +178,7 @@ export function QuietMinute({ initial }: { initial: QuietProgress }) {
             {ARRIVED_OPTIONS.map((o) => (
               <button
                 key={o.key}
-                onClick={() => saveSit(o.key)}
+                onClick={() => selectOption(o.key)}
                 disabled={saving || (saved && arrived !== o.key)}
                 className={clsx(
                   "rounded-full border px-3.5 py-2 text-[12.5px] transition active:scale-95",
@@ -183,7 +191,27 @@ export function QuietMinute({ initial }: { initial: QuietProgress }) {
               </button>
             ))}
           </div>
-          {arrived && (
+
+          {arrived === "other" && !saved && (
+            <div className="mt-3">
+              <textarea
+                value={otherText}
+                onChange={(e) => setOtherText(e.target.value.slice(0, 600))}
+                placeholder="What did you feel? A few honest words are enough."
+                autoFocus
+                className="min-h-[96px] w-full resize-none rounded-xl border border-parchment bg-white p-3 text-[14px] leading-relaxed text-ink-light outline-none focus:border-indigo/40"
+              />
+              <button
+                onClick={() => otherText.trim() && saveSit("other", otherText.trim())}
+                disabled={saving || !otherText.trim()}
+                className="mt-2 w-full rounded-full bg-indigo py-2.5 text-[13px] font-semibold text-white transition active:scale-[0.98] disabled:opacity-50"
+              >
+                {saving ? "Saving…" : "Save what you felt"}
+              </button>
+            </div>
+          )}
+
+          {arrived && (arrived !== "other" || saved) && (
             <div className="mt-3 rounded-xl bg-indigo/5 px-3.5 py-3">
               <p className="font-serif text-[14px] leading-relaxed text-ink-light">
                 {ARRIVED_REFLECTIONS[arrived]} <span className="text-ink-muted">— Vinita</span>
