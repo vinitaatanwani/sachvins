@@ -3,6 +3,7 @@ import { requireAdmin } from "@/lib/admin";
 import { activateMembership } from "@/lib/membership";
 import { prisma } from "@/lib/prisma";
 import { CompanionHome } from "@/components/app/CompanionHome";
+import { loadJourney } from "@/lib/journey";
 import {
   affirmationIndexForToday,
   startOfThisWeek,
@@ -28,6 +29,8 @@ export default async function CompanionPage() {
 
   // Members see their own generated content; everyone else previews the sample
   // (a readable opening, the rest blurred) until they unlock with payment.
+  const journey = await loadJourney(profile.id);
+
   if (locked) {
     const weekOf = startOfThisWeek();
     return (
@@ -36,6 +39,7 @@ export default async function CompanionPage() {
         razorpayKeyId={razorpayKeyId}
         firstName={firstName}
         letter={{ body: SAMPLE_LETTER_BODY, weekOf: weekOf.toISOString() }}
+        journey={journey}
         affirmations={{
           lines: SAMPLE_AFFIRMATIONS,
           weekOf: weekOf.toISOString(),
@@ -58,6 +62,7 @@ export default async function CompanionPage() {
     <CompanionHome
       firstName={firstName}
       letter={letter ? { body: letter.body, weekOf: letter.weekOf.toISOString() } : null}
+      journey={journey}
       affirmations={
         affSet
           ? { lines, weekOf: affSet.weekOf.toISOString(), nervousState: affSet.nervousSystemState, todayIndex }

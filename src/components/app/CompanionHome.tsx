@@ -6,9 +6,11 @@ import Link from "next/link";
 import clsx from "clsx";
 import type { NervousSystemState } from "@/lib/quiz-data";
 import { nervousLabel } from "@/lib/companion-content";
+import { JourneyTab } from "./JourneyTab";
+import type { JourneyData } from "@/lib/journey";
 import { loadRazorpayCheckout, type RazorpayHandlerResponse } from "@/lib/razorpay-client";
 
-type Tab = "letters" | "affirmations";
+type Tab = "letters" | "journey" | "affirmations";
 
 // Plan card order must match the SubscriptionPlan keys the checkout API expects.
 const PLAN_KEYS = ["monthly", "quarterly", "yearly"] as const;
@@ -24,12 +26,14 @@ export function CompanionHome({
   razorpayKeyId = null,
   firstName,
   letter,
+  journey,
   affirmations,
 }: {
   locked?: boolean;
   razorpayKeyId?: string | null;
   firstName?: string | null;
   letter: { body: string; weekOf: string } | null;
+  journey: JourneyData | null;
   affirmations: { lines: string[]; weekOf: string; nervousState: NervousSystemState | null; todayIndex: number } | null;
 }) {
   const router = useRouter();
@@ -126,7 +130,7 @@ export function CompanionHome({
 
       {/* Segmented tabs */}
       <div className="mb-5 flex gap-1 rounded-full bg-cream p-1 text-[12px] font-medium">
-        {([["letters", "Letters"], ["affirmations", "Affirmations"]] as const).map(([key, label]) => (
+        {([["letters", "Letters"], ["journey", "Journey"], ["affirmations", "Affirmations"]] as const).map(([key, label]) => (
           <button
             key={key}
             onClick={() => setTab(key)}
@@ -181,6 +185,23 @@ export function CompanionHome({
           </div>
         ) : (
           <EmptyNote>Your first letter arrives after a few days of journaling.</EmptyNote>
+        ))}
+
+      {/* ── Journey: this month, mirrored from their real practice ── */}
+      {tab === "journey" &&
+        (journey ? (
+          locked ? (
+            <div>
+              <JourneyTab data={journey} />
+              <p className="mt-3 text-center text-[11.5px] text-ink-muted">
+                This is your real practice — as a member it grows into your full monthly mirror.
+              </p>
+            </div>
+          ) : (
+            <JourneyTab data={journey} />
+          )
+        ) : (
+          <EmptyNote>Your journey appears here as you practise.</EmptyNote>
         ))}
 
       {/* ── Affirmations ── */}
