@@ -5,24 +5,13 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import clsx from "clsx";
 import type { NervousSystemState } from "@/lib/quiz-data";
-import { nervousLabel, type SampleScoreDelta } from "@/lib/companion-content";
+import { nervousLabel } from "@/lib/companion-content";
 import { loadRazorpayCheckout, type RazorpayHandlerResponse } from "@/lib/razorpay-client";
 
-type Tab = "letters" | "report" | "affirmations";
+type Tab = "letters" | "affirmations";
 
 // Plan card order must match the SubscriptionPlan keys the checkout API expects.
 const PLAN_KEYS = ["monthly", "quarterly", "yearly"] as const;
-
-interface Report {
-  periodStart: string;
-  periodEnd: string;
-  scoreDeltas: SampleScoreDelta[];
-  themes: string[];
-  quote: string;
-  thenVsNow: string;
-  focusNext: string;
-  suggestSession: boolean;
-}
 
 const PLANS = [
   { label: "Monthly", price: "₹499", sub: "/mo" },
@@ -35,14 +24,12 @@ export function CompanionHome({
   razorpayKeyId = null,
   firstName,
   letter,
-  report,
   affirmations,
 }: {
   locked?: boolean;
   razorpayKeyId?: string | null;
   firstName?: string | null;
   letter: { body: string; weekOf: string } | null;
-  report: Report | null;
   affirmations: { lines: string[]; weekOf: string; nervousState: NervousSystemState | null; todayIndex: number } | null;
 }) {
   const router = useRouter();
@@ -114,7 +101,6 @@ export function CompanionHome({
     router.refresh();
   }
 
-  const monthLabel = report ? new Date(report.periodEnd).toLocaleDateString("en-US", { month: "long" }) : "";
   const letterParas = letter ? letter.body.split(/\n\n+/) : [];
 
   return (
@@ -140,7 +126,7 @@ export function CompanionHome({
 
       {/* Segmented tabs */}
       <div className="mb-5 flex gap-1 rounded-full bg-cream p-1 text-[12px] font-medium">
-        {([["letters", "Letters"], ["report", "Report"], ["affirmations", "Affirmations"]] as const).map(([key, label]) => (
+        {([["letters", "Letters"], ["affirmations", "Affirmations"]] as const).map(([key, label]) => (
           <button
             key={key}
             onClick={() => setTab(key)}
@@ -195,43 +181,6 @@ export function CompanionHome({
           </div>
         ) : (
           <EmptyNote>Your first letter arrives after a few days of journaling.</EmptyNote>
-        ))}
-
-      {/* ── Report ── */}
-      {tab === "report" &&
-        (report ? (
-          <div className="animate-zoom-in">
-            <div className="mb-1 flex items-center justify-between">
-              <span className="font-accent text-[9.5px] font-extrabold uppercase tracking-[0.14em] text-amber-700">
-                Clarity report
-              </span>
-              <span className="rounded-full bg-amber-50 px-2.5 py-0.5 text-[10px] font-medium text-amber-700">{monthLabel}</span>
-            </div>
-            <h2 className="mb-4 font-serif text-2xl text-ink">Your month, mirrored</h2>
-
-            <span className="mb-2 block font-accent text-[9px] font-extrabold uppercase tracking-wide text-ink-muted">
-              Your month at a glance
-            </span>
-            <ScoreRow d={report.scoreDeltas[0]} />
-
-            {locked ? (
-              <LockedRest tall>
-                <div className="mt-2.5 flex flex-col gap-2.5">
-                  {report.scoreDeltas.slice(1).map((d) => (
-                    <ScoreRow key={d.key} d={d} />
-                  ))}
-                </div>
-                <div className="mt-4 rounded-2xl bg-plum-50 p-4">
-                  <p className="font-serif text-[16px] italic text-plum-700">&ldquo;{report.quote}&rdquo;</p>
-                </div>
-                <p className="mt-3 text-[13.5px] leading-relaxed text-ink-light">{report.thenVsNow}</p>
-              </LockedRest>
-            ) : (
-              <ReportRest report={report} monthLabel={monthLabel} />
-            )}
-          </div>
-        ) : (
-          <EmptyNote>Your first clarity report arrives after your first membership month.</EmptyNote>
         ))}
 
       {/* ── Affirmations ── */}
@@ -294,7 +243,7 @@ export function CompanionHome({
             <h3 className="font-serif text-[19px] text-ink">Unlock your companion</h3>
           </div>
           <p className="mb-3.5 text-[12.5px] leading-snug text-ink-muted">
-            Your full weekly letters, monthly clarity report, and daily affirmations — the moment your payment goes through.
+            Your full weekly letters and daily affirmations — the moment your payment goes through.
           </p>
           <div className="mb-3.5 flex gap-2">
             {PLANS.map((p, i) => (
@@ -343,70 +292,6 @@ export function CompanionHome({
         </button>
       )}
     </div>
-  );
-}
-
-function ScoreRow({ d }: { d: SampleScoreDelta }) {
-  const up = d.end > d.start;
-  const flat = d.end === d.start;
-  return (
-    <div className="mb-0.5">
-      <div className="mb-1 flex justify-between text-[12px]">
-        <span className="text-ink-light">{d.name}</span>
-        <span className={clsx("font-semibold", up ? "text-green-600" : flat ? "text-ink-muted" : "text-berry-500")}>
-          {d.start} → {d.end} {up ? "▲" : flat ? "•" : "▼"}
-        </span>
-      </div>
-      <div className="h-[5px] overflow-hidden rounded-full bg-cream">
-        <div className="h-full rounded-full" style={{ width: `${d.end}%`, background: up ? "#5bb894" : flat ? "#e07ba0" : "#8171d4" }} />
-      </div>
-    </div>
-  );
-}
-
-function ReportRest({ report, monthLabel: _monthLabel }: { report: Report; monthLabel: string }) {
-  return (
-    <>
-      <div className="mb-5 mt-2.5 flex flex-col gap-2.5">
-        {report.scoreDeltas.slice(1).map((d) => (
-          <div key={d.key}>
-            <ScoreRow d={d} />
-          </div>
-        ))}
-      </div>
-      <span className="mb-2 block font-accent text-[9px] font-extrabold uppercase tracking-wide text-ink-muted">What kept showing up</span>
-      <div className="mb-5 flex flex-wrap gap-2">
-        {report.themes.map((t) => (
-          <span key={t} className="rounded-full bg-plum-50 px-3 py-1.5 text-[12px] text-plum-600">
-            {t}
-          </span>
-        ))}
-      </div>
-      <div className="mb-5 rounded-2xl bg-plum-50 p-4">
-        <span className="mb-1.5 block font-accent text-[9px] font-extrabold uppercase tracking-wide text-plum-500">In your own words</span>
-        <p className="font-serif text-[16px] italic leading-snug text-plum-700">&ldquo;{report.quote}&rdquo;</p>
-      </div>
-      <span className="mb-2 block font-accent text-[9px] font-extrabold uppercase tracking-wide text-ink-muted">Then vs now</span>
-      <p className="mb-5 text-[13.5px] leading-relaxed text-ink-light">{report.thenVsNow}</p>
-      <span className="mb-2 block font-accent text-[9px] font-extrabold uppercase tracking-wide text-ink-muted">Where to focus next</span>
-      <p className="mb-6 text-[13.5px] leading-relaxed text-ink-light">{report.focusNext}</p>
-      <div className="flex gap-2.5">
-        <button
-          onClick={() => window.print()}
-          className="flex-1 rounded-full bg-plum-500 py-3 text-[12.5px] font-semibold text-white transition active:scale-[0.98]"
-        >
-          Download PDF
-        </button>
-        {report.suggestSession && (
-          <Link
-            href="/app/profile"
-            className="flex-1 rounded-full bg-green-50 py-3 text-center text-[12.5px] font-semibold text-green-700 transition active:scale-[0.98]"
-          >
-            Book a session
-          </Link>
-        )}
-      </div>
-    </>
   );
 }
 

@@ -1,10 +1,5 @@
 import { prisma } from "@/lib/prisma";
-import {
-  SAMPLE_LETTER_BODY,
-  SAMPLE_REPORT,
-  SAMPLE_AFFIRMATIONS,
-  startOfThisWeek,
-} from "@/lib/companion-content";
+import { SAMPLE_LETTER_BODY, SAMPLE_AFFIRMATIONS, startOfThisWeek } from "@/lib/companion-content";
 
 // Turns on the Reflective Companion for a profile and, on first activation,
 // seeds one of each content piece so the screens are real from day one. Called
@@ -25,24 +20,10 @@ export async function activateMembership(deviceId: string): Promise<boolean> {
   const existingLetter = await prisma.reflectiveLetter.findFirst({ where: { profileId: deviceId } });
   if (!existingLetter) {
     const weekOf = startOfThisWeek();
-    const periodStart = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000);
 
     await prisma.$transaction([
       prisma.reflectiveLetter.create({
         data: { profileId: deviceId, weekOf, body: SAMPLE_LETTER_BODY, focusArea: profile.focusArea },
-      }),
-      prisma.clarityReport.create({
-        data: {
-          profileId: deviceId,
-          periodStart,
-          periodEnd: now,
-          scoreDeltas: SAMPLE_REPORT.scoreDeltas as unknown as object,
-          themes: SAMPLE_REPORT.themes as unknown as object,
-          quote: SAMPLE_REPORT.quote,
-          thenVsNow: SAMPLE_REPORT.thenVsNow,
-          focusNext: SAMPLE_REPORT.focusNext,
-          suggestSession: SAMPLE_REPORT.suggestSession,
-        },
       }),
       prisma.affirmationSet.create({
         data: {

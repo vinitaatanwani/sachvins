@@ -7,9 +7,7 @@ import {
   affirmationIndexForToday,
   startOfThisWeek,
   SAMPLE_LETTER_BODY,
-  SAMPLE_REPORT,
   SAMPLE_AFFIRMATIONS,
-  type SampleScoreDelta,
 } from "@/lib/companion-content";
 
 export default async function CompanionPage() {
@@ -38,16 +36,6 @@ export default async function CompanionPage() {
         razorpayKeyId={razorpayKeyId}
         firstName={firstName}
         letter={{ body: SAMPLE_LETTER_BODY, weekOf: weekOf.toISOString() }}
-        report={{
-          periodStart: new Date(Date.now() - 30 * 864e5).toISOString(),
-          periodEnd: new Date().toISOString(),
-          scoreDeltas: SAMPLE_REPORT.scoreDeltas as SampleScoreDelta[],
-          themes: SAMPLE_REPORT.themes,
-          quote: SAMPLE_REPORT.quote,
-          thenVsNow: SAMPLE_REPORT.thenVsNow,
-          focusNext: SAMPLE_REPORT.focusNext,
-          suggestSession: SAMPLE_REPORT.suggestSession,
-        }}
         affirmations={{
           lines: SAMPLE_AFFIRMATIONS,
           weekOf: weekOf.toISOString(),
@@ -58,9 +46,8 @@ export default async function CompanionPage() {
     );
   }
 
-  const [letter, report, affSet] = await Promise.all([
+  const [letter, affSet] = await Promise.all([
     prisma.reflectiveLetter.findFirst({ where: { profileId: profile.id }, orderBy: { weekOf: "desc" } }),
-    prisma.clarityReport.findFirst({ where: { profileId: profile.id }, orderBy: { periodEnd: "desc" } }),
     prisma.affirmationSet.findFirst({ where: { profileId: profile.id }, orderBy: { weekOf: "desc" } }),
   ]);
 
@@ -71,20 +58,6 @@ export default async function CompanionPage() {
     <CompanionHome
       firstName={firstName}
       letter={letter ? { body: letter.body, weekOf: letter.weekOf.toISOString() } : null}
-      report={
-        report
-          ? {
-              periodStart: report.periodStart.toISOString(),
-              periodEnd: report.periodEnd.toISOString(),
-              scoreDeltas: report.scoreDeltas as unknown as SampleScoreDelta[],
-              themes: report.themes as unknown as string[],
-              quote: report.quote,
-              thenVsNow: report.thenVsNow,
-              focusNext: report.focusNext,
-              suggestSession: report.suggestSession,
-            }
-          : null
-      }
       affirmations={
         affSet
           ? { lines, weekOf: affSet.weekOf.toISOString(), nervousState: affSet.nervousSystemState, todayIndex }
