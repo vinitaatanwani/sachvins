@@ -21,12 +21,12 @@ function BeatingHeart({ size, className }: { size: number; className?: string })
       className={clsx("heartbeat", className)}
       width={size}
       height={size}
-      viewBox="0 0 24 24"
+      viewBox="0 0 100 92"
       fill="currentColor"
       aria-hidden="true"
       style={{ filter: "drop-shadow(0 10px 30px rgba(224, 123, 160, 0.45))" }}
     >
-      <path d="M12 21s-6.7-4.3-9.3-8.1C.9 10.2 1.6 6.6 4.6 5.4c2-.8 3.9.1 4.9 1.6l.5.8.5-.8c1-1.5 2.9-2.4 4.9-1.6 3 1.2 3.7 4.8 1.9 7.5C18.7 16.7 12 21 12 21z" />
+      <path d="M50 88C22 66 4 46 4 27.5 4 13.5 15 3 28.5 3 37.5 3 45.5 8.5 50 16.5 54.5 8.5 62.5 3 71.5 3 85 3 96 13.5 96 27.5 96 46 78 66 50 88Z" />
     </svg>
   );
 }
@@ -113,7 +113,7 @@ export function QuietMinute({ initial }: { initial: QuietProgress }) {
 
   if (phase === "sitting") {
     return (
-      <div className="flex min-h-[100dvh] flex-col items-center bg-plum-700 px-6 text-center" style={{ paddingTop: "calc(env(safe-area-inset-top) + 28px)", paddingBottom: "calc(env(safe-area-inset-bottom) + 28px)" }}>
+      <div className="flex min-h-full flex-col items-center bg-plum-700 px-6 text-center" style={{ paddingTop: "calc(env(safe-area-inset-top) + 28px)", paddingBottom: "calc(env(safe-area-inset-bottom) + 28px)" }}>
         <p className="text-[11px] font-medium uppercase tracking-[0.14em] text-plum-200">The quiet minute</p>
 
         <div className="flex flex-1 flex-col items-center justify-center gap-7">
@@ -153,7 +153,7 @@ export function QuietMinute({ initial }: { initial: QuietProgress }) {
 
   if (phase === "after") {
     return (
-      <div className="mx-auto flex min-h-[100dvh] max-w-md flex-col px-5 pb-8" style={{ paddingTop: "calc(env(safe-area-inset-top) + 28px)" }}>
+      <div className="mx-auto flex min-h-full max-w-md flex-col px-5 pb-8" style={{ paddingTop: "calc(env(safe-area-inset-top) + 28px)" }}>
         <div className="text-center">
           <div className="animate-zoom-in mx-auto flex h-14 w-14 items-center justify-center rounded-full bg-berry-50">
             <svg width="26" height="26" viewBox="0 0 24 24" fill="none">
@@ -245,17 +245,17 @@ export function QuietMinute({ initial }: { initial: QuietProgress }) {
 
   // ready
   return (
-    <div className="mx-auto flex min-h-[100dvh] max-w-md flex-col px-5 pb-8" style={{ paddingTop: "calc(env(safe-area-inset-top) + 28px)" }}>
+    <div className="mx-auto flex min-h-full max-w-md flex-col px-5 pb-8" style={{ paddingTop: "calc(env(safe-area-inset-top) + 28px)" }}>
       <p className="text-[11px] font-medium uppercase tracking-[0.14em] text-indigo">The quiet minute</p>
       <h1 className="mt-2 font-serif text-[26px] leading-tight text-ink">
         {formatSeconds(seconds)} of nothing at all
       </h1>
       <p className="mt-3 text-[14px] leading-relaxed text-ink-muted">
         The pull to stay busy is usually a feeling asking not to be felt. You don&rsquo;t have to fix it,
-        name it, or even relax — just sit with it until the circle finishes.
+        name it, or even relax — just sit with it until the timer finishes.
       </p>
 
-      <div className="my-auto flex flex-col items-center py-10">
+      <div className="my-auto flex flex-col items-center py-6">
         <div className="relative flex h-44 w-44 items-center justify-center">
           <span className="breath-ring absolute inset-0 rounded-full bg-pink-400/10" />
           <span className="breath-ring absolute inset-5 rounded-full bg-pink-400/15" style={{ animationDelay: "-2s" }} />
@@ -273,7 +273,7 @@ export function QuietMinute({ initial }: { initial: QuietProgress }) {
         onClick={begin}
         className="w-full rounded-full bg-indigo py-3.5 text-sm font-semibold text-white transition active:scale-[0.98]"
       >
-        Begin
+        Begin the minute
       </button>
     </div>
   );
