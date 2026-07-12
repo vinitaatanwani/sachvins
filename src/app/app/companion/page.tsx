@@ -4,6 +4,7 @@ import { activateMembership } from "@/lib/membership";
 import { prisma } from "@/lib/prisma";
 import { CompanionHome } from "@/components/app/CompanionHome";
 import { loadJourney } from "@/lib/journey";
+import { ensureWeeklyLetter } from "@/lib/letter";
 import { affirmationIndexForToday, startOfThisWeek, SAMPLE_AFFIRMATIONS } from "@/lib/companion-content";
 
 export default async function CompanionPage() {
@@ -46,7 +47,7 @@ export default async function CompanionPage() {
   }
 
   const [letter, affSet] = await Promise.all([
-    prisma.reflectiveLetter.findFirst({ where: { profileId: profile.id }, orderBy: { weekOf: "desc" } }),
+    ensureWeeklyLetter(profile),
     prisma.affirmationSet.findFirst({ where: { profileId: profile.id }, orderBy: { weekOf: "desc" } }),
   ]);
 

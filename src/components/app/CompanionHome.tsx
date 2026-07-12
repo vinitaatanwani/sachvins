@@ -188,7 +188,7 @@ export function CompanionHome({
             )}
           </div>
         ) : (
-          <EmptyNote>Your first letter arrives after a few days of journaling.</EmptyNote>
+          <EmptyNote>Your first letter from Vinita arrives once you begin journaling — she writes back to what you write.</EmptyNote>
         ))}
 
       {/* ── Journey: this month, mirrored from their real practice ── */}
