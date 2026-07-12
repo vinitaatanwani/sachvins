@@ -1,58 +1,29 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import clsx from "clsx";
 import { SOUND_TRACKS } from "@/lib/content";
+import { playTone, stopTone, playingToneId, subscribeTone } from "@/lib/tone-player";
 
 export function SoundBrowser({ recommendedId }: { recommendedId: string }) {
+  // The tone lives in a global player (lib/tone-player) so it keeps playing
+  // through screen lock and while browsing other tabs — this screen is just a
+  // remote control. Subscribe so the UI stays in sync with lock-screen actions.
   const [playingId, setPlayingId] = useState<string | null>(null);
-  const audioCtxRef = useRef<AudioContext | null>(null);
-  const oscRef = useRef<OscillatorNode | null>(null);
-  const gainRef = useRef<GainNode | null>(null);
+
+  useEffect(() => {
+    setPlayingId(playingToneId());
+    return subscribeTone(setPlayingId);
+  }, []);
 
   function stop() {
-    if (oscRef.current && gainRef.current && audioCtxRef.current) {
-      const now = audioCtxRef.current.currentTime;
-      gainRef.current.gain.cancelScheduledValues(now);
-      gainRef.current.gain.setValueAtTime(gainRef.current.gain.value, now);
-      gainRef.current.gain.linearRampToValueAtTime(0, now + 0.4);
-      oscRef.current.stop(now + 0.45);
-    }
-    oscRef.current = null;
-    gainRef.current = null;
-    setPlayingId(null);
+    stopTone();
   }
 
   function play(hz: number, id: string) {
-    stop();
-    const AudioContextCtor =
-      window.AudioContext || (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext;
-    if (!audioCtxRef.current) audioCtxRef.current = new AudioContextCtor();
-    const ctx = audioCtxRef.current;
-
-    const osc = ctx.createOscillator();
-    const gain = ctx.createGain();
-    osc.type = "sine";
-    osc.frequency.value = hz;
-    gain.gain.setValueAtTime(0, ctx.currentTime);
-    gain.gain.linearRampToValueAtTime(0.2, ctx.currentTime + 0.6);
-
-    osc.connect(gain);
-    gain.connect(ctx.destination);
-    osc.start();
-
-    oscRef.current = osc;
-    gainRef.current = gain;
-    setPlayingId(id);
+    const track = SOUND_TRACKS.find((t) => t.id === id);
+    void playTone({ id, hz, title: track?.title ?? `${hz} Hz` });
   }
-
-  useEffect(() => {
-    return () => {
-      stop();
-      audioCtxRef.current?.close();
-    };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
 
   return (
     <div className="stagger flex flex-col gap-3">
@@ -106,8 +77,9 @@ export function SoundBrowser({ recommendedId }: { recommendedId: string }) {
         );
       })}
       <p className="mt-1 text-center text-[11.5px] text-ink-muted">
-        Tones are generated live for relaxation and nervous-system support — not a clinical or medical
-        treatment.
+        Your sound keeps playing if you lock your screen, meditate, or move around the app — stop it
+        here or from your lock screen. For relaxation and nervous-system support, not a clinical or
+        medical treatment.
       </p>
     </div>
   );
