@@ -48,12 +48,22 @@ export function FreeSessionBooking({ alreadyBooked }: { alreadyBooked: boolean }
           </div>
           <h2 className="font-serif text-lg text-ink">You&rsquo;ve booked your free session</h2>
           <p className="mt-1.5 text-[13px] leading-relaxed text-ink-muted">
-            The 20-minute Clarity Session is a one-time welcome, so it can only be booked once. If you
-            couldn&rsquo;t pick a time, reach out to Vinita and she&rsquo;ll help.
+            The 20-minute Clarity Session is a one-time welcome, so it can only be booked once.
           </p>
+          {/* The claim is recorded on the first tap, before Calendly confirms —
+              so always leave a way back to the calendar for anyone who couldn't
+              finish picking a time. Reopening doesn't grant a second session. */}
+          <a
+            href={BOOKING_URL}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="mt-5 block rounded-full bg-indigo py-3.5 text-center text-sm font-semibold text-white transition active:scale-[0.98]"
+          >
+            Couldn&rsquo;t pick a time? Open the calendar again →
+          </a>
           <Link
             href="/app/coaching"
-            className="mt-5 block rounded-full bg-indigo py-3.5 text-center text-sm font-semibold text-white transition active:scale-[0.98]"
+            className="mt-2.5 block rounded-full border border-indigo/40 py-3 text-center text-[13px] font-semibold text-indigo transition active:scale-[0.98]"
           >
             Explore 1-hour coaching packages →
           </Link>
