@@ -11,8 +11,10 @@ const bodySchema = z.object({
   entryId: z.string().uuid().optional(),
   prompt: z.string().min(1),
   content: z.string().min(1),
-  prompt2: z.string().min(1),
-  content2: z.string().min(1),
+  // Absent in "just write" (free-flow) entries — present and required together
+  // for the guided two-question reflection.
+  prompt2: z.string().min(1).optional(),
+  content2: z.string().min(1).optional(),
   focusArea: z.enum([
     "focus_attention",
     "self_worth",
@@ -40,12 +42,12 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "Not found" }, { status: 404 });
     }
     const contentChanged =
-      existing.content !== content || existing.content2 !== content2;
+      existing.content !== content || (existing.content2 ?? null) !== (content2 ?? null);
     entry = await prisma.journalEntry.update({
       where: { id: entryId },
       data: {
         content,
-        content2,
+        content2: content2 ?? null,
         // A stale reflection would no longer match edited content — clear it so
         // the next request regenerates a fresh note instead of showing old advice.
         ...(contentChanged ? { reflection: null } : {}),
@@ -54,7 +56,7 @@ export async function POST(req: NextRequest) {
   } else {
     // A fresh journaling session — always a new entry.
     entry = await prisma.journalEntry.create({
-      data: { profileId: deviceId, prompt, content, prompt2, content2, focusArea },
+      data: { profileId: deviceId, prompt, content, prompt2: prompt2 ?? null, content2: content2 ?? null, focusArea },
     });
   }
 

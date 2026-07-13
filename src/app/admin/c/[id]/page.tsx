@@ -3,6 +3,7 @@ import Link from "next/link";
 import { requireAdmin } from "@/lib/admin";
 import { prisma } from "@/lib/prisma";
 import { trialDayNumber } from "@/lib/profile";
+import { FREE_WRITING_PROMPT } from "@/lib/content";
 import {
   AREA_DESCRIPTIONS,
   FOCUS_AREA_LABELS,
@@ -422,7 +423,12 @@ export default async function CustomerDetailPage({ params }: { params: Promise<{
                 {journals.slice(0, 5).map((j) => (
                   <div key={j.id} className="rounded-xl border border-parchment bg-white/60 p-3">
                     <div className="mb-1 flex items-center justify-between text-[11px] text-ink-muted">
-                      <span>{fmt(j.date)} · {FOCUS_AREA_LABELS[j.focusArea as FocusAreaKey]}</span>
+                      <span>
+                        {fmt(j.date)} · {FOCUS_AREA_LABELS[j.focusArea as FocusAreaKey]}
+                        {j.prompt === FREE_WRITING_PROMPT && (
+                          <span className="ml-1.5 rounded-full bg-plum-50 px-2 py-0.5 font-semibold text-plum-600">free writing</span>
+                        )}
+                      </span>
                       {j.reflection && <span className="rounded-full bg-amber-100 px-2 py-0.5 font-semibold text-amber-700">replied</span>}
                     </div>
                     <p className="line-clamp-3 text-[13px] leading-relaxed text-ink-light">

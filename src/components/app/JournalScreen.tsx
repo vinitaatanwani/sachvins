@@ -6,7 +6,7 @@ import clsx from "clsx";
 import type { FocusAreaKey } from "@/lib/quiz-data";
 import type { SpeechRecognitionLike } from "@/types/speech-recognition";
 import { Celebration } from "@/components/motion/Celebration";
-import { COACH_FALLBACKS } from "@/lib/content";
+import { COACH_FALLBACKS, FREE_WRITING_PROMPT } from "@/lib/content";
 
 interface PastEntry {
   id: string;
@@ -16,7 +16,8 @@ interface PastEntry {
   reflection: string | null;
 }
 
-type Field = "q1" | "q2";
+type Field = "q1" | "q2" | "free";
+type Mode = "guided" | "free";
 
 export function JournalScreen({
   prompt,
@@ -31,8 +32,11 @@ export function JournalScreen({
 }) {
   const router = useRouter();
   const [tab, setTab] = useState<"write" | "history">("write");
+  // "guided" = the two connected questions; "free" = a plain page, nothing asked.
+  const [mode, setMode] = useState<Mode>("guided");
   const [content, setContent] = useState("");
   const [content2, setContent2] = useState("");
+  const [freeContent, setFreeContent] = useState("");
   const [saving, setSaving] = useState(false);
   // Once a session is saved we swap the writing form for a calm confirmation +
   // Vinita's note, so the person can pause — or start a fresh entry with a new
@@ -57,6 +61,7 @@ export function JournalScreen({
   }, []);
 
   const bothAnswered = content.trim().length > 0 && content2.trim().length > 0;
+  const canSave = mode === "guided" ? bothAnswered : freeContent.trim().length > 0;
 
   function stopRecording() {
     recognitionRef.current?.stop();
@@ -75,8 +80,8 @@ export function JournalScreen({
     recognition.interimResults = true;
     recognition.lang = "en-US";
 
-    const current = field === "q1" ? content : content2;
-    const setter = field === "q1" ? setContent : setContent2;
+    const current = field === "q1" ? content : field === "q2" ? content2 : freeContent;
+    const setter = field === "q1" ? setContent : field === "q2" ? setContent2 : setFreeContent;
     baseContentRef.current = current.trim().length > 0 ? current.trim() + " " : "";
     finalTranscriptRef.current = "";
 
@@ -98,7 +103,7 @@ export function JournalScreen({
   }
 
   function changeField(field: Field, value: string) {
-    (field === "q1" ? setContent : setContent2)(value);
+    (field === "q1" ? setContent : field === "q2" ? setContent2 : setFreeContent)(value);
   }
 
   function randomFallback() {
@@ -115,7 +120,11 @@ export function JournalScreen({
       const res = await fetch("/api/journal", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ prompt, content, prompt2, content2, focusArea }),
+        body: JSON.stringify(
+          mode === "guided"
+            ? { prompt, content, prompt2, content2, focusArea }
+            : { prompt: FREE_WRITING_PROMPT, content: freeContent, focusArea }
+        ),
       });
       const data = await res.json();
       id = data.entryId ?? null;
@@ -132,6 +141,7 @@ export function JournalScreen({
   function writeAnother() {
     setContent("");
     setContent2("");
+    setFreeContent("");
     setReflection(null);
     setShowReply(false);
     setJustSaved(false);
@@ -198,6 +208,73 @@ export function JournalScreen({
           </div>
         ) : (
           <div className="flex flex-1 flex-col overflow-y-auto px-5 pb-6">
+            {/* Two ways in: the guided pair, or a plain page where nothing is asked. */}
+            <div className="mb-4 flex rounded-2xl bg-cream p-1 text-[11.5px] font-medium">
+              <button
+                onClick={() => setMode("guided")}
+                className={clsx(
+                  "flex-1 rounded-xl py-2 transition",
+                  mode === "guided" ? "bg-white text-indigo shadow-sm" : "text-ink-muted"
+                )}
+              >
+                <span className="block text-[14px]" aria-hidden="true">🌱</span>
+                Two gentle questions
+              </button>
+              <button
+                onClick={() => setMode("free")}
+                className={clsx(
+                  "flex-1 rounded-xl py-2 transition",
+                  mode === "free" ? "bg-white text-indigo shadow-sm" : "text-ink-muted"
+                )}
+              >
+                <span className="block text-[14px]" aria-hidden="true">🕊️</span>
+                Just write
+              </button>
+            </div>
+
+            {mode === "free" ? (
+              <>
+                <h2 className="font-serif text-[21px] leading-snug text-ink">This page is yours.</h2>
+                <p className="mt-1 text-[12.5px] leading-relaxed text-ink-muted">
+                  No questions today. Write whatever wants to come — or speak it.
+                </p>
+                <div className="relative mt-3">
+                  <textarea
+                    value={freeContent}
+                    onChange={(e) => changeField("free", e.target.value)}
+                    placeholder="Whatever is here today — let it out. There's no wrong way."
+                    className="min-h-[42vh] w-full resize-none rounded-2xl border border-black/8 bg-white p-4 pb-14 font-serif text-[15.5px] leading-loose text-ink-light outline-none focus:border-indigo/40"
+                  />
+                  {speechSupported && (
+                    <button
+                      onClick={() => (recordingField === "free" ? stopRecording() : startRecording("free"))}
+                      aria-label={recordingField === "free" ? "Stop recording" : "Speak instead of typing"}
+                      className={clsx(
+                        "absolute bottom-3 right-3 flex h-11 w-11 items-center justify-center rounded-full shadow-md transition active:scale-95",
+                        recordingField === "free" ? "bg-gold" : "bg-indigo"
+                      )}
+                    >
+                      {recordingField === "free" ? (
+                        <span className="relative flex h-4 w-4 items-center justify-center">
+                          <span className="absolute h-4 w-4 animate-ping rounded-full bg-white/50" />
+                          <span className="relative h-3 w-3 rounded-sm bg-white" />
+                        </span>
+                      ) : (
+                        <svg width="15" height="19" viewBox="0 0 16 20" fill="none">
+                          <rect x="4.5" y="0.5" width="7" height="11" rx="3.5" stroke="white" strokeWidth="1.4" />
+                          <path d="M1 9.5c0 3.6 3.1 6.5 7 6.5s7-2.9 7-6.5M8 16v3.2" stroke="white" strokeWidth="1.4" strokeLinecap="round" />
+                        </svg>
+                      )}
+                    </button>
+                  )}
+                </div>
+                {recordingField === "free" && (
+                  <p className="mt-1.5 text-center text-xs text-gold">Listening… tap to stop</p>
+                )}
+                <p className="mt-2 text-center text-[10.5px] text-ink-muted">Only you and Vinita ever see this.</p>
+              </>
+            ) : (
+              <>
             <p className="mb-4 text-[12.5px] leading-relaxed text-ink-muted">
               Two gentle questions — the first to notice the moment, the second to see the pattern underneath it.
             </p>
@@ -225,17 +302,21 @@ export function JournalScreen({
               speechSupported={speechSupported}
               placeholder="There's no wrong answer here — just notice what comes up."
             />
+              </>
+            )}
 
             <div className="pt-1">
               <button
                 onClick={handleSave}
-                disabled={saving || !bothAnswered}
+                disabled={saving || !canSave}
                 className="w-full rounded-full bg-indigo py-3.5 text-sm font-semibold text-white transition active:scale-[0.98] disabled:opacity-50"
               >
                 {saving ? "Saving…" : "Save & hear from Vinita"}
               </button>
-              {!bothAnswered && (
-                <p className="mt-2 text-center text-[11.5px] text-ink-muted">Answer both questions to save.</p>
+              {!canSave && (
+                <p className="mt-2 text-center text-[11.5px] text-ink-muted">
+                  {mode === "guided" ? "Answer both questions to save." : "Write or speak a little — then save."}
+                </p>
               )}
             </div>
           </div>

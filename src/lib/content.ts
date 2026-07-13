@@ -52,6 +52,9 @@ export function getDailyPrompt(focusArea: FocusAreaKey, dayIndex: number): strin
   return prompts[dayIndex % prompts.length];
 }
 
+// Marker prompt for free-writing entries — "just write" mode, no questions.
+export const FREE_WRITING_PROMPT = "Free writing";
+
 export interface JournalPromptSet {
   q1: string;
   q2: string;
