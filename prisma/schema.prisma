@@ -125,6 +125,20 @@ model Profile {
   meditationSessions     MeditationSession[]
   kindnessLogs           KindnessLog[]
   quietSits              QuietSit[]
+  pushSubscriptions      PushSubscription[]
+}
+
+// One row per browser/device that opted in to notes from Vinita (Web Push).
+model PushSubscription {
+  id        String   @id @default(uuid())
+  profile   Profile  @relation(fields: [profileId], references: [id], onDelete: Cascade)
+  profileId String
+  endpoint  String   @unique
+  p256dh    String
+  auth      String
+  createdAt DateTime @default(now())
+
+  @@index([profileId])
 }
 
 // One row per completed Quiet Minute sit (members-only stillness practice).

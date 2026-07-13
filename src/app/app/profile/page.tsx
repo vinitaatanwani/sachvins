@@ -9,6 +9,7 @@ import { requireAdmin } from "@/lib/admin";
 import { FOCUS_AREA_LABELS, type DomainScore } from "@/lib/quiz-data";
 import { SUBSCRIPTION_PLANS, formatInr } from "@/lib/pricing";
 import { DailyKindnessCard, type KindnessDay } from "@/components/app/DailyKindnessCard";
+import { NotificationsCard } from "@/components/app/NotificationsCard";
 import { kindnessForProfile } from "@/lib/kindness";
 
 function startOfDay(date: Date) {
@@ -132,6 +133,8 @@ export default async function ProfilePage() {
           <FocusAreaSwitcher currentFocusArea={profile.focusArea} />
         </div>
       )}
+
+      <NotificationsCard />
 
       <div className="mb-5 rounded-2xl border border-black/8 bg-white p-4">
         <div className="mb-1 flex items-center justify-between">

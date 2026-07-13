@@ -7,6 +7,7 @@ import clsx from "clsx";
 import { createClient } from "@/lib/supabase/client";
 import { formatInr } from "@/lib/pricing";
 import { AdminEditModal } from "./AdminEditModal";
+import { NotifyComposer } from "./NotifyComposer";
 
 export interface CustomerRow {
   id: string;
@@ -154,6 +155,9 @@ export function AdminDashboard({
           <Stat label="1:1 clients" value={stats.oneToOneClients} accent hint="paid coaching" />
           <Stat label="Revenue / mo" value={formatInr(stats.revenue)} accent />
         </div>
+
+        {/* Daily note to devices */}
+        <NotifyComposer />
 
         {/* Focus distribution */}
         {focusList.length > 0 && (
