@@ -98,13 +98,35 @@ export function getDailyPromptSet(_focusArea: FocusAreaKey, dayIndex: number): J
   return JOURNAL_PAIRS[((dayIndex % JOURNAL_PAIRS.length) + JOURNAL_PAIRS.length) % JOURNAL_PAIRS.length];
 }
 
-// Gentle 2–3 line coach messages, shown when the live AI reflection isn't
-// available (e.g. ANTHROPIC_API_KEY unset). Warm, method-aligned, forward-looking.
+// Replies shown after journaling when the live AI reflection isn't available
+// (e.g. ANTHROPIC_API_KEY unset). Composed from Vinita's own "Heartfelt
+// Messages" — each acknowledges the sharing, validates the feeling, then
+// offers one gentle step forward, in her voice.
 export const COACH_FALLBACKS: string[] = [
-  "Thank you for looking at this so honestly — that takes real courage. The feeling you named has been trying to protect you for a long time; today, just notice it without obeying it. One small, kinder choice is enough.",
-  "I hear what's underneath your words, and none of it means something is wrong with you. A pattern is only an old way of keeping you safe. See if you can meet it with curiosity instead of judgement — that's where change quietly begins.",
-  "What you're carrying makes sense given all you've lived through. You don't have to fix it today; you only have to see the loop. Choose one response that's ten percent gentler than your usual one, and let that be enough for now.",
-  "There's a tender, younger part of you inside this story, and it's asking to be understood, not criticised. Place a hand on your heart, take one slow breath, and let today be about compassion rather than solving. I'm right here with you.",
+  "Thank you for trusting me with something so precious. I know it wasn't easy to share. Your feelings make sense — you don't need to apologize for them. You don't have to carry all of this by yourself anymore.",
+  "I want you to know that I hear you. Every word. Every emotion. You are not too much — your heart has simply been carrying too much. Healing doesn't ask you to rush; it simply asks you to keep showing up.",
+  "I'm really glad you told me instead of keeping it all inside. There is nothing wrong with you for feeling this way. Breathe — you've carried enough for one day.",
+  "I can feel how heavy this has been for you. You don't have to pretend to be okay with me. Be patient with yourself — you're rebuilding from the inside.",
+  "Thank you for choosing honesty over pretending. You are allowed to feel broken and hopeful at the same time. Let yourself feel — feelings are meant to move.",
+  "Thank you for letting me witness your truth. You are not weak because something hurt you deeply. You have permission to begin again.",
+  "There is courage in simply saying, 'I'm not okay.' Nothing about your emotions makes you difficult to love. I hope today is a little softer than yesterday.",
+  "Thank you for letting me walk beside you. You don't have to prove your pain for it to be real. One small step is still a step — and you've just taken one.",
+  "I hope you know how incredibly brave you are. Even in this moment, I see your strength. You have survived every difficult day before this one.",
+  "Your story deserves compassion, not judgment — especially from yourself. Please don't carry blame that was never yours. Your heart deserves peace, not punishment.",
+  "I'm holding space for everything you're feeling. It's okay if today feels hard — it doesn't mean tomorrow will. Some days surviving is enough, and it counts.",
+  "You are doing better than your inner critic wants you to believe. This chapter does not define your entire story. Please celebrate yourself for making it this far.",
+  "Every word you wrote matters, and so do you. You don't need to have all the answers today. Your healing is not behind anyone else's.",
+  "I see someone who has not given up. Your light hasn't disappeared — it's just resting. There is hope, even if you can't see it clearly yet.",
+  "What you shared tells me your heart is tired. Let's be gentle with it. You don't have to be strong every minute — you have permission to slow down.",
+  "I know it may not feel like it today, but you are growing. You are becoming someone who won't abandon themselves anymore. That is quiet, powerful work.",
+  "Sometimes tears are the body's way of making space for healing. It's okay to grieve the life you thought you would have. There are still beautiful moments waiting to find you.",
+  "You matter more than you realize. You are enough without proving anything. May today remind you that hope can return quietly.",
+  "Not every ending is a failure — some endings are protection. You are allowed to let go of what keeps hurting you. Your peace is worth protecting.",
+  "Every scar tells me you kept going. One day this pain will no longer introduce you. I believe your heart will smile again.",
+  "You are not behind in life — it is unfolding differently, not incorrectly. The version of you that kept going deserves gratitude. I'm grateful our paths crossed.",
+  "You are becoming someone your younger self needed. Your softness is not your weakness. You deserve the same compassion you offer everyone else.",
+  "You are not invisible — I see you. Even if you feel lost, you are not alone. Whatever happens next, remember that you never have to walk alone.",
+  "Thank you for trusting your heart enough to let it speak. Your existence matters, your story matters. I truly believe brighter days are finding their way to you.",
 ];
 
 export function getCoachFallback(dayIndex: number): string {

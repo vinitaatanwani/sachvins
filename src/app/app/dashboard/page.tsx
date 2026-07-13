@@ -2,6 +2,7 @@ import Link from "next/link";
 import { getCurrentProfile, trialDayNumber } from "@/lib/profile";
 import { prisma } from "@/lib/prisma";
 import { getDailyPrompt, recommendedMeditation, recommendedSoundTrack } from "@/lib/content";
+import { heartMessageForProfile } from "@/lib/heart-messages";
 
 // A warm, time-independent greeting. We deliberately avoid "Good morning/
 // afternoon/evening" because the hour is computed on the server (UTC/Tokyo),
@@ -41,6 +42,10 @@ export default async function DashboardPage() {
             {firstNameOf(profile.name) ? `Hi, ${firstNameOf(profile.name)}` : "Hi there"}
           </h1>
           <p className="mt-1.5 text-[14px] text-ink-muted">How are you feeling today?</p>
+          {/* A different heartfelt line from Vinita for each person, each day. */}
+          <p className="mt-2.5 max-w-[300px] font-serif text-[14.5px] italic leading-relaxed text-plum-500">
+            &ldquo;{heartMessageForProfile(profile.id)}&rdquo;
+          </p>
         </div>
         <span className="whitespace-nowrap rounded-full bg-cream px-3 py-1.5 text-[11px] font-medium text-ink-light">
           {trialActive ? `Day ${dayNumber} of 7` : "Subscribed"}
