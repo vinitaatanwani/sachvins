@@ -8,6 +8,7 @@ export default async function MeditatePage() {
   const timeOfDay = hour < 15 ? "morning" : "evening";
   const recommended = recommendedMeditation(profile?.focusArea, profile?.nervousSystemState, timeOfDay);
 
+  const withVinita = MEDITATIONS.filter((m) => m.timeOfDay === "any");
   const morning = MEDITATIONS.filter((m) => m.timeOfDay === "morning");
   const evening = MEDITATIONS.filter((m) => m.timeOfDay === "evening");
 
@@ -16,6 +17,7 @@ export default async function MeditatePage() {
       <h1 className="mb-6 font-serif text-[26px] text-ink">Meditate</h1>
 
       {[
+        { label: "With Vinita", tracks: withVinita },
         { label: "Morning", tracks: morning },
         { label: "Evening", tracks: evening },
       ].map((group) => (
@@ -36,6 +38,11 @@ export default async function MeditatePage() {
                 <div className="min-w-0 flex-1">
                   <div className="flex items-center gap-2">
                     <h3 className="truncate font-medium text-ink">{m.title}</h3>
+                    {m.audioSrc && (
+                      <span className="flex-shrink-0 rounded-full bg-indigo/12 px-2 py-0.5 text-[9.5px] font-medium uppercase text-indigo">
+                        Her voice
+                      </span>
+                    )}
                     {m.id === recommended.id && (
                       <span className="flex-shrink-0 rounded-full bg-gold/20 px-2 py-0.5 text-[9.5px] font-medium uppercase text-amber-700">
                         For you

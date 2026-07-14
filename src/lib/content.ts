@@ -144,15 +144,29 @@ export interface MeditationStep {
 export interface MeditationTrack {
   id: string;
   title: string;
-  timeOfDay: "morning" | "evening";
+  timeOfDay: "morning" | "evening" | "any";
   durationMin: number;
   focusAreas: FocusAreaKey[];
   nervousSystemStates: NervousSystemState[];
   description: string;
+  // A real recorded meditation (Vinita's voice). When set, the player plays the
+  // audio instead of the silent self-guided step timer, and steps stays empty.
+  audioSrc?: string;
   steps: MeditationStep[];
 }
 
 export const MEDITATIONS: MeditationTrack[] = [
+  {
+    id: "grounding-with-vinita",
+    title: "Grounding with Vinita",
+    timeOfDay: "any",
+    durationMin: 9,
+    focusAreas: ["focus_attention", "self_worth", "relationships", "career_purpose", "emotional_world", "spirituality"],
+    nervousSystemStates: ["regulated", "fight_flight", "freeze_fawn"],
+    description: "A guided grounding meditation in Vinita's own voice — settle, root, and come home to your body.",
+    audioSrc: "/meditations/grounding-with-vinita.m4a",
+    steps: [],
+  },
   {
     id: "morning-grounding",
     title: "Morning Grounding",
@@ -261,7 +275,7 @@ export function recommendedMeditation(
   state: NervousSystemState | null | undefined,
   timeOfDay: "morning" | "evening"
 ): MeditationTrack {
-  const candidates = MEDITATIONS.filter((m) => m.timeOfDay === timeOfDay);
+  const candidates = MEDITATIONS.filter((m) => m.timeOfDay === timeOfDay || m.timeOfDay === "any");
   const withFocus = focusArea ? candidates.filter((m) => m.focusAreas.includes(focusArea)) : candidates;
   const pool = withFocus.length ? withFocus : candidates;
   const withState = state ? pool.filter((m) => m.nervousSystemStates.includes(state)) : pool;
