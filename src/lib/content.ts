@@ -152,6 +152,9 @@ export interface MeditationTrack {
   // A real recorded meditation (Vinita's voice). When set, the player plays the
   // audio instead of the silent self-guided step timer, and steps stays empty.
   audioSrc?: string;
+  // Paid tier: when true, only Companion members can play this track. The
+  // Grounding recording stays free for everyone; future uploads set this.
+  membersOnly?: boolean;
   steps: MeditationStep[];
 }
 
@@ -166,65 +169,6 @@ export const MEDITATIONS: MeditationTrack[] = [
     description: "A guided grounding meditation in Vinita's own voice — settle, root, and come home to your body.",
     audioSrc: "/meditations/grounding-with-vinita.m4a",
     steps: [],
-  },
-  {
-    id: "morning-grounding",
-    title: "Morning Grounding",
-    timeOfDay: "morning",
-    durationMin: 7,
-    focusAreas: ["focus_attention", "emotional_world"],
-    nervousSystemStates: ["fight_flight", "regulated"],
-    description: "Grounding, nervous-system regulation, and intention-setting to open the day.",
-    steps: [
-      { label: "Settle in", seconds: 60, cue: "Find a comfortable seat. Let your eyes close or soften." },
-      { label: "Breathe: 4 in · 4 hold · 6 out", seconds: 180, cue: "Follow the circle. In for 4, hold for 4, out for 6." },
-      { label: "Body scan", seconds: 90, cue: "Notice your feet, your hands, your jaw. Let each one soften." },
-      { label: "Set an intention", seconds: 90, cue: "Choose one word for how you want to move through today." },
-    ],
-  },
-  {
-    id: "morning-clarity",
-    title: "Morning Clarity",
-    timeOfDay: "morning",
-    durationMin: 5,
-    focusAreas: ["career_purpose", "self_worth"],
-    nervousSystemStates: ["regulated", "freeze_fawn"],
-    description: "A shorter grounding practice for mornings that call for gentle momentum.",
-    steps: [
-      { label: "Arrive", seconds: 45, cue: "Notice you're here. Nothing to fix yet." },
-      { label: "Breathe: 4 in · 4 hold · 6 out", seconds: 150, cue: "Let the breath slow, one cycle at a time." },
-      { label: "One true thing", seconds: 105, cue: "Silently name one true, kind thing about yourself." },
-    ],
-  },
-  {
-    id: "evening-release",
-    title: "Evening Release",
-    timeOfDay: "evening",
-    durationMin: 10,
-    focusAreas: ["emotional_world", "relationships"],
-    nervousSystemStates: ["fight_flight", "freeze_fawn"],
-    description: "Release, processing, and sleep wind-down for the end of the day.",
-    steps: [
-      { label: "Arrive", seconds: 60, cue: "Let the day begin to loosen its grip." },
-      { label: "Release breath: 4 in · 7 hold · 8 out", seconds: 240, cue: "A longer exhale to signal safety to your body." },
-      { label: "Name what you're carrying", seconds: 120, cue: "Silently name anything from today you're still holding." },
-      { label: "Let go, one layer at a time", seconds: 180, cue: "With each exhale, imagine setting one thing down." },
-    ],
-  },
-  {
-    id: "evening-winddown",
-    title: "Evening Wind-Down",
-    timeOfDay: "evening",
-    durationMin: 12,
-    focusAreas: ["spirituality", "focus_attention"],
-    nervousSystemStates: ["regulated", "fight_flight"],
-    description: "A slower descent into rest for a busy or overstimulated mind.",
-    steps: [
-      { label: "Dim the noise", seconds: 90, cue: "Let the sounds of the day fade to the background." },
-      { label: "Release breath: 4 in · 7 hold · 8 out", seconds: 300, cue: "Slow the exhale further with every round." },
-      { label: "Body scan to sleep", seconds: 180, cue: "Move attention slowly from head to feet, releasing tension." },
-      { label: "Rest", seconds: 150, cue: "No more instructions. Just rest here." },
-    ],
   },
 ];
 

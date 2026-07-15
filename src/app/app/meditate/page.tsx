@@ -8,19 +8,13 @@ export default async function MeditatePage() {
   const timeOfDay = hour < 15 ? "morning" : "evening";
   const recommended = recommendedMeditation(profile?.focusArea, profile?.nervousSystemState, timeOfDay);
 
-  const withVinita = MEDITATIONS.filter((m) => m.timeOfDay === "any");
-  const morning = MEDITATIONS.filter((m) => m.timeOfDay === "morning");
-  const evening = MEDITATIONS.filter((m) => m.timeOfDay === "evening");
+  const isMember = !!profile?.membershipActive;
 
   return (
     <div className="mx-auto max-w-md px-5 pb-8" style={{ paddingTop: "calc(env(safe-area-inset-top) + 24px)" }}>
       <h1 className="mb-6 font-serif text-[26px] text-ink">Meditate</h1>
 
-      {[
-        { label: "With Vinita", tracks: withVinita },
-        { label: "Morning", tracks: morning },
-        { label: "Evening", tracks: evening },
-      ].map((group) => (
+      {[{ label: "With Vinita", tracks: MEDITATIONS }].map((group) => (
         <div key={group.label} className="mb-7">
           <h2 className="mb-3 text-[11px] font-medium uppercase tracking-wide text-ink-muted">
             {group.label}
@@ -41,6 +35,11 @@ export default async function MeditatePage() {
                     {m.audioSrc && (
                       <span className="flex-shrink-0 rounded-full bg-indigo/12 px-2 py-0.5 text-[9.5px] font-medium uppercase text-indigo">
                         Her voice
+                      </span>
+                    )}
+                    {m.membersOnly && !isMember && (
+                      <span className="flex-shrink-0 rounded-full bg-cream px-2 py-0.5 text-[9.5px] font-medium uppercase text-ink-muted">
+                        Members
                       </span>
                     )}
                     {m.id === recommended.id && (
