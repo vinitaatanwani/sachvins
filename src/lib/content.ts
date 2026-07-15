@@ -170,6 +170,18 @@ export const MEDITATIONS: MeditationTrack[] = [
     audioSrc: "/meditations/grounding-with-vinita.m4a",
     steps: [],
   },
+  {
+    id: "calm-repair-balance",
+    title: "Calm, Repair & Balance",
+    timeOfDay: "any",
+    durationMin: 10,
+    focusAreas: ["self_worth", "emotional_world", "relationships", "focus_attention", "career_purpose", "spirituality"],
+    nervousSystemStates: ["regulated", "fight_flight", "freeze_fawn"],
+    description: "Vinita guides you into calm, gentle repair, and inner balance — a members' session for heavier days.",
+    audioSrc: "/meditations/calm-repair-balance.m4a",
+    membersOnly: true,
+    steps: [],
+  },
 ];
 
 // PRD 4.5 — Sound frequency module. Generated live via the Web Audio API
