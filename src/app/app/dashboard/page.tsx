@@ -80,6 +80,22 @@ export default async function DashboardPage() {
         </Link>
       )}
 
+      {/* Tarot Reading — open to everyone, no subscription needed */}
+      <Link
+        href="/app/tarot"
+        className="relative mb-4 block overflow-hidden rounded-2xl bg-plum-700 px-5 py-4 text-white transition active:scale-[0.98]"
+      >
+        <span className="absolute right-5 top-3 text-[11px] text-white/40" aria-hidden="true">✦</span>
+        <span className="absolute bottom-3 right-12 text-[9px] text-white/30" aria-hidden="true">✦</span>
+        <div className="flex items-center gap-3">
+          <span className="text-2xl" aria-hidden="true">🔮</span>
+          <div>
+            <p className="text-[14.5px] font-medium">Tarot Reading with Vinita</p>
+            <p className="mt-0.5 text-[12px] text-plum-200">One question · 25 min on Zoom · ₹700 →</p>
+          </div>
+        </div>
+      </Link>
+
       {/* Hero: today's recommended session */}
       <Link
         href="/app/meditate"

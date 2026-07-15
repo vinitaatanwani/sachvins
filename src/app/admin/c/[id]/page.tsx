@@ -87,6 +87,7 @@ export default async function CustomerDetailPage({ params }: { params: Promise<{
       journalEntries: { orderBy: { date: "desc" } },
       meditationSessions: { orderBy: { createdAt: "desc" } },
       quietSits: { orderBy: { createdAt: "desc" } },
+      tarotReadings: { where: { status: { in: ["paid", "completed"] } }, orderBy: { createdAt: "desc" } },
       checkIns: { orderBy: { createdAt: "desc" } },
       subscription: true,
     },
@@ -116,6 +117,7 @@ export default async function CustomerDetailPage({ params }: { params: Promise<{
   const meds = profile?.meditationSessions ?? [];
   const checkIns = profile?.checkIns ?? [];
   const quietSits = profile?.quietSits ?? [];
+  const tarotReadings = profile?.tarotReadings ?? [];
   // What most often surfaces in their Quiet Minute sits — a coaching signal.
   const arrivedCounts = new Map<string, number>();
   quietSits.forEach((s) => s.arrived && arrivedCounts.set(s.arrived, (arrivedCounts.get(s.arrived) ?? 0) + 1));
@@ -447,6 +449,31 @@ export default async function CustomerDetailPage({ params }: { params: Promise<{
               <p className="text-sm text-ink-muted">No journal entries yet.</p>
             )}
           </section>
+
+          {/* Tarot readings — paid questions awaiting/held */}
+          {tarotReadings.length > 0 && (
+            <section className="glass rounded-2xl p-5 md:col-span-2">
+              <div className="mb-3 flex items-center justify-between">
+                <h2 className="font-serif text-xl text-ink">🔮 Tarot readings</h2>
+                <span className="rounded-full bg-plum-50 px-3 py-1 text-[12px] font-semibold text-plum-600">
+                  {tarotReadings.length} paid
+                </span>
+              </div>
+              <div className="flex flex-col gap-2.5">
+                {tarotReadings.map((t) => (
+                  <div key={t.id} className="rounded-xl border border-parchment bg-white/60 p-3.5">
+                    <div className="mb-1 flex items-center justify-between text-[11px] text-ink-muted">
+                      <span>Paid {fmt(t.paidAt ?? t.createdAt)} · ₹{t.priceInr}</span>
+                      <span className={`rounded-full px-2 py-0.5 font-semibold ${t.status === "completed" ? "bg-green-50 text-green-700" : "bg-amber-100 text-amber-700"}`}>
+                        {t.status === "completed" ? "done" : "awaiting session"}
+                      </span>
+                    </div>
+                    <p className="font-serif text-[14px] italic leading-relaxed text-ink-light">&ldquo;{t.question}&rdquo;</p>
+                  </div>
+                ))}
+              </div>
+            </section>
+          )}
 
           {/* Meditation + engagement */}
           <section className="glass rounded-2xl p-5">

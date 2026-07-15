@@ -51,6 +51,13 @@ enum CoachingPackageStatus {
   canceled
 }
 
+enum TarotStatus {
+  pending_payment
+  paid
+  completed
+  canceled
+}
+
 enum ClarityBookingStatus {
   scheduled
   completed
@@ -126,6 +133,25 @@ model Profile {
   kindnessLogs           KindnessLog[]
   quietSits              QuietSit[]
   pushSubscriptions      PushSubscription[]
+  tarotReadings          TarotReading[]
+}
+
+// One paid Tarot Reading: ₹700 buys 25 minutes with Vinita on Zoom to answer
+// one question. Open to everyone — no subscription required. The question is
+// captured before payment so Vinita reads it in her console ahead of the call.
+model TarotReading {
+  id                String      @id @default(uuid())
+  profile           Profile     @relation(fields: [profileId], references: [id], onDelete: Cascade)
+  profileId         String
+  question          String      @db.Text
+  priceInr          Int
+  status            TarotStatus @default(pending_payment)
+  razorpayOrderId   String?
+  razorpayPaymentId String?
+  paidAt            DateTime?
+  createdAt         DateTime    @default(now())
+
+  @@index([profileId, createdAt])
 }
 
 // One row per browser/device that opted in to notes from Vinita (Web Push).

@@ -35,6 +35,10 @@ export type CoachingPackageKey = keyof typeof COACHING_PACKAGES;
 // separate expiry column is needed.
 export const COACHING_ACCESS_DAYS = 180; // 6 months
 
+// Tarot Reading: one question, 25 minutes with Vinita on Zoom. Open to all.
+export const TAROT_PRICE_INR = 700;
+export const TAROT_MINUTES = 25;
+
 export function formatInr(amount: number): string {
   return new Intl.NumberFormat("en-IN", {
     style: "currency",

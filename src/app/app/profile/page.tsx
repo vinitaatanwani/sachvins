@@ -138,6 +138,25 @@ export default async function ProfilePage() {
 
       <div className="mb-5 rounded-2xl border border-black/8 bg-white p-4">
         <div className="mb-1 flex items-center justify-between">
+          <h3 className="text-[13px] font-medium text-ink">Tarot Reading</h3>
+          <span className="rounded-full bg-plum-50 px-2 py-0.5 text-[10px] font-semibold uppercase text-plum-600">
+            ₹700
+          </span>
+        </div>
+        <p className="mb-3 text-[12.5px] text-ink-muted">
+          Ask Vinita one question — she reads the cards live with you in a 25-minute Zoom call. Open to
+          everyone.
+        </p>
+        <Link
+          href="/app/tarot"
+          className="block rounded-full bg-plum-700 py-3 text-center text-[13px] font-semibold text-white transition active:scale-[0.98]"
+        >
+          🔮 Book a tarot reading →
+        </Link>
+      </div>
+
+      <div className="mb-5 rounded-2xl border border-black/8 bg-white p-4">
+        <div className="mb-1 flex items-center justify-between">
           <h3 className="text-[13px] font-medium text-ink">1:1 Coaching</h3>
           {showFreeSession && (
             <span className="rounded-full bg-indigo/12 px-2 py-0.5 text-[10px] font-semibold uppercase text-indigo">
