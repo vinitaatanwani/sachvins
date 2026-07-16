@@ -12,7 +12,7 @@ export default async function AdminPage() {
   const email = await requireAdmin();
   if (!email) notFound();
 
-  const [leads, profiles, quizCount] = await Promise.all([
+  const [leads, profiles, quizCount, tarot] = await Promise.all([
     prisma.lead.findMany({ include: { quizResult: true }, orderBy: { createdAt: "desc" } }),
     prisma.profile.findMany({
       include: {
@@ -22,6 +22,12 @@ export default async function AdminPage() {
       },
     }),
     prisma.quizResult.count(),
+    prisma.tarotReading.findMany({
+      where: { status: { in: ["pending_payment", "paid", "completed"] } },
+      include: { profile: { select: { id: true, name: true } } },
+      orderBy: { createdAt: "desc" },
+      take: 12,
+    }),
   ]);
 
   const profileMap = new Map(profiles.map((p) => [p.id, p]));
@@ -165,5 +171,16 @@ export default async function AdminPage() {
     revenue,
   };
 
-  return <AdminDashboard email={email} stats={stats} customers={customers} focusList={focusList} />;
+  const tarotRows = tarot.map((t) => ({
+    id: t.id,
+    profileId: t.profile.id,
+    name: t.profile.name ?? "—",
+    question: t.question,
+    status: t.status as string,
+    dateLabel: fmtDate(t.paidAt ?? t.createdAt),
+  }));
+
+  return (
+    <AdminDashboard email={email} stats={stats} customers={customers} focusList={focusList} tarot={tarotRows} />
+  );
 }

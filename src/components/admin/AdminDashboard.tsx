@@ -62,16 +62,27 @@ function statusOf(c: CustomerRow) {
   return { label: "Lead", cls: "bg-cream text-ink-muted" };
 }
 
+export interface TarotRow {
+  id: string;
+  profileId: string;
+  name: string;
+  question: string;
+  status: string;
+  dateLabel: string;
+}
+
 export function AdminDashboard({
   email,
   stats,
   customers,
   focusList,
+  tarot = [],
 }: {
   email: string;
   stats: Stats;
   customers: CustomerRow[];
   focusList: { key: string; label: string; count: number }[];
+  tarot?: TarotRow[];
 }) {
   const router = useRouter();
   const [q, setQ] = useState("");
@@ -158,6 +169,45 @@ export function AdminDashboard({
 
         {/* Daily note to devices */}
         <NotifyComposer />
+
+        {/* Tarot readings — every question, with payment status */}
+        {tarot.length > 0 && (
+          <div className="glass mb-7 rounded-2xl p-5">
+            <div className="mb-4 flex items-center justify-between">
+              <h2 className="font-serif text-lg text-ink">🔮 Tarot readings</h2>
+              <span className="rounded-full bg-plum-50 px-3 py-1 text-[12px] font-semibold text-plum-600">
+                {tarot.filter((t) => t.status !== "pending_payment").length} paid
+              </span>
+            </div>
+            <div className="flex flex-col gap-2">
+              {tarot.map((t) => (
+                <div
+                  key={t.id}
+                  onClick={() => router.push(`/admin/c/${t.profileId}`)}
+                  className="cursor-pointer rounded-xl border border-parchment bg-white/60 px-4 py-3 transition hover:bg-white"
+                >
+                  <div className="mb-1 flex flex-wrap items-center gap-2 text-[12px]">
+                    <span className="font-semibold text-ink">{t.name}</span>
+                    <span className="text-ink-muted">· {t.dateLabel}</span>
+                    <span
+                      className={clsx(
+                        "ml-auto rounded-full px-2.5 py-0.5 text-[10.5px] font-semibold",
+                        t.status === "completed"
+                          ? "bg-green-50 text-green-700"
+                          : t.status === "paid"
+                            ? "bg-green-500 text-white"
+                            : "bg-cream text-ink-muted"
+                      )}
+                    >
+                      {t.status === "completed" ? "done" : t.status === "paid" ? "paid · awaiting session" : "not paid"}
+                    </span>
+                  </div>
+                  <p className="font-serif text-[14px] italic leading-relaxed text-ink-light">&ldquo;{t.question}&rdquo;</p>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
 
         {/* Focus distribution */}
         {focusList.length > 0 && (
