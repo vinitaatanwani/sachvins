@@ -37,7 +37,6 @@ export default async function TarotPage() {
         <div className="mt-3.5 flex justify-center gap-2 text-[10.5px] font-medium">
           <span className="rounded-full bg-white/12 px-3 py-1">{formatInr(TAROT_PRICE_INR)}</span>
           <span className="rounded-full bg-white/12 px-3 py-1">Live on Zoom</span>
-          <span className="rounded-full bg-white/12 px-3 py-1">Open to all</span>
         </div>
       </div>
 
