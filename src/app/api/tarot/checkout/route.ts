@@ -26,7 +26,8 @@ export async function POST(req: NextRequest) {
 
   let order;
   try {
-    order = await createOrder(TAROT_PRICE_INR, `tarot_${reading.id}`, {
+    // Razorpay caps receipt at 40 chars — a dashless uuid keeps it at 38.
+    order = await createOrder(TAROT_PRICE_INR, `tarot_${reading.id.replace(/-/g, "")}`, {
       profileId: deviceId,
       tarotReadingId: reading.id,
       kind: "tarot_reading",
