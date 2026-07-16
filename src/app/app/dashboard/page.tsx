@@ -90,8 +90,8 @@ export default async function DashboardPage() {
         <div className="flex items-center gap-3">
           <span className="text-2xl" aria-hidden="true">🔮</span>
           <div>
-            <p className="text-[14.5px] font-medium">Tarot Reading with Vinita</p>
-            <p className="mt-0.5 text-[12px] text-plum-200">One question · 25 min on Zoom · ₹700 →</p>
+            <p className="text-[14.5px] font-medium">1-to-1 Tarot Reading with Vinita</p>
+            <p className="mt-0.5 text-[12px] text-plum-200">1 question · 25 minutes · live on Zoom →</p>
           </div>
         </div>
       </Link>
