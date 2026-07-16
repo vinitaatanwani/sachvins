@@ -1,12 +1,15 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { getDeviceId } from "@/lib/profile";
+import { requireAdmin } from "@/lib/admin";
 import { DEVICE_ID_COOKIE } from "@/lib/device-id";
 
-// Dev/test-only: wipes this device's profile (journal entries, check-ins,
-// etc. cascade with it) and clears the device cookie so the next request
-// starts completely fresh, as if this were a brand new visitor.
+// Owner-only test tool: wipes the owner's own profile (journal entries,
+// check-ins, etc. cascade) for a fresh test run. Gated to admin so it can't be
+// probed in production, though it only ever affects the caller's own account.
 export async function POST() {
+  if (!(await requireAdmin())) return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+
   const deviceId = await getDeviceId();
   if (deviceId) {
     await prisma.profile.deleteMany({ where: { id: deviceId } });
