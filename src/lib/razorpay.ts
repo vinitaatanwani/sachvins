@@ -14,12 +14,20 @@ export function getRazorpayClient() {
 
 export async function createOrder(amountInr: number, receipt: string, notes?: Record<string, string>) {
   const client = getRazorpayClient();
-  return client.orders.create({
-    amount: Math.round(amountInr * 100), // paise
-    currency: "INR",
-    receipt,
-    notes,
-  });
+  try {
+    return await client.orders.create({
+      amount: Math.round(amountInr * 100), // paise
+      currency: "INR",
+      receipt,
+      notes,
+    });
+  } catch (err) {
+    // The Razorpay SDK throws plain objects, not Errors — without this, callers'
+    // `err instanceof Error` checks fall through to a misleading generic message.
+    const e = err as { statusCode?: number; error?: { description?: string; code?: string } };
+    const detail = e?.error?.description ?? (err instanceof Error ? err.message : null);
+    throw new Error(detail ? `Payment setup failed: ${detail}` : "Payment setup failed at Razorpay");
+  }
 }
 
 // Verifies the checkout.js payment handler payload:
