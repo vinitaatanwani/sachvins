@@ -84,8 +84,8 @@ const TABS = [
 export function BottomTabBar() {
   const pathname = usePathname();
 
-  // Immersive full-screen views (meditation + EFT players) hide the tab bar.
-  if (/^\/app\/(meditate|eft)\/.+/.test(pathname)) return null;
+  // Immersive full-screen views (e.g. the meditation player) hide the tab bar.
+  if (/^\/app\/meditate\/.+/.test(pathname)) return null;
 
   return (
     <nav
