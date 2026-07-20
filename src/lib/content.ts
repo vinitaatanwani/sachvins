@@ -182,6 +182,18 @@ export const MEDITATIONS: MeditationTrack[] = [
     membersOnly: true,
     steps: [],
   },
+  {
+    id: "clearing-making-space",
+    title: "Clearing — Making Space",
+    timeOfDay: "any",
+    durationMin: 11,
+    focusAreas: ["emotional_world", "spirituality", "self_worth", "relationships", "focus_attention", "career_purpose"],
+    nervousSystemStates: ["regulated", "fight_flight", "freeze_fawn"],
+    description: "Let go of what you've been carrying and make room inside — a clearing meditation in Vinita's voice.",
+    audioSrc: "/meditations/clearing-making-space.m4a",
+    membersOnly: true,
+    steps: [],
+  },
 ];
 
 // PRD 4.5 — Sound frequency module. Generated live via the Web Audio API
